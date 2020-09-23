@@ -1,20 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MenuSystem
 {
+    public enum MenuLevel
+    {
+        Level0, // 0
+        Level1, // 1
+        Level2Plus // 2
+    }
+
     public class Menu
     {
-        public List<MenuItem> MenuItems { get; set; }
+        public List<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
+        private readonly MenuLevel _menuLevel;
 
-        public Menu()
+        public Menu(MenuLevel level)
         {
-            MenuItems = new List<MenuItem>();
-            
-            MenuItems.Add(new MenuItem("New game human vs human", "1"));
-            MenuItems.Add(new MenuItem("New game human vs AI", "2"));
-            MenuItems.Add(new MenuItem("New game AI vs AI", "3"));
+            _menuLevel = level;
         }
+
         public void RunMenu()
         {
             var userChoice = "";
@@ -27,33 +33,43 @@ namespace MenuSystem
                 {
                     Console.WriteLine(menuItem);
                 }
-                
-                Console.WriteLine("L) Load game");
-                Console.WriteLine("X) Exit");
+
+                switch (_menuLevel)
+                {
+                    case MenuLevel.Level0:
+                        Console.WriteLine("X) Exit");
+                        break;
+                    case MenuLevel.Level1:
+                        Console.WriteLine("R) Return to main");
+                        Console.WriteLine("X) Exit");
+                        break;
+                    case MenuLevel.Level2Plus:
+                        Console.WriteLine("P) Return to previous");
+                        Console.WriteLine("R) Return to main");
+                        Console.WriteLine("X) Exit");
+                        break;
+                    default:
+                        throw new Exception("Unknown menu depth!");
+                }
+
                 Console.Write(">");
 
                 userChoice = Console.ReadLine()?.ToLower().Trim() ?? "";
 
-                switch (userChoice)
+                if (userChoice == "x")
                 {
-                    case "1":
-                        Console.WriteLine("Not implemented yet..");
-                        break;
-                    case "2":
-                        Console.WriteLine("Not implemented yet..");
-                        break;
-                    case "3":
-                        Console.WriteLine("Not implemented yet..");
-                        break;
-                    case "l":
-                        Console.WriteLine("Not implemented yet..");
-                        break;
-                    case "x":
-                        Console.WriteLine("Closing...");
-                        break;
-                    default:
-                        Console.WriteLine("No such option.");
-                        break;
+                    Console.WriteLine("Closing...");
+                    break;
+                }
+
+                var userMenuItem = MenuItems.FirstOrDefault(t => t.UserChoice == userChoice);
+                if (userMenuItem != null)
+                {
+                    userMenuItem.MethodToExecute();
+                }
+                else
+                {
+                    Console.WriteLine("No such option.");
                 }
             } while (userChoice != "x");
         }
