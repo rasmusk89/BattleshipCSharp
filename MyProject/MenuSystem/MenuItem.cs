@@ -2,23 +2,24 @@
 
 namespace MenuSystem
 {
-    public class MenuItem
+    // public delegate string MenuActionType();  == Func<string>
+    public sealed class MenuItem
     {
-        public virtual string Label { get; set; }
-        public virtual string UserChoice { get; set; }
+        public string Label { get; set; }
+        public string UserChoice { get; set; }
 
-        public virtual Action MethodToExecute { get; set; }
+        public Func<string> MethodToExecute { get; set; }
 
-        public MenuItem(string label, string userChoice, Action methodToExecute)
+        public MenuItem(string label, string userChoice, Func<string> methodToExecute)
         {
-            Label = label;
-            UserChoice = userChoice;
+            Label = label.Trim();
+            UserChoice = userChoice.Trim().ToLower();
             MethodToExecute = methodToExecute;
         }
 
         public override string ToString()
         {
-            return UserChoice + ") " + Label;
+            return UserChoice.ToUpper() + ") " + Label;
         }
     }
 }
