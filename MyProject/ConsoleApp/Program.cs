@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using GameBrain;
+using GameConsoleUI;
 using MenuSystem;
 
 namespace ConsoleApp
@@ -18,7 +20,7 @@ namespace ConsoleApp
 
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Go to Level1", "A", menuB.RunMenu));
-            menu.AddMenuItem(new MenuItem("New Game Human vs Human", "1", DefaultMenuAction));
+            menu.AddMenuItem(new MenuItem("New Game TicTacToe", "1", TicTacToe));
             menu.AddMenuItem(new MenuItem("New Game Human vs AI", "2", DefaultMenuAction));
             menu.AddMenuItem(new MenuItem("New Game AI vs AI", "3", DefaultMenuAction));
 
@@ -30,5 +32,13 @@ namespace ConsoleApp
             Console.WriteLine("Not implemented yet!");
             return "";
         }
+        
+        private static string TicTacToe()
+        {
+            var game = new TicTacToe();
+            TicTacToeConsoleUi.DrawBoard(game.GetBoard());
+            return "";
+        }
+        
     }
 }
