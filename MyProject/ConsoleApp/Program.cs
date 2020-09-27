@@ -10,20 +10,26 @@ namespace ConsoleApp
     {
         private static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("=====> RASKIL GAME <=====");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+
 
             var menuE = new Menu(MenuLevel.Level2Plus);
+            menuE.AddMenuItem(new MenuItem("Default", "1", DefaultMenuAction));
             menuE.AddMenuItem(new MenuItem("Go to Level5", "A", DefaultMenuAction));
 
             var menuD = new Menu(MenuLevel.Level2Plus);
+            menuD.AddMenuItem(new MenuItem("Default", "1", DefaultMenuAction));
             menuD.AddMenuItem(new MenuItem("Go to Level4", "A", menuE.RunMenu));
 
             var menuC = new Menu(MenuLevel.Level2Plus);
+            menuC.AddMenuItem(new MenuItem("Default", "1", DefaultMenuAction));
             menuC.AddMenuItem(new MenuItem("Go to Level3", "A", menuD.RunMenu));
 
             var menuB = new Menu(MenuLevel.Level1);
+            menuB.AddMenuItem(new MenuItem("Default", "1", DefaultMenuAction));
             menuB.AddMenuItem(new MenuItem("Go to Level2", "A", menuC.RunMenu));
-            menuB.AddMenuItem(new MenuItem("Do something", "1", DefaultMenuAction));
 
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Go to Level1", "A", menuB.RunMenu));
@@ -36,7 +42,10 @@ namespace ConsoleApp
 
         private static string DefaultMenuAction()
         {
-            Console.WriteLine("Not implemented yet!");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\nNot implemented yet!");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+
             return "";
         }
         

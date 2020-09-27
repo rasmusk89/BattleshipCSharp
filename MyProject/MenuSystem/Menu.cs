@@ -36,26 +36,32 @@ namespace MenuSystem
 
         public string RunMenu()
         {
+            Console.CursorVisible = false;
             var userChoice = "";
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             do
             {
-                Console.WriteLine("");
-
                 switch (_menuLevel)
                 {
                     case MenuLevel.Level0:
-                        Console.WriteLine("==> MAIN MENU <==");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("\n==> MAIN MENU <==");
                         Console.WriteLine("----------------------");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+
                         break;
                     case MenuLevel.Level1:
-                        Console.WriteLine("==> MENU 1 <==");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("\n==> MENU 1 <==");
                         Console.WriteLine("----------------------");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         break;
                     case MenuLevel.Level2Plus:
-                        Console.WriteLine("==> SUB MENU <==");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("\n==> SUB MENU <==");
                         Console.WriteLine("----------------------");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         break;
                     default:
                         break;
@@ -96,25 +102,17 @@ namespace MenuSystem
                     }
                     else
                     {
-                        Console.WriteLine("");
-                        Console.WriteLine("No such option.Please try again!");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nNo such option, please try again!");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                     }
                 }
-
+                
                 if (userChoice == "x")
                 {
                     if (_menuLevel == MenuLevel.Level0)
                     {
-                        Console.WriteLine("Closing...");
-                    }
-
-                    break;
-                }
-
-                if (userChoice == "x")
-                {
-                    if (_menuLevel == MenuLevel.Level0)
-                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Closing...");
                     }
 
@@ -130,6 +128,7 @@ namespace MenuSystem
                 userChoice = "";
                 break;
             } while (true);
+
 
 
             return userChoice;
