@@ -15,7 +15,7 @@ namespace MenuSystem
     {
         private readonly MenuLevel _menuLevel;
 
-        private readonly string[] reservedActions = new[] {"x", "m", "p"};
+        private readonly string[] _reservedActions = {"x", "m", "p"};
 
         private Dictionary<string, MenuItem> MenuItems { get; set; } = new Dictionary<string, MenuItem>();
 
@@ -23,7 +23,6 @@ namespace MenuSystem
         {
             _menuLevel = level;
         }
-
 
         public void AddMenuItem(MenuItem item)
         {
@@ -35,13 +34,32 @@ namespace MenuSystem
             MenuItems.Add(item.UserChoice, item);
         }
 
-        public string RunMenu() // Needs to be of type Func<string>
+        public string RunMenu()
         {
             var userChoice = "";
+            Console.ForegroundColor = ConsoleColor.Cyan;
 
             do
             {
                 Console.WriteLine("");
+
+                switch (_menuLevel)
+                {
+                    case MenuLevel.Level0:
+                        Console.WriteLine("==> MAIN MENU <==");
+                        Console.WriteLine("----------------------");
+                        break;
+                    case MenuLevel.Level1:
+                        Console.WriteLine("==> MENU 1 <==");
+                        Console.WriteLine("----------------------");
+                        break;
+                    case MenuLevel.Level2Plus:
+                        Console.WriteLine("==> SUB MENU <==");
+                        Console.WriteLine("----------------------");
+                        break;
+                    default:
+                        break;
+                }
 
                 foreach (var menuItem in MenuItems)
                 {
@@ -70,7 +88,7 @@ namespace MenuSystem
 
                 userChoice = Console.ReadLine()?.ToLower().Trim() ?? "";
 
-                if (!reservedActions.Contains(userChoice))
+                if (!_reservedActions.Contains(userChoice))
                 {
                     if (MenuItems.TryGetValue(userChoice, out var userMenuItem))
                     {
@@ -78,8 +96,19 @@ namespace MenuSystem
                     }
                     else
                     {
+                        Console.WriteLine("");
                         Console.WriteLine("No such option.Please try again!");
                     }
+                }
+
+                if (userChoice == "x")
+                {
+                    if (_menuLevel == MenuLevel.Level0)
+                    {
+                        Console.WriteLine("Closing...");
+                    }
+
+                    break;
                 }
 
                 if (userChoice == "x")
@@ -97,11 +126,11 @@ namespace MenuSystem
                     break;
                 }
 
-                if (_menuLevel == MenuLevel.Level2Plus && userChoice == "p")
-                {
-                    break;
-                }
+                if (_menuLevel != MenuLevel.Level2Plus || userChoice != "p") continue;
+                userChoice = "";
+                break;
             } while (true);
+
 
             return userChoice;
         }

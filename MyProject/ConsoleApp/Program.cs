@@ -12,7 +12,14 @@ namespace ConsoleApp
         {
             Console.WriteLine("=====> RASKIL GAME <=====");
 
+            var menuE = new Menu(MenuLevel.Level2Plus);
+            menuE.AddMenuItem(new MenuItem("Go to Level5", "A", DefaultMenuAction));
+
+            var menuD = new Menu(MenuLevel.Level2Plus);
+            menuD.AddMenuItem(new MenuItem("Go to Level4", "A", menuE.RunMenu));
+
             var menuC = new Menu(MenuLevel.Level2Plus);
+            menuC.AddMenuItem(new MenuItem("Go to Level3", "A", menuD.RunMenu));
 
             var menuB = new Menu(MenuLevel.Level1);
             menuB.AddMenuItem(new MenuItem("Go to Level2", "A", menuC.RunMenu));
