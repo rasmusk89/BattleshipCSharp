@@ -8,7 +8,7 @@ namespace MenuSystem
         public string Label { get; set; }
         public string UserChoice { get; set; }
 
-        public Func<string> MethodToExecute { get; set; }
+        public Func<string>? MethodToExecute { get; set; }
 
         public MenuItem(string label, string userChoice, Func<string> methodToExecute)
         {

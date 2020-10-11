@@ -4,18 +4,16 @@ using System.Linq;
 
 namespace MenuSystem
 {
-    public enum MenuLevel
-    {
-        Level0,
-        Level1,
-        Level2Plus
-    }
-
     public class Menu
     {
         private readonly MenuLevel _menuLevel;
 
         private readonly string[] _reservedActions = {"x", "m", "p"};
+
+        private static string _inputWarning = "";
+        
+        
+
 
         private Dictionary<string, MenuItem> MenuItems { get; set; } = new Dictionary<string, MenuItem>();
 
@@ -28,7 +26,16 @@ namespace MenuSystem
         {
             if (item.UserChoice == "")
             {
-                throw new ArgumentException($"UserChoice can not be empty.");
+                throw new ArgumentException("UserChoice can not be empty.");
+            }
+            if (_reservedActions.Contains(item.UserChoice))
+            {
+                throw new Exception($"Cannot add \"{item.UserChoice}\" as user choice!");
+            }
+
+            if (MenuItems.ContainsKey(item.UserChoice))
+            {
+                throw new Exception($"User choice \"{item.UserChoice}\" already in use!");
             }
 
             MenuItems.Add(item.UserChoice, item);
@@ -36,37 +43,14 @@ namespace MenuSystem
 
         public string RunMenu()
         {
-            Console.CursorVisible = false;
-            var userChoice = "";
-            Console.ForegroundColor = ConsoleColor.Cyan;
-
+            string? userChoice;
             do
             {
-                switch (_menuLevel)
-                {
-                    case MenuLevel.Level0:
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("\n==> MAIN MENU <==");
-                        Console.WriteLine("----------------------");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-
-                        break;
-                    case MenuLevel.Level1:
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("\n==> MENU 1 <==");
-                        Console.WriteLine("----------------------");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        break;
-                    case MenuLevel.Level2Plus:
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("\n==> SUB MENU <==");
-                        Console.WriteLine("----------------------");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        break;
-                    default:
-                        break;
-                }
-
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(_inputWarning);
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                _inputWarning = "";
+                
                 foreach (var menuItem in MenuItems)
                 {
                     Console.WriteLine(menuItem.Value);
@@ -75,39 +59,37 @@ namespace MenuSystem
                 switch (_menuLevel)
                 {
                     case MenuLevel.Level0:
-                        Console.WriteLine("X) eXit");
+                        Console.WriteLine($"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
                         break;
                     case MenuLevel.Level1:
-                        Console.WriteLine("M) return to Main");
-                        Console.WriteLine("X) eXit");
+                        Console.WriteLine($"{FixedMenuChoices.MainUserChoice.ToUpper()}) {FixedMenuChoices.MainLabel}");
+                        Console.WriteLine($"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
                         break;
                     case MenuLevel.Level2Plus:
-                        Console.WriteLine("P) return to Previous");
-                        Console.WriteLine("M) return to Main");
-                        Console.WriteLine("X) eXit");
+                        Console.WriteLine($"{FixedMenuChoices.PreviousUserChoice.ToUpper()}) {FixedMenuChoices.PreviousLabel}");
+                        Console.WriteLine($"{FixedMenuChoices.MainUserChoice.ToUpper()}) {FixedMenuChoices.MainLabel}");
+                        Console.WriteLine($"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
+
                         break;
                     default:
                         throw new Exception("Unknown menu depth!");
                 }
-
+                
                 Console.Write(">");
-
                 userChoice = Console.ReadLine()?.ToLower().Trim() ?? "";
 
                 if (!_reservedActions.Contains(userChoice))
                 {
                     if (MenuItems.TryGetValue(userChoice, out var userMenuItem))
                     {
-                        userChoice = userMenuItem.MethodToExecute();
+                        userChoice = userMenuItem.MethodToExecute?.Invoke();
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\nNo such option, please try again!");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        _inputWarning = "\nNo such option, please try again!";
                     }
                 }
-                
+
                 if (userChoice == "x")
                 {
                     if (_menuLevel == MenuLevel.Level0)
@@ -128,8 +110,6 @@ namespace MenuSystem
                 userChoice = "";
                 break;
             } while (true);
-
-
 
             return userChoice;
         }

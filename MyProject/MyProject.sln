@@ -10,10 +10,6 @@ ProjectSection(SolutionItems) = preProject
 	.gitignor = .gitignore
 EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameBrain", "GameBrain\GameBrain.csproj", "{4A1F6F6D-F9C9-4248-959A-805B0B8ECF9F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameConsoleUI", "GameConsoleUI\GameConsoleUI.csproj", "{F43249E1-8DB8-4DEC-873A-76FB8CC9FB7B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,13 +24,5 @@ Global
 		{817AE671-2954-449B-AE68-1B69CD25F4B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{817AE671-2954-449B-AE68-1B69CD25F4B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{817AE671-2954-449B-AE68-1B69CD25F4B6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A1F6F6D-F9C9-4248-959A-805B0B8ECF9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A1F6F6D-F9C9-4248-959A-805B0B8ECF9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A1F6F6D-F9C9-4248-959A-805B0B8ECF9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A1F6F6D-F9C9-4248-959A-805B0B8ECF9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F43249E1-8DB8-4DEC-873A-76FB8CC9FB7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F43249E1-8DB8-4DEC-873A-76FB8CC9FB7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F43249E1-8DB8-4DEC-873A-76FB8CC9FB7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F43249E1-8DB8-4DEC-873A-76FB8CC9FB7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
