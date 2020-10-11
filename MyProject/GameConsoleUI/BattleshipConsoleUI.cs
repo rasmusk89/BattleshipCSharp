@@ -14,6 +14,8 @@ namespace GameConsoleUI
             var height = board.GetUpperBound(1) + 1; // y
 
             Console.Write("  ");
+            
+            // Need to figure out what to do if board size is bigger than number of letters.
             for (var i = 0; i < width; i++)
             {
                 Console.Write($"{Letters[i]} ");

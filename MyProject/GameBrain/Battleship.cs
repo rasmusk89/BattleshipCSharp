@@ -7,8 +7,8 @@ namespace GameBrain
         private static int _width = 8;
         private static int _height = 8;
         
-        private CellState[,] _board = new CellState[_width, _height];
-        private bool _nextMoveByPlayerA = true;
+        private readonly CellState[,] _board = new CellState[_width, _height];
+        public bool NextMoveByPlayerA = true;
 
         public CellState[,] GetBoard()
         {
@@ -17,5 +17,13 @@ namespace GameBrain
             return res;
         }
         
+        public bool MakeAMove(int x, int y)
+        {
+            if (_board[x, y] != CellState.Empty) return false;
+            _board[x, y] = CellState.X;
+            NextMoveByPlayerA = !NextMoveByPlayerA;
+            return true;
+        }
+      
     }
 }
