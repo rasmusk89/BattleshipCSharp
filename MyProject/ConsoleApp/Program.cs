@@ -1,5 +1,7 @@
 ﻿using System;
 using MenuSystem;
+using GameBrain;
+using GameConsoleUI;
 
 namespace ConsoleApp
 {
@@ -21,6 +23,7 @@ namespace ConsoleApp
             menuB.AddMenuItem(new MenuItem("Go to Level2", "A", menuC.RunMenu));
 
             var menu = new Menu(MenuLevel.Level0);
+            menu.AddMenuItem(new MenuItem("Battleship", "B", Battleship));
             menu.AddMenuItem(new MenuItem("Go to Level1", "A", menuB.RunMenu));
 
             menu.RunMenu();
@@ -33,6 +36,16 @@ namespace ConsoleApp
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             return "";
+        }
+
+        private static string Battleship()
+        {
+            var game = new Battleship();
+            
+            BattleshipConsoleUI.DrawBoard(game.GetBoard());
+
+            return "";
+
         }
     }
 }

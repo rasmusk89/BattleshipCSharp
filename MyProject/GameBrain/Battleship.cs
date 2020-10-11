@@ -4,15 +4,18 @@ namespace GameBrain
 {
     public class Battleship
     {
-        private int _width;
-        private int _height;
+        private static int _width = 8;
+        private static int _height = 8;
+        
+        private CellState[,] _board = new CellState[_width, _height];
+        private bool _nextMoveByPlayerA = true;
 
-        public bool NextMoveByPlayerA = true;
-
-        public Battleship(int width, int height)
+        public CellState[,] GetBoard()
         {
-            _width = width;
-            _height = height;
+            var res = new CellState[_width,_height];
+            Array.Copy(_board, res, _board.Length );
+            return res;
         }
+        
     }
 }
