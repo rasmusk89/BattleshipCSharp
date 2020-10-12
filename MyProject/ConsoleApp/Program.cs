@@ -41,28 +41,17 @@ namespace ConsoleApp
 
         private static string Battleship()
         {
-            
             var game = new Battleship();
-            
-            BattleshipConsoleUI.DrawBoard(game.GetBoard());
-            
-            var menu = new Menu(MenuLevel.Level1);
-            menu.AddMenuItem(new MenuItem(
-                $"Set game board size or default(8x8)",
+
+            var playGame = new Menu(MenuLevel.Level1);
+            playGame.AddMenuItem(new MenuItem(
+                $"Player {(game.NextMoveByPlayerA  ? "A" : "B")} make a move",
                 userChoice: "1",
                 () =>
                 {
-                    var (x, y) = SetGameBoardSize(game);
-                    game.MakeAMove(x, y);
-                    BattleshipConsoleUI.DrawBoard(game.GetBoard());
-                    return "";
-                })
-            );
-            menu.AddMenuItem(new MenuItem(
-                $"Player {(game.NextMoveByPlayerA ? "A" : "B")} make a move",
-                userChoice: "2",
-                () =>
-                {
+                    var playerABoard = game.GetBoard();
+                    var playerBBoard = game.GetBoard();
+                    
                     var (x, y) = GetMoveCoordinates(game);
                     game.MakeAMove(x, y);
                     BattleshipConsoleUI.DrawBoard(game.GetBoard());
@@ -70,43 +59,53 @@ namespace ConsoleApp
                 })
             );
 
+            var menu = new Menu(MenuLevel.Level1);
+            menu.AddMenuItem(new MenuItem(
+                $"Start Battleship game!",
+                userChoice: "1",
+                () =>
+                {
+                    SetGameBoardSize(game);
+                    BattleshipConsoleUI.DrawBoard(game.GetBoard());
+                    playGame.RunMenu();
+                    return "";
+                })
+            );
+            
             var userChoice = menu.RunMenu();
 
-
             return userChoice;
-
         }
 
-        private static (int x, int y) SetGameBoardSize(Battleship game)
+        private static void SetGameBoardSize(Battleship game)
         {
             // Set the game board size...
-            
-            return (1, 2);
+            Console.Write("Choose game board size (5 - 26): ");
+            string size = Console.ReadLine() ?? "8";
+            if (size == "")
+            {
+                size = "8";
+            }
+
+            GameBrain.Battleship.SetSize(int.Parse(size));
         }
-        
+
         private static (int x, int y) GetMoveCoordinates(Battleship game)
         {
             
-            Console.Write("Give bomb coordinates: ");
+            Console.Write("Give bomb coordinates separated with comma (example - A,1): ");
 
-            string userInput = Console.ReadLine();
-            
-            var userValues = userInput!.ToCharArray();
+            var userInput = Console.ReadLine().Split(",");
 
-            var x = (int)char.GetNumericValue(userValues[0]) - 1;
-            var y = (int)char.GetNumericValue(userValues[1]) - 1;
+            var x = char.Parse(userInput[0].ToUpper()) - 65;
+            var y = int.Parse(userInput[1]) - 1;
             
             Console.WriteLine(x);
             Console.WriteLine(y);
 
-            return (x, y);
+            return (y, x);
         }
 
-        private static bool ValidateCoordinates(string coordinates, int width, int height)
-        {
-            char[] arrayOfCoordinates = coordinates.ToCharArray();
-
-            return arrayOfCoordinates.Length == 2;
-        }
     }
+    
 }
