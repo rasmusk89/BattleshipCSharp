@@ -98,6 +98,7 @@ namespace MenuSystem
                         Console.WriteLine("Closing...");
                     }
 
+                    userChoice = "x";
                     break;
                 }
 

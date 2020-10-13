@@ -6,16 +6,14 @@ namespace GameConsoleUI
     public static class BattleshipConsoleUI
     {
         private static readonly char[] Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-        public static int Numbers = 1;
 
         public static void DrawBoard(CellState[,] board)
         {
-            var width = board.GetUpperBound(0) + 1; // x
-            var height = board.GetUpperBound(1) + 1; // y
+            var width = board.GetUpperBound(0) + 1;
+            var height = board.GetUpperBound(1) + 1;
 
             Console.Write("   ");
             
-            // Need to figure out what to do if board size is bigger than number of letters.
             for (var i = 0; i < width; i++)
             {
                 Console.Write($"{Letters[i]} ");
