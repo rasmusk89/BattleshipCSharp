@@ -44,28 +44,41 @@ namespace ConsoleApp
             var game = new Battleship();
             
             var menu = new Menu(MenuLevel.Level1);
+            
+            var playGame = new Menu(MenuLevel.Level1);
+            playGame.AddMenuItem(new MenuItem(
+                $"Player {(game.NextMoveByPlayerA ? "A" : "B")} make a move",
+                userChoice: "1",
+                () =>
+                {
+                    var (x, y) = GameBrain.Battleship.GetMoveCoordinates();
+                    game.MakeAMove(x, y);
+                    BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA ? GameBrain.Battleship.GetBoardA() : GameBrain.Battleship.GetBoardB());
+                    return "";
+                })
+            );
+            
             menu.AddMenuItem(new MenuItem(
                 $"Start Battleship game!",
                 userChoice: "1",
                 () =>
                 {
                     BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA ? GameBrain.Battleship.GetBoardA() : GameBrain.Battleship.GetBoardB());
-                    var playGame = new Menu(MenuLevel.Level1);
-                    playGame.AddMenuItem(new MenuItem(
-                        $"Player {(game.NextMoveByPlayerA ? "A" : "B")} make a move",
-                        userChoice: "1",
-                        () =>
-                        {
-                            var (x, y) = GameBrain.Battleship.GetMoveCoordinates();
-                            game.MakeAMove(x, y);
-                            BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA ? GameBrain.Battleship.GetBoardA() : GameBrain.Battleship.GetBoardB());
-                            return "";
-                        })
-                    );
-                    
                     playGame.RunMenu();
                     return "";
                 })
+            );
+            
+            playGame.AddMenuItem(new MenuItem(
+                $"Save game",
+                userChoice: "s",
+                () => GameBrain.Battleship.SaveGameAction(game))
+            );
+
+            menu.AddMenuItem(new MenuItem(
+                $"Load game",
+                userChoice: "l",
+                () => GameBrain.Battleship.LoadGameAction(game))
             );
 
             var userChoice = menu.RunMenu();
