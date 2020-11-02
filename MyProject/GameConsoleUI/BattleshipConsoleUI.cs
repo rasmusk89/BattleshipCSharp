@@ -26,7 +26,7 @@ namespace GameConsoleUI
                 Console.Write(i < 9 ? $" {(i + 1).ToString()} " : $"{(i + 1).ToString()} ");
                 for (var j = 0; j < width; j++)
                 {
-                    Console.Write($"{CellString(board[i,j])} ");
+                    Console.Write($"{CellString(board[j,i])} ");
                 }
                 Console.Write($"{(i + 1).ToString()}");
                 Console.WriteLine();

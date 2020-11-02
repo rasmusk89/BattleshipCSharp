@@ -69,7 +69,6 @@ namespace MenuSystem
                         Console.WriteLine($"{FixedMenuChoices.PreviousUserChoice.ToUpper()}) {FixedMenuChoices.PreviousLabel}");
                         Console.WriteLine($"{FixedMenuChoices.MainUserChoice.ToUpper()}) {FixedMenuChoices.MainLabel}");
                         Console.WriteLine($"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
-
                         break;
                     default:
                         throw new Exception("Unknown menu depth!");

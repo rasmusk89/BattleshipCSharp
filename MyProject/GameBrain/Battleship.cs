@@ -7,48 +7,63 @@ namespace GameBrain
     public class Battleship
     {
         private static readonly char[] Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-        private const int Size = 10;
-        private static CellState[,] _boardA = new CellState[Size, Size];
-        private static CellState[,] _boardB = new CellState[Size, Size];
 
+        private static CellState[,]? _boardA;
+        private static CellState[,]? _boardB;
+
+        private static int _height;
+        private static int _width;
+        
         public bool NextMoveByPlayerA = true;
+
+        public Battleship(int height, int width)
+        {
+            _height = height;
+            _width = width;
+        }
+
+        public Battleship()
+        {
+            _height = 10;
+            _width = 10;
+        }
 
         public static CellState[,] GetBoardA()
         {
-            var board = new CellState[Size, Size];
-            Array.Copy(_boardA, board, _boardA.Length);
-            return board;
+            _boardA = new CellState[_height, _width];
+            
+            return _boardA;
         }
-
+        
         public static CellState[,] GetBoardB()
         {
-            var board = new CellState[Size, Size];
-            Array.Copy(_boardB, board, _boardB.Length);
-            return board;
+            _boardB = new CellState[_height, _width];
+            
+            return _boardB;
         }
 
         public void MakeAMove(int x, int y)
         {
             if (NextMoveByPlayerA)
             {
-                if (_boardA[x, y] != CellState.Empty)
+                if (_boardA != null && _boardA[x, y] != CellState.Empty)
                 {
                     Console.WriteLine("Bomb has already placed there. Choose another coordinate!");
                     return;
                 }
 
-                _boardA[x, y] = CellState.X;
+                if (_boardA != null) _boardA[x, y] = CellState.X;
                 NextMoveByPlayerA = !NextMoveByPlayerA;
             }
             else
             {
-                if (_boardB[x, y] != CellState.Empty)
+                if (_boardB != null && _boardB[x, y] != CellState.Empty)
                 {
                     Console.WriteLine("Bomb has already placed there. Choose another coordinate!");
                     return;
                 }
 
-                _boardB[x, y] = CellState.X;
+                if (_boardB != null) _boardB[x, y] = CellState.X;
                 NextMoveByPlayerA = true;
             }
         }
@@ -81,7 +96,7 @@ namespace GameBrain
                 {
                     Console.WriteLine("Please enter correct coordinate");
                 }
-                else if (int.Parse(userInput[1]) < 1 || int.Parse(userInput[1]) > Size)
+                else if (int.Parse(userInput[1]) < 1 || int.Parse(userInput[1]) > _height)
                 {
                     Console.WriteLine("Please enter correct coordinate");
                 }
@@ -99,72 +114,73 @@ namespace GameBrain
             var state = new GameState
             {
                 NextMoveByPlayerA = NextMoveByPlayerA,
-                Size = Size
+                Width = _width,
+                Height = _height
             };
-
-            state.BoardA = new CellState[state.Size][];
-
+        
+            state.BoardA = new CellState[state.Width][];
+        
             for (var i = 0; i < state.BoardA.Length; i++)
             {
-                state.BoardA[i] = new CellState[state.Size];
+                state.BoardA[i] = new CellState[state.Width];
             }
-
-            for (var x = 0; x < state.Size; x++)
+        
+            for (var x = 0; x < state.Width; x++)
             {
-                for (var y = 0; y < state.Size; y++)
+                for (var y = 0; y < state.Height; y++)
                 {
-                    state.BoardA[x][y] = _boardA[x, y];
+                    state.BoardA[x][y] = _boardA![x, y];
                 }
             }
-
-            state.BoardB = new CellState[state.Size][];
-
+        
+            state.BoardB = new CellState[state.Width][];
+        
             for (var i = 0; i < state.BoardB.Length; i++)
             {
-                state.BoardB[i] = new CellState[state.Size];
+                state.BoardB[i] = new CellState[state.Width];
             }
-
-            for (var x = 0; x < state.Size; x++)
+        
+            for (var x = 0; x < state.Width; x++)
             {
-                for (var y = 0; y < state.Size; y++)
+                for (var y = 0; y < state.Height; y++)
                 {
-                    state.BoardB[x][y] = _boardB[x, y];
+                    state.BoardB[x][y] = _boardB![x, y];
                 }
             }
-
+        
             var jsonOptions = new JsonSerializerOptions
             {
                 WriteIndented = true
             };
             return JsonSerializer.Serialize(state, jsonOptions);
         }
-
+        
         private void SetGameStateFromJsonString(string jsonString)
         {
             var state = JsonSerializer.Deserialize<GameState>(jsonString);
-
+        
             // restore actual state from deserialized state
             NextMoveByPlayerA = state.NextMoveByPlayerA;
-            _boardA = new CellState[state.Size, state.Size];
-            _boardB = new CellState[state.Size, state.Size];
-
-            for (var x = 0; x < state.Size; x++)
+            _boardA = new CellState[state.Height, state.Width];
+            _boardB = new CellState[state.Height, state.Width];
+        
+            for (var x = 0; x < state.Height; x++)
             {
-                for (var y = 0; y < state.Size; y++)
+                for (var y = 0; y < state.Width; y++)
                 {
                     _boardA[x, y] = state.BoardA[x][y];
                 }
             }
-
-            for (var x = 0; x < state.Size; x++)
+        
+            for (var x = 0; x < state.Height; x++)
             {
-                for (var y = 0; y < state.Size; y++)
+                for (var y = 0; y < state.Width; y++)
                 {
                     _boardB[x, y] = state.BoardB[x][y];
                 }
             }
         }
-
+        
         public static string SaveGameAction(Battleship game)
         {
             // 2020-10-12
@@ -175,15 +191,15 @@ namespace GameBrain
             {
                 fileName = defaultName;
             }
-
-
+        
+        
             var serializedGame = game.GetSerializedGameState();
-
+        
             System.IO.File.WriteAllText(fileName, serializedGame);
-
+        
             return "";
         }
-
+        
         public static string LoadGameAction(Battleship game)
         {
             var files = System.IO.Directory.EnumerateFiles(".", "*.json").ToList();
@@ -191,16 +207,16 @@ namespace GameBrain
             {
                 Console.WriteLine($"{i} - {files[i]}");
             }
-
+        
             var fileNo = Console.ReadLine();
             var fileName = files[int.Parse(fileNo!.Trim())];
-
+        
             var jsonString = System.IO.File.ReadAllText(fileName);
-
+        
             game.SetGameStateFromJsonString(jsonString);
-
+        
             // BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA ? GetBoardA() : GetBoardB());
-
+        
             return "";
         }
     }
