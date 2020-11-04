@@ -11,14 +11,16 @@ namespace GameConsoleUI
         {
             var width = board.GetUpperBound(0) + 1;
             var height = board.GetUpperBound(1) + 1;
-
-            Console.Write("   ");
             
+             Console.Write("   ");
+            
+            // First line
             for (var i = 0; i < width; i++)
             {
                 Console.Write($"{Letters[i]} ");
             }
 
+            // Middle part
             Console.WriteLine();
 
             for (var i = 0; i < height; i++)
@@ -32,6 +34,7 @@ namespace GameConsoleUI
                 Console.WriteLine();
             }
 
+            // Last line
             Console.Write("   ");
             for (var i = 0; i < width; i++)
             {
@@ -40,6 +43,7 @@ namespace GameConsoleUI
             }
 
             Console.WriteLine();
+
         }
 
         private static string CellString(CellState cellState)

@@ -16,20 +16,195 @@ namespace ConsoleApp
                               "+---------------------------+");
             Console.ForegroundColor = ConsoleColor.Cyan;
 
-
-            var menuC = new Menu(MenuLevel.Level2Plus);
-
-            var menuB = new Menu(MenuLevel.Level1);
-
-            menuB.AddMenuItem(new MenuItem("Go to Level2", "A", menuC.RunMenu));
-
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Battleship", "B", Battleship));
-            menu.AddMenuItem(new MenuItem("Go to Level1", "A", menuB.RunMenu));
 
             menu.RunMenu();
         }
 
+        private static string Battleship()
+        {
+            var height = 10;
+            var width = 10;
+            
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("<<<-*-*- BATTLESHIP -*-*->>>");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+
+            var menu = new Menu(MenuLevel.Level1);
+
+            menu.AddMenuItem(new MenuItem(
+                $"Start Game",
+                userChoice: "S",
+                () =>
+                {
+                    var game = new Battleship(height, width);
+
+                    do
+                    {
+                        var nextMoveByA = game.GetNextMove();
+
+                        Console.Clear();
+                        Console.WriteLine();
+                        Console.WriteLine($"...Player {(nextMoveByA ? "A" : "B")} turn...");
+                        Console.WriteLine();
+                        Console.WriteLine($"PLAYER {(nextMoveByA ? "A" : "B")} BOARD");
+                        BattleshipConsoleUI.DrawBoard(nextMoveByA
+                            ? GameBrain.Battleship.GetBoardA()
+                            : GameBrain.Battleship.GetBoardB());
+                        Console.WriteLine();
+                        Console.WriteLine($"PLAYER {(nextMoveByA ? "B" : "A")} BOARD");
+                        BattleshipConsoleUI.DrawBoard(nextMoveByA
+                            ? GameBrain.Battleship.GetBoardB()
+                            : GameBrain.Battleship.GetBoardA());
+
+                        var (x, y) = GameBrain.Battleship.GetMoveCoordinates();
+                        GameBrain.Battleship.MakeAMove(y, x);
+
+                        Console.Clear();
+                        Console.WriteLine();
+                        Console.WriteLine($"...Player {(nextMoveByA ? "A" : "B")} turn...");
+                        Console.WriteLine();
+                        Console.WriteLine($"PLAYER {(nextMoveByA ? "A" : "B")} BOARD");
+                        BattleshipConsoleUI.DrawBoard(nextMoveByA
+                            ? GameBrain.Battleship.GetBoardA()
+                            : GameBrain.Battleship.GetBoardB());
+                        Console.WriteLine();
+                        Console.WriteLine($"PLAYER {(nextMoveByA ? "B" : "A")} BOARD");
+                        BattleshipConsoleUI.DrawBoard(nextMoveByA
+                            ? GameBrain.Battleship.GetBoardB()
+                            : GameBrain.Battleship.GetBoardA());
+                        Console.Write("Press any key to continue...");
+                        Console.ReadLine();
+                        Console.Clear();
+                        Console.Write($"Player {(nextMoveByA ? "B" : "A")}, press any key to make a move...");
+                        Console.ReadLine();
+
+                    } while (true);
+                }
+            ));
+
+            menu.AddMenuItem(new MenuItem(
+                $"Options",
+                userChoice: "O",
+                () =>
+                {
+                    Console.WriteLine("Set the game board height: ");
+                    Console.Write(">");
+
+                    var insertedHeight = Console.ReadLine();
+
+                    Console.WriteLine("Set the game board width: ");
+                    Console.Write(">");
+
+                    var insertedWidth = Console.ReadLine();
+
+                    height = int.Parse(insertedHeight!);
+                    width = int.Parse(insertedWidth!);
+                    return "";
+                })
+            );
+
+            var userChoice = menu.RunMenu();
+
+            return userChoice;
+        }
+
+
+        private static string PlayBattleship()
+        {
+            
+            // var game = new Battleship(width, height);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+
+            // do
+            // {
+            //     var nextMoveByA = GameBrain.Battleship.NextMoveByPlayerA;
+            //
+            //     Console.WriteLine();
+            //     Console.WriteLine($"Player {(nextMoveByA ? "A" : "B")} turn");
+            //     BattleshipConsoleUI.DrawBoard(nextMoveByA
+            //         ? GameBrain.Battleship.GetBoardA()
+            //         : GameBrain.Battleship.GetBoardB());
+            //
+            //     var menu = new Menu(MenuLevel.Level2Plus);
+            //
+            //     menu.AddMenuItem(new MenuItem(
+            //         $"Make a move",
+            //         userChoice: "S",
+            //         () =>
+            //         {
+            //             Console.Write("Give bomb coordinates separated with comma (example - A,1): ");
+            //             var input = Console.ReadLine();
+            //             Console.WriteLine($"Coordinates: {input}");
+            //             return "";
+            //         }
+            //     ));
+            //
+            //
+            // } while (true);
+            
+
+            // BattleshipConsoleUI.DrawBoard(nextMoveByA
+            //     ? GameBrain.Battleship.GetBoardA()
+            //     : GameBrain.Battleship.GetBoardB());
+            //
+            // Console.WriteLine();
+            // Console.WriteLine($"Player {(nextMoveByA ? "A" : "B")} turn");
+
+            // Console.Write("Give bomb coordinates separated with comma (example - A,1): ");
+            // var input = Console.ReadLine();
+
+
+            // MAKE CORRECT GETMOVECOORDINATES AND OTHER METHODS TO GET THE CORRECT COORDINATE!
+            // var (x, y) = GameBrain.Battleship.GetMoveCoordinates(input);
+            // GameBrain.Battleship.MakeAMove(x, y);
+            // Console.WriteLine();
+            // var userChoice = menu.RunMenu();
+
+            return "";
+        }
+        
+        
+
+        //  playGame.AddMenuItem(new MenuItem(
+        //     $"Save game",
+        //     userChoice: "s",
+        //     () => GameBrain.Battleship.SaveGameAction(game))
+        // );
+        //
+        // menu.AddMenuItem(new MenuItem(
+        //     $"Load game",
+        //     userChoice: "l",
+        //     () => GameBrain.Battleship.LoadGameAction(game))
+        // );
+
+        private static string MakeAMove()
+        {
+            
+            return "";
+        }
         private static string DefaultMenuAction()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -39,126 +214,7 @@ namespace ConsoleApp
             return "";
         }
 
-        private static string Battleship()
-        {
-            var NextMoveByPlayerA = true;
-            
-            var menu = new Menu(MenuLevel.Level1);
-
-            menu.AddMenuItem(new MenuItem(
-                $"Start Battleship (Default 10x10 board size)!",
-                userChoice: "1",
-                BattleshipDefaultSize)
-            );
-
-            menu.AddMenuItem(new MenuItem(
-                $"Start Battleship (Set board size)!",
-                userChoice: "2",
-                BattleshipSetSize)
-            );
-            
-
-            /*menu.AddMenuItem(new MenuItem(
-                $"Start Battleship (Set board size)!",
-                userChoice: "2",
-                () =>
-                {
-                    BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA
-                        ? GameBrain.Battleship.GetBoardA()
-                        : GameBrain.Battleship.GetBoardB());
-                    playGame.RunMenu();
-                    return "";
-                })
-            );
-            
-            
-
-            playGame.AddMenuItem(new MenuItem(
-                $"Player {(game.NextMoveByPlayerA ? "A" : "B")} make a move",
-                userChoice: "1",
-                () =>
-                {
-                    var (x, y) = GameBrain.Battleship.GetMoveCoordinates();
-                    game.MakeAMove(x, y);
-                    BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA
-                        ? GameBrain.Battleship.GetBoardA()
-                        : GameBrain.Battleship.GetBoardB());
-                    return "";
-                })
-            );*/
-
-
-            //  playGame.AddMenuItem(new MenuItem(
-            //     $"Save game",
-            //     userChoice: "s",
-            //     () => GameBrain.Battleship.SaveGameAction(game))
-            // );
-            //
-            // menu.AddMenuItem(new MenuItem(
-            //     $"Load game",
-            //     userChoice: "l",
-            //     () => GameBrain.Battleship.LoadGameAction(game))
-            // );
-
-
-            var userChoice = menu.RunMenu();
-
-
-            return userChoice;
-        }
-
-        private static string BattleshipDefaultSize()
-        {
-            var game = new Battleship();
-
-            var playGame = new Menu(MenuLevel.Level2Plus);
-
-            playGame.AddMenuItem(new MenuItem(
-                $"Player {(game.NextMoveByPlayerA ? "A" : "B")} make a move",
-                userChoice: "1",
-                () =>
-                {
-                    var (x, y) = GameBrain.Battleship.GetMoveCoordinates();
-                    Console.WriteLine(x + ", " + y);
-                    game.MakeAMove(x, y);
-                    BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA
-                        ? GameBrain.Battleship.GetBoardA()
-                        : GameBrain.Battleship.GetBoardB());
-                    return "";
-                })
-            );
-
-            BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA
-                ? GameBrain.Battleship.GetBoardA()
-                : GameBrain.Battleship.GetBoardB());
-            playGame.RunMenu();
-            return "";
-        }
-
-        private static string BattleshipSetSize()
-        {
-            Console.WriteLine("Set height: ");
-            Console.Write(">");
-
-            var insertedHeight = Console.ReadLine();
-
-            Console.WriteLine("Set width: ");
-            Console.Write(">");
-
-            var insertedWidth = Console.ReadLine();
-
-            var height = int.Parse(insertedHeight ?? "10");
-            var width = int.Parse(insertedWidth ?? "10");
-
-            var game = new Battleship(width, height);
-
-            var playGame = new Menu(MenuLevel.Level1);
-
-            BattleshipConsoleUI.DrawBoard(game.NextMoveByPlayerA
-                ? GameBrain.Battleship.GetBoardA()
-                : GameBrain.Battleship.GetBoardB());
-            playGame.RunMenu();
-            return "";
-        }
     }
+    
+    
 }
