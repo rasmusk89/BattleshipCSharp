@@ -17,7 +17,28 @@ namespace ConsoleApp
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             var menu = new Menu(MenuLevel.Level0);
-            menu.AddMenuItem(new MenuItem("Battleship", "B", Battleship));
+            // menu.AddMenuItem(new MenuItem("Battleship", "B", Battleship));
+            menu.AddMenuItem(new MenuItem("Battleship", "B",
+                () =>
+                {
+                    Console.Write("Player A, enter your name: ");
+                    string playerAName = Console.ReadLine() ?? "PlayerA";
+
+                    Console.Write("Player B, enter your name: ");
+                    string playerBName = Console.ReadLine() ?? "PlayerB";
+
+                    Console.WriteLine("Set game board height: ");
+                    var height = int.Parse(Console.ReadLine() ?? "10");
+                    
+                    Console.WriteLine("Set game board width: ");
+                    var width = int.Parse(Console.ReadLine() ?? "10");
+                    
+                    Player playerA = new Player(playerAName, width, height);
+                    Player playerB = new Player(playerBName, width, height);
+                    var game = new Game(playerA, playerB);
+                    game.PlayRound();
+                    return "";
+                }));
 
             menu.RunMenu();
         }
@@ -39,49 +60,60 @@ namespace ConsoleApp
                 userChoice: "S",
                 () =>
                 {
-                    var game = new Battleship(height, width);
+                    var game = new Battleship(width, height);
 
                     do
                     {
                         var nextMoveByA = game.GetNextMove();
+                        DrawBattleField(nextMoveByA);
 
-                        Console.Clear();
-                        Console.WriteLine();
-                        Console.WriteLine($"...Player {(nextMoveByA ? "A" : "B")} turn...");
-                        Console.WriteLine();
-                        Console.WriteLine($"PLAYER {(nextMoveByA ? "A" : "B")} BOARD");
-                        BattleshipConsoleUI.DrawBoard(nextMoveByA
-                            ? GameBrain.Battleship.GetBoardA()
-                            : GameBrain.Battleship.GetBoardB());
-                        Console.WriteLine();
-                        Console.WriteLine($"PLAYER {(nextMoveByA ? "B" : "A")} BOARD");
-                        BattleshipConsoleUI.DrawBoard(nextMoveByA
-                            ? GameBrain.Battleship.GetBoardB()
-                            : GameBrain.Battleship.GetBoardA());
+                        Console.Write("Give bomb coordinates separated with comma\n(for example - A,1): ");
+                        string userInput = Console.ReadLine()?? "";
+                        if (userInput.ToLower() == "m")
+                        {
+                           break;
+                        }
 
-                        var (x, y) = GameBrain.Battleship.GetMoveCoordinates();
-                        GameBrain.Battleship.MakeAMove(y, x);
+                        while (!game.CoordinatesAreValid(userInput))
+                        {
+                            Console.Write("Please enter correct coordinates separated with comma\n(for example - A,1): ");
+                            userInput = Console.ReadLine() ?? "";
+                        }
 
-                        Console.Clear();
-                        Console.WriteLine();
-                        Console.WriteLine($"...Player {(nextMoveByA ? "A" : "B")} turn...");
-                        Console.WriteLine();
-                        Console.WriteLine($"PLAYER {(nextMoveByA ? "A" : "B")} BOARD");
-                        BattleshipConsoleUI.DrawBoard(nextMoveByA
-                            ? GameBrain.Battleship.GetBoardA()
-                            : GameBrain.Battleship.GetBoardB());
-                        Console.WriteLine();
-                        Console.WriteLine($"PLAYER {(nextMoveByA ? "B" : "A")} BOARD");
-                        BattleshipConsoleUI.DrawBoard(nextMoveByA
-                            ? GameBrain.Battleship.GetBoardB()
-                            : GameBrain.Battleship.GetBoardA());
-                        Console.Write("Press any key to continue...");
+                        while (game.CellHasBomb(userInput, nextMoveByA))
+                        {
+                            Console.WriteLine("Bomb has already placed there!");
+                            Console.Write("Please enter another coordinates separated with comma\n(for example - A,1): ");
+                            userInput = Console.ReadLine() ?? "";
+                        }
+
+                        var (x, y) = game.GetMoveCoordinates(userInput);
+                        game.MakeAMove(x, y);
+
+                        DrawBattleField(nextMoveByA);
+                        Console.Write("Press ENTER to continue...");
                         Console.ReadLine();
+                        
                         Console.Clear();
-                        Console.Write($"Player {(nextMoveByA ? "B" : "A")}, press any key to make a move...");
+                        Console.Write($"...Player {(nextMoveByA ? "B" : "A")} press ENTER to make your move.");
                         Console.ReadLine();
+
+
+
+                        // DrawBattleField(nextMoveByA);
+                        // Console.Write("Press ENTER to accept move or \"C\" to move again: ");
+                        // userInput = Console.ReadLine() ?? "";
+                        //
+                        // if (userInput.ToLower() == "c")
+                        // {
+                        //     game.RemoveAMove(x,y);
+                        //     DrawBattleField(nextMoveByA);
+                        //     Console.Write("Give bomb coordinates separated with comma\n(for example - A,1): ");
+                        // }
 
                     } while (true);
+
+                    return "";
                 }
             ));
 
@@ -90,12 +122,12 @@ namespace ConsoleApp
                 userChoice: "O",
                 () =>
                 {
-                    Console.WriteLine("Set the game board height: ");
+                    Console.WriteLine("Set the game board width: ");
                     Console.Write(">");
 
                     var insertedHeight = Console.ReadLine();
 
-                    Console.WriteLine("Set the game board width: ");
+                    Console.WriteLine("Set the game board height: ");
                     Console.Write(">");
 
                     var insertedWidth = Console.ReadLine();
@@ -111,100 +143,23 @@ namespace ConsoleApp
             return userChoice;
         }
 
-
-        private static string PlayBattleship()
+        private static void DrawBattleField(bool nextMoveByA)
         {
-            
-            // var game = new Battleship(width, height);
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-
-            // do
-            // {
-            //     var nextMoveByA = GameBrain.Battleship.NextMoveByPlayerA;
-            //
-            //     Console.WriteLine();
-            //     Console.WriteLine($"Player {(nextMoveByA ? "A" : "B")} turn");
-            //     BattleshipConsoleUI.DrawBoard(nextMoveByA
-            //         ? GameBrain.Battleship.GetBoardA()
-            //         : GameBrain.Battleship.GetBoardB());
-            //
-            //     var menu = new Menu(MenuLevel.Level2Plus);
-            //
-            //     menu.AddMenuItem(new MenuItem(
-            //         $"Make a move",
-            //         userChoice: "S",
-            //         () =>
-            //         {
-            //             Console.Write("Give bomb coordinates separated with comma (example - A,1): ");
-            //             var input = Console.ReadLine();
-            //             Console.WriteLine($"Coordinates: {input}");
-            //             return "";
-            //         }
-            //     ));
-            //
-            //
-            // } while (true);
-            
-
-            // BattleshipConsoleUI.DrawBoard(nextMoveByA
-            //     ? GameBrain.Battleship.GetBoardA()
-            //     : GameBrain.Battleship.GetBoardB());
-            //
-            // Console.WriteLine();
-            // Console.WriteLine($"Player {(nextMoveByA ? "A" : "B")} turn");
-
-            // Console.Write("Give bomb coordinates separated with comma (example - A,1): ");
-            // var input = Console.ReadLine();
-
-
-            // MAKE CORRECT GETMOVECOORDINATES AND OTHER METHODS TO GET THE CORRECT COORDINATE!
-            // var (x, y) = GameBrain.Battleship.GetMoveCoordinates(input);
-            // GameBrain.Battleship.MakeAMove(x, y);
-            // Console.WriteLine();
-            // var userChoice = menu.RunMenu();
-
-            return "";
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine($"...Player {(nextMoveByA ? "A" : "B")} turn...");
+            Console.WriteLine();
+            Console.WriteLine("YOUR BOARD");
+            BattleshipConsoleUI.DrawBoard(nextMoveByA
+                ? GameBrain.Battleship.GetBoardA()
+                : GameBrain.Battleship.GetBoardB());
+            Console.WriteLine();
+            Console.WriteLine("OPPONENT BOARD");
+            BattleshipConsoleUI.DrawBoard(nextMoveByA
+                ? GameBrain.Battleship.GetBoardB()
+                : GameBrain.Battleship.GetBoardA());
         }
         
-        
-
-        //  playGame.AddMenuItem(new MenuItem(
-        //     $"Save game",
-        //     userChoice: "s",
-        //     () => GameBrain.Battleship.SaveGameAction(game))
-        // );
-        //
-        // menu.AddMenuItem(new MenuItem(
-        //     $"Load game",
-        //     userChoice: "l",
-        //     () => GameBrain.Battleship.LoadGameAction(game))
-        // );
-
-        private static string MakeAMove()
-        {
-            
-            return "";
-        }
         private static string DefaultMenuAction()
         {
             Console.ForegroundColor = ConsoleColor.Red;

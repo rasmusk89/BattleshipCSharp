@@ -1,18 +1,20 @@
 ﻿using System;
-using GameBrain;
 
-namespace GameConsoleUI
+namespace GameBrain
 {
-    public static class BattleshipConsoleUI
+    public class GameBoardUI
     {
+        
         private static readonly char[] Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 
-        public static void DrawBoard(ECellState[,] board)
+        // public void DrawBoard(ECellState[,] board, bool includeShips=true)
+        public void DrawBoard(GameBoard gameBoard, bool includeShips=true)
         {
+            var board = gameBoard.Board;
             var width = board.GetUpperBound(0) + 1;
             var height = board.GetUpperBound(1) + 1;
             
-             Console.Write("   ");
+            Console.Write("   ");
             
             // First line
             for (var i = 0; i < width; i++)
@@ -28,6 +30,7 @@ namespace GameConsoleUI
                 Console.Write(i < 9 ? $" {(i + 1).ToString()} " : $"{(i + 1).ToString()} ");
                 for (var j = 0; j < width; j++)
                 {
+                    
                     Console.Write($"{CellString(board[j,i])} ");
                 }
                 Console.Write($"{(i + 1).ToString()}");
