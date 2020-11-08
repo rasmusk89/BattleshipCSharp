@@ -13,11 +13,12 @@ namespace GameBrain
 
         public bool IsSunk => Hits >= Width;
 
+        public const ECellState CellState = ECellState.Boat;
+
         public Ship(int width)
         {
             Width = width;
             Name = CreateName(width);
-
         }
 
         private static string CreateName(int width)

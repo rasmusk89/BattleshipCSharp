@@ -5,10 +5,10 @@
         public int Row { get; set; }
         public int Column { get; set; }
         
-        public Coordinates(int row, int column)
+        public Coordinates(int column, int row)
         {
-            Row = row;
             Column = column;
+            Row = row;
         }
         
     }

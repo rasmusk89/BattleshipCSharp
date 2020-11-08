@@ -2,13 +2,9 @@
 
 namespace GameBrain
 {
-    public class GameBoardUI
+    public static class GameBoardUI
     {
-        
-        private static readonly char[] Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-
-        // public void DrawBoard(ECellState[,] board, bool includeShips=true)
-        public void DrawBoard(GameBoard gameBoard, bool includeShips=true)
+        public static void DrawBoard(GameBoard gameBoard)
         {
             var board = gameBoard.Board;
             var width = board.GetUpperBound(0) + 1;
@@ -19,7 +15,7 @@ namespace GameBrain
             // First line
             for (var i = 0; i < width; i++)
             {
-                Console.Write($"{Letters[i]} ");
+                Console.Write(IntToAlphabeticValue(i).Length < 2 ? $"{IntToAlphabeticValue(i)}  " : $"{IntToAlphabeticValue(i)} ");
             }
 
             // Middle part
@@ -30,8 +26,32 @@ namespace GameBrain
                 Console.Write(i < 9 ? $" {(i + 1).ToString()} " : $"{(i + 1).ToString()} ");
                 for (var j = 0; j < width; j++)
                 {
-                    
-                    Console.Write($"{CellString(board[j,i])} ");
+                    if (board[j,i] == ECellState.Bomb)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"{CellString(board[j,i])}  ");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+                    if (board[j,i] == ECellState.Boat)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write($"{CellString(board[j,i])}  ");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+
+                    if (board[j,i] == ECellState.Empty)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.Write($"{CellString(board[j,i])}  ");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+
+                    if (board[j, i] == ECellState.Hit)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.Write($"{CellString(board[j,i])}  ");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
                 }
                 Console.Write($"{(i + 1).ToString()}");
                 Console.WriteLine();
@@ -41,12 +61,10 @@ namespace GameBrain
             Console.Write("   ");
             for (var i = 0; i < width; i++)
             {
-                Console.Write($"{Letters[i]} ");
-                
+                Console.Write(IntToAlphabeticValue(i).Length < 2 ? $"{IntToAlphabeticValue(i)}  " : $"{IntToAlphabeticValue(i)} ");
             }
 
             Console.WriteLine();
-
         }
 
         private static string CellString(ECellState cellState)
@@ -54,10 +72,26 @@ namespace GameBrain
             return cellState switch
             {
                 ECellState.Empty => "~",
-                ECellState.Bomb => "X",
+                ECellState.Bomb => "O",
                 ECellState.Boat => "B",
+                ECellState.Hit => "X",
                 _ => "-"
             };
         }
+
+        private static string IntToAlphabeticValue(int index)
+        {
+            const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            var value = "";
+
+            if (index >= letters.Length)
+                value += letters[index / letters.Length - 1];
+
+            value += letters[index % letters.Length];
+
+            return value;
+        }
+        
     }
 }

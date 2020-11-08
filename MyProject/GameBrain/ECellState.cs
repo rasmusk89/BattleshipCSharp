@@ -5,6 +5,7 @@
         Empty,
         Bomb,
         Boat,
-        Miss
+        Miss,
+        Hit
     }
 }
