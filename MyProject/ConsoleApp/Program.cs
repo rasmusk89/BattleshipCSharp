@@ -38,7 +38,7 @@ namespace ConsoleApp
             gameType.AddMenuItem(new MenuItem(
                 "Load Last Game",
                 "L",
-                DefaultMenuAction
+                LoadGame
             ));
 
             
@@ -58,6 +58,13 @@ namespace ConsoleApp
         {
             var game = new Game();
             game.CustomRound();
+            return "";
+        }
+        
+        private static string LoadGame()
+        {
+            var game = new Game();
+            game.LoadGameAction();
             return "";
         }
 

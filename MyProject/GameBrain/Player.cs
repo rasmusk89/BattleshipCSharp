@@ -8,8 +8,8 @@ namespace GameBrain
     {
         private readonly bool _shipsCanTouch;
         private string Name { get; set; }
-        private GameBoard PlayerBoard { get; set; }
-        private FiringBoard OpponentBoard { get; set; }
+        public GameBoard PlayerBoard { get; set; }
+        public FiringBoard OpponentBoard { get; set; }
 
         private List<Ship> Ships { get; set; } = new List<Ship>
         {
