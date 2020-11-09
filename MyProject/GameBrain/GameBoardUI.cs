@@ -32,13 +32,12 @@ namespace GameBrain
                         Console.Write($"{CellString(board[j,i])}  ");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                     }
-                    if (board[j,i] == ECellState.Boat)
+                    if (IsBoat(board[j, i]))
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.Write($"{CellString(board[j,i])}  ");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                     }
-
                     if (board[j,i] == ECellState.Empty)
                     {
                         Console.ForegroundColor = ConsoleColor.Blue;
@@ -75,8 +74,23 @@ namespace GameBrain
                 ECellState.Bomb => "O",
                 ECellState.Boat => "B",
                 ECellState.Hit => "X",
+                ECellState.Patrol => "P",
+                ECellState.Cruiser => "C",
+                ECellState.Submarine => "S",
+                ECellState.Battleship => "B",
+                ECellState.Carrier => "A",
                 _ => "-"
             };
+        }
+
+        private static bool IsBoat(ECellState state)
+        {
+            return state == ECellState.Battleship ||
+                   state == ECellState.Boat ||
+                   state == ECellState.Carrier ||
+                   state == ECellState.Cruiser ||
+                   state == ECellState.Patrol ||
+                   state == ECellState.Submarine;
         }
 
         private static string IntToAlphabeticValue(int index)

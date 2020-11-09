@@ -4,7 +4,7 @@ namespace GameBrain
 {
     public class Validator
     {
-        public static bool BombCoordinateFree(Coordinates coordinates, FiringBoard board)
+        public bool BombCoordinateFree(Coordinates coordinates, FiringBoard board)
         {
             var row = coordinates.Row - 1;
             var column = coordinates.Column - 1;
@@ -13,7 +13,7 @@ namespace GameBrain
         }
 
 
-        public static bool OrientationIsValid(string input)
+        public bool OrientationIsValid(string input)
         {
             return input.ToLower() == "h" || input.ToLower() == "v";
         }
@@ -49,7 +49,7 @@ namespace GameBrain
             return number <= boardHeight && number > 0;
         }
 
-        public static bool CoordinatesAreValid(Coordinates coordinates, EOrientation orientation, GameBoard board,
+        public bool CoordinatesAreValid(Coordinates coordinates, EOrientation orientation, GameBoard board,
             int shipSize)
         {
             var boardWidth = board.Board.GetUpperBound(0) + 1;
@@ -65,7 +65,7 @@ namespace GameBrain
             return row + shipSize <= boardHeight;
         }
 
-        public static bool AreaFree(Coordinates coordinates, EOrientation orientation, GameBoard board, int shipSize)
+        public bool AreaFree(Coordinates coordinates, EOrientation orientation, GameBoard board, int shipSize)
         {
             var row = coordinates.Row - 1;
             var column = coordinates.Column - 1;

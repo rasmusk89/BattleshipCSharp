@@ -2,7 +2,7 @@
 {
     public class Cell
     {
-        public ECellState CellState { get; set; }
+        public static ECellState CellState { get; set; }
         public Coordinates Coordinates { get; set; }
         
         public Cell(int row, int column)

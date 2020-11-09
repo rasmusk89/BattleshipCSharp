@@ -6,10 +6,19 @@ namespace GameBrain
 {
     public class Player
     {
+        private readonly bool _shipsCanTouch;
         private string Name { get; set; }
         private GameBoard PlayerBoard { get; set; }
         private FiringBoard OpponentBoard { get; set; }
-        private List<Ship> Ships { get; set; }
+
+        private List<Ship> Ships { get; set; } = new List<Ship>
+        {
+            new Ship(1),
+            new Ship(2),
+            new Ship(3),
+            new Ship(4),
+            new Ship(5)
+        };
 
         private readonly Validator _validator = new Validator();
 
@@ -18,44 +27,41 @@ namespace GameBrain
             get { return Ships.All(x => x.IsSunk); }
         }
 
-        public GameBoard GetBoard()
+        public Player(string name, int boardWidth, int boardHeight, bool shipsCanTouch=false)
         {
-            return PlayerBoard;
-        }
-
-        public Player(string name, int boardWidth, int boardHeight)
-        {
+            _shipsCanTouch = shipsCanTouch;
             Name = name;
-            Ships = new List<Ship>
-            {
-                new Ship(1),
-                new Ship(2),
-                new Ship(3),
-                new Ship(4),
-                new Ship(5)
-            };
 
             PlayerBoard = new GameBoard(boardWidth, boardHeight);
             OpponentBoard = new FiringBoard(boardWidth, boardHeight);
         }
+
+        private ECellState[,] GetBoard()
+        {
+            return PlayerBoard.Board;
+        }
+
+        public void SetShips(List<Ship> ships)
+        {
+            Ships = ships;
+        }
+
 
         public string GetName()
         {
             return Name;
         }
 
-        public void SetName(string name)
+        public void PlaceBomb(Player opponent)
         {
-            Name = name;
-        }
+            var opponentBoard = opponent.GetBoard();
+            var firingBoard = OpponentBoard.Board;
 
-        public void PlaceBomb(GameBoard anotherBoard)
-        {
             DrawBoardUI();
-            Console.WriteLine("Place Bomb!");
+            Console.WriteLine($"{Name}, place Bomb!");
             Coordinates coordinates = AskCoordinates();
 
-            while (!Validator.BombCoordinateFree(coordinates, OpponentBoard))
+            while (!_validator.BombCoordinateFree(coordinates, OpponentBoard))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Bomb has already placed there!");
@@ -65,24 +71,30 @@ namespace GameBrain
 
             var column = coordinates.Column - 1;
             var row = coordinates.Row - 1;
-            var board = OpponentBoard.Board;
 
-            board[column, row] = ECellState.Bomb;
-
-            if (anotherBoard.Board[column, row] == ECellState.Boat)
+            if (opponentBoard[column, row] != ECellState.Empty)
             {
+                var cellState = opponentBoard[column, row];
+                var ship = Ships.First(x => x.CellState == cellState);
+                ship.Hits++;
+                firingBoard[column, row] = ECellState.Hit;
+                opponentBoard[column, row] = ECellState.Hit;
+                DrawBoardUI();
                 Console.WriteLine("HIT!");
+                if (ship.IsSunk)
+                {
+                    Console.WriteLine($"You sunk opponents {ship.Name}");
+                }
+
+                Console.Write("Continue...");
                 Console.ReadLine();
-                OpponentBoard.Board[column, row] = ECellState.Hit;
-                anotherBoard.Board[column, row] = ECellState.Hit;
             }
 
-            if (anotherBoard.Board[column, row] == ECellState.Empty)
-            {
-                anotherBoard.Board[column, row] = ECellState.Bomb;
-            }
-
+            if (opponentBoard[column, row] != ECellState.Empty) return;
+            firingBoard[column, row] = ECellState.Bomb;
+            opponentBoard[column, row] = ECellState.Bomb;
             DrawBoardUI();
+            Console.WriteLine("MISS!");
             Console.Write("Continue...");
             Console.ReadLine();
         }
@@ -102,7 +114,7 @@ namespace GameBrain
                     orientation = AskOrientation();
                 }
 
-                while (!Validator.CoordinatesAreValid(coordinates, orientation, PlayerBoard, ship.Width))
+                while (!_validator.CoordinatesAreValid(coordinates, orientation, PlayerBoard, ship.Width))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Out of bounds!");
@@ -111,10 +123,10 @@ namespace GameBrain
                     orientation = AskOrientation();
                 }
 
-                while (!Validator.AreaFree(coordinates, orientation, PlayerBoard, ship.Width))
+                while (!_validator.AreaFree(coordinates, orientation, PlayerBoard, ship.Width))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Boat already placed there!");
+                    Console.WriteLine("Ship already placed there!");
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     coordinates = AskCoordinates();
                     orientation = AskOrientation();
@@ -130,16 +142,17 @@ namespace GameBrain
 
         private void PlaceShip(Coordinates coordinates, Ship ship, EOrientation orientation)
         {
-            var row = coordinates.Row;
             var column = coordinates.Column;
+            var row = coordinates.Row;
             var shipSize = ship.Width;
             var board = PlayerBoard.Board;
+            var state = ship.CellState;
 
             if (orientation == EOrientation.Horizontal)
             {
                 for (var i = column; i < column + shipSize; i++)
                 {
-                    board[i - 1, row - 1] = ECellState.Boat;
+                    board[i - 1, row - 1] = state;
                 }
             }
 
@@ -147,7 +160,7 @@ namespace GameBrain
             {
                 for (var i = row; i < row + shipSize; i++)
                 {
-                    board[column - 1, i - 1] = ECellState.Boat;
+                    board[column - 1, i - 1] = state;
                 }
             }
         }
@@ -158,18 +171,18 @@ namespace GameBrain
             var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
             var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 1;
             var board = PlayerBoard.Board;
-
-
+            var counter = 0;
             foreach (var ship in Ships)
             {
                 var isOpen = true;
                 while (isOpen)
                 {
-                    var startColumn = rand.Next(1, boardWidth);    // 1
-                    var startRow = rand.Next(1, boardHeight);     // 2
-                    var endColumn = startColumn;                 // 1
-                    var endRow = startRow;                      // 2
+                    var startColumn = rand.Next(1, boardWidth);
+                    var startRow = rand.Next(1, boardHeight);
+                    var endColumn = startColumn;
+                    var endRow = startRow;
                     var orientation = rand.Next(1, 101) % 2; //0 for Horizontal
+                    var state = ship.CellState;
 
                     if (orientation == 0)
                     {
@@ -196,14 +209,54 @@ namespace GameBrain
 
                     var occupiedCells = 0;
 
-                    // i = 1
-                    // j = 2
-                    for (var i = startColumn; i <= endColumn; i++)
+                    if (!_shipsCanTouch)
                     {
-                        for (var j = startRow; j <= endRow; j++)
+                        var checkStartColumn = startColumn;
+                        var checkEndColumn = endColumn;
+                        var checkStartRow = startRow;
+                        var checkEndRow = endRow;
+                        if (startColumn > 1)
                         {
-                            if (board[i - 1, j - 1] == ECellState.Boat)
+                            checkStartColumn = startColumn - 1;
+                        }
+
+                        if (endColumn < boardWidth)
+                        {
+                            checkEndColumn = endColumn + 1;
+                        }
+
+                        if (startRow > 1)
+                        {
+                            checkStartRow = startRow - 1;
+                        }
+
+                        if (endRow < boardHeight)
+                        {
+                            checkEndRow = endRow + 1;
+                        }
+
+                        for (var i = checkStartColumn; i <= checkEndColumn; i++)
+                        {
+                            for (var j = checkStartRow; j <= checkEndRow; j++)
                             {
+                                if (board[i - 1, j - 1] != ECellState.Empty)
+                                {
+                                    occupiedCells++;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (var i = startColumn; i <= endColumn; i++)
+                        {
+                            for (var j = startRow; j <= endRow; j++)
+                            {
+                                if (board[i - 1, j - 1] == ECellState.Empty)
+                                {
+                                    continue;
+                                }
+
                                 occupiedCells++;
                             }
                         }
@@ -219,12 +272,15 @@ namespace GameBrain
                     {
                         for (var j = startRow; j <= endRow; j++)
                         {
-                            board[i - 1, j - 1] = ECellState.Boat;
+                            board[i - 1, j - 1] = state;
                         }
                     }
-                    isOpen = false;    
+                    counter++;
+                    isOpen = false;
                 }
             }
+            
+            Console.Clear();
         }
 
         private Coordinates AskCoordinates()
@@ -257,12 +313,12 @@ namespace GameBrain
             return new Coordinates(column, row);
         }
 
-        private static EOrientation AskOrientation()
+        private EOrientation AskOrientation()
         {
             Console.Write("Insert orientation Horizontal(H) or Vertical(V): ");
             string input = Console.ReadLine() ?? "";
 
-            while (!Validator.OrientationIsValid(input))
+            while (!_validator.OrientationIsValid(input))
             {
                 Console.Write("Please enter correct orientation (H) or (V): ");
                 input = Console.ReadLine() ?? "";
@@ -295,17 +351,13 @@ namespace GameBrain
         private void DrawBoardUI()
         {
             Console.Clear();
-            Console.WriteLine($"- - -{Name.ToUpper()} BOARD- - -");
+            Console.WriteLine($"- - - {Name.ToUpper()} BOARD - - -");
             GameBoardUI.DrawBoard(PlayerBoard);
             Console.WriteLine();
-            Console.WriteLine("- - -OPPONENT BOARD- - -");
+            Console.WriteLine("- - - OPPONENT BOARD - - -");
             GameBoardUI.DrawBoard(OpponentBoard);
             Console.WriteLine();
         }
 
-        private static bool BoatsCanTouch()
-        {
-            return true;
-        }
     }
 }

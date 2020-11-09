@@ -9,15 +9,25 @@ namespace GameBrain
 
         public int Width { get; set; }
 
-        private int Hits { get; set; }
+        public int Hits { get; set; }
+
+        public readonly ECellState CellState;
 
         public bool IsSunk => Hits >= Width;
-
-        public const ECellState CellState = ECellState.Boat;
 
         public Ship(int width)
         {
             Width = width;
+
+            CellState = width switch
+            {
+                1 => ECellState.Patrol,
+                2 => ECellState.Cruiser,
+                3 => ECellState.Submarine,
+                4 => ECellState.Battleship,
+                5 => ECellState.Carrier,
+                _ => throw new Exception("Incorrect ship width!")
+            };
             Name = CreateName(width);
         }
 
@@ -39,6 +49,7 @@ namespace GameBrain
                     throw new Exception("Incorrect ship width!");
             }
         }
+        
     }
     
 }

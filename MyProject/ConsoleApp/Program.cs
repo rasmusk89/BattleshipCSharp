@@ -15,47 +15,52 @@ namespace ConsoleApp
                               "|        RASMUS GAME        |\n" +
                               "+---------------------------+");
             Console.ForegroundColor = ConsoleColor.Cyan;
+
+            var playerType = new Menu(MenuLevel.Level2Plus);
+            playerType.AddMenuItem(new MenuItem(
+                "Player VS Player",
+                "1",
+                Battleship));
             
-            var inBattleshipGame = new Menu(MenuLevel.Level1);
-            inBattleshipGame.AddMenuItem(new MenuItem(
-                "Start Game",
+            var gameType = new Menu(MenuLevel.Level1);
+            gameType.AddMenuItem(new MenuItem(
+                "Start Basic Game",
                 "S",
-                Battleship
-                ));
+                playerType.RunMenu
+            ));
+
+            gameType.AddMenuItem(new MenuItem(
+                "Start Custom Game",
+                "C",
+                CustomBattleship
+            ));
             
-            inBattleshipGame.AddMenuItem(new MenuItem(
-                "Options",
-                "O",
-                Options
-                ));
+            gameType.AddMenuItem(new MenuItem(
+                "Load Last Game",
+                "L",
+                DefaultMenuAction
+            ));
+
             
             var menu = new Menu(MenuLevel.Level0);
-            menu.AddMenuItem(new MenuItem("Battleship", "B", inBattleshipGame.RunMenu));
-
+            menu.AddMenuItem(new MenuItem("Battleship", "B", gameType.RunMenu));
             menu.RunMenu();
         }
-        
-        private static string Options()
-        {
-            Console.WriteLine("Set game board width: ");
-            var width = int.Parse(Console.ReadLine() ?? "10");
-            
-            Console.WriteLine("Set game board height: ");
-            var height = int.Parse(Console.ReadLine() ?? "10");
-            
-            var game = new Game(width, height);
-            game.PlayRound();
-            return "";
-        }
-        
-        
+
         private static string Battleship()
         {
             var game = new Game();
             game.PlayRound();
             return "";
         }
-        
+
+        private static string CustomBattleship()
+        {
+            var game = new Game();
+            game.CustomRound();
+            return "";
+        }
+
         private static string DefaultMenuAction()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -64,8 +69,5 @@ namespace ConsoleApp
 
             return "";
         }
-
     }
-    
-    
 }

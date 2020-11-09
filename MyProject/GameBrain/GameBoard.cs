@@ -16,17 +16,6 @@ namespace GameBrain
             Height = height;
             Board = new ECellState[width, height];
         }
-
-        public static List<Cell> Range(IEnumerable<Cell> cells,
-            int startRow,
-            int startColumn,
-            int endRow,
-            int endColumn)
-        {
-            return cells.Where(x => x.Coordinates.Row >= startRow
-                                     && x.Coordinates.Column >= startColumn
-                                     && x.Coordinates.Row <= endRow
-                                     && x.Coordinates.Column <= endColumn).ToList();
-        }
+        
     }
 }
