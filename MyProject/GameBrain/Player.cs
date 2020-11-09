@@ -7,17 +7,17 @@ namespace GameBrain
     public class Player
     {
         private readonly bool _shipsCanTouch;
-        private string Name { get; set; }
+        public string Name { get; set; }
         public GameBoard PlayerBoard { get; set; }
         public FiringBoard OpponentBoard { get; set; }
 
         private List<Ship> Ships { get; set; } = new List<Ship>
         {
             new Ship(1),
-            new Ship(2),
-            new Ship(3),
-            new Ship(4),
-            new Ship(5)
+            // new Ship(2),
+            // new Ship(3),
+            // new Ship(4),
+            // new Ship(5)
         };
 
         private readonly Validator _validator = new Validator();
@@ -52,6 +52,11 @@ namespace GameBrain
             return Name;
         }
 
+        public void SetName(string name)
+        {
+            Name = name;
+        }
+
         public void PlaceBomb(Player opponent)
         {
             var opponentBoard = opponent.GetBoard();
@@ -75,7 +80,7 @@ namespace GameBrain
             if (opponentBoard[column, row] != ECellState.Empty)
             {
                 var cellState = opponentBoard[column, row];
-                var ship = Ships.First(x => x.CellState == cellState);
+                var ship = opponent.Ships.First(x => x.CellState == cellState);
                 ship.Hits++;
                 firingBoard[column, row] = ECellState.Hit;
                 opponentBoard[column, row] = ECellState.Hit;
@@ -171,7 +176,6 @@ namespace GameBrain
             var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
             var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 1;
             var board = PlayerBoard.Board;
-            var counter = 0;
             foreach (var ship in Ships)
             {
                 var isOpen = true;
@@ -275,7 +279,6 @@ namespace GameBrain
                             board[i - 1, j - 1] = state;
                         }
                     }
-                    counter++;
                     isOpen = false;
                 }
             }
@@ -283,11 +286,28 @@ namespace GameBrain
             Console.Clear();
         }
 
+        private Coordinates RandomCoordinates()
+        {
+            Random rand = new Random(Guid.NewGuid().GetHashCode());
+            var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
+            var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 1;
+
+            var column = rand.Next(1, boardWidth);
+            var row = rand.Next(1, boardHeight);
+            Coordinates coordinates = new Coordinates(column, row);
+            
+            return coordinates;
+        }
+
         private Coordinates AskCoordinates()
         {
             var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
-            Console.Write($"Insert Column (A-{IntToAlphabeticValue(boardWidth - 1)}): ");
+            Console.Write($"Insert Column (A-{IntToAlphabeticValue(boardWidth - 1)}) or press ENTER for random shot: ");
             string columnInput = Console.ReadLine() ?? "";
+            if (columnInput == "")
+            {
+                return RandomCoordinates();
+            }
 
             while (!_validator.ColumnIsValid(columnInput, PlayerBoard))
             {
@@ -306,9 +326,7 @@ namespace GameBrain
                 rowInput = Console.ReadLine() ?? "";
             }
 
-            // Convert string to integer.
             var row = int.Parse(rowInput);
-
 
             return new Coordinates(column, row);
         }

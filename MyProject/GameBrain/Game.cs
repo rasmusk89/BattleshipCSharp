@@ -7,8 +7,8 @@ namespace GameBrain
 {
     public class Game
     {
-        private const int BoardWidth = 10;
-        private const int BoardHeight = 10;
+        private static int _boardWidth;
+        private static int _boardHeight;
 
         private Player PlayerA { get; set; }
         private Player PlayerB { get; set; }
@@ -17,8 +17,18 @@ namespace GameBrain
 
         public Game()
         {
-            PlayerA = new Player("Player A", BoardWidth, BoardHeight);
-            PlayerB = new Player("Player B", BoardWidth, BoardHeight);
+            _boardHeight = 10;
+            _boardWidth = 10;
+            PlayerA = new Player("Player A", 10, 10);
+            PlayerB = new Player("Player B", 10, 10);
+        }
+
+        public Game(int boardWidth, int boardHeight)
+        {
+            _boardWidth = boardWidth;
+            _boardHeight = boardHeight;
+            PlayerA = new Player("Player A", boardWidth, boardHeight);
+            PlayerB = new Player("Player B", boardWidth, boardHeight);
         }
 
         public void PlayRound()
@@ -40,9 +50,17 @@ namespace GameBrain
                 PlaceRandomShips();
             }
 
+            
             while (true)
             {
+                
                 PlaceBombs();
+                if (PlayerA.HasLost || PlayerB.HasLost)
+                {
+                    Console.WriteLine("GAME OVER");
+                    Console.ReadLine();
+                    return;
+                }
             }
         }
 
@@ -69,6 +87,9 @@ namespace GameBrain
 
             var boardWidth = int.Parse(width);
             var boardHeight = int.Parse(height);
+
+            _boardWidth = boardWidth;
+            _boardHeight = boardHeight;
 
             List<Ship> ships = new List<Ship>();
 
@@ -185,8 +206,8 @@ namespace GameBrain
                 _nextMoveByPlayerA = !_nextMoveByPlayerA;
                 SaveGameAction();
             }
-
             PlayerB.PlaceBomb(PlayerA);
+
             _nextMoveByPlayerA = true;
             SaveGameAction();
         }
@@ -196,18 +217,20 @@ namespace GameBrain
             var state = new GameState
             {
                 NextMoveByPlayerA = _nextMoveByPlayerA,
-                Width = BoardWidth,
-                Height = BoardHeight
+                Width = _boardWidth,
+                Height = _boardHeight,
+                PlayerAName = PlayerA.GetName(),
+                PlayerBName = PlayerB.GetName()
             };
 
             state.PlayerAPlayerBoard = new ECellState[state.Width][];
 
             for (var i = 0; i < state.PlayerAPlayerBoard.Length; i++)
             {
-                state.PlayerAPlayerBoard[i] = new ECellState[state.Width];
+                state.PlayerAPlayerBoard[i] = new ECellState[state.Height];
             }
 
-            for (var x = 0; x < state.Height; x++)
+            for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
                 {
@@ -219,10 +242,10 @@ namespace GameBrain
 
             for (var i = 0; i < state.PlayerAFiringBoard.Length; i++)
             {
-                state.PlayerAFiringBoard[i] = new ECellState[state.Width];
+                state.PlayerAFiringBoard[i] = new ECellState[state.Height];
             }
 
-            for (var x = 0; x < state.Height; x++)
+            for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
                 {
@@ -234,10 +257,10 @@ namespace GameBrain
 
             for (var i = 0; i < state.PlayerBPlayerBoard.Length; i++)
             {
-                state.PlayerBPlayerBoard[i] = new ECellState[state.Width];
+                state.PlayerBPlayerBoard[i] = new ECellState[state.Height];
             }
 
-            for (var x = 0; x < state.Height; x++)
+            for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
                 {
@@ -249,10 +272,10 @@ namespace GameBrain
 
             for (var i = 0; i < state.PlayerBFiringBoard.Length; i++)
             {
-                state.PlayerBFiringBoard[i] = new ECellState[state.Width];
+                state.PlayerBFiringBoard[i] = new ECellState[state.Height];
             }
 
-            for (var x = 0; x < state.Height; x++)
+            for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
                 {
@@ -293,6 +316,8 @@ namespace GameBrain
         
             // restore actual state from deserialized state
             _nextMoveByPlayerA = state.NextMoveByPlayerA;
+            PlayerA.Name = state.PlayerAName!;
+            PlayerB.Name = state.PlayerBName!;
             PlayerA.PlayerBoard.Board = new ECellState[state.Width, state.Height];
             PlayerA.OpponentBoard.Board = new ECellState[state.Width, state.Height];
             PlayerB.PlayerBoard.Board = new ECellState[state.Width, state.Height];

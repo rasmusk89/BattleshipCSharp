@@ -7,6 +7,10 @@
         public int Width { get; set; }
 
         public int Height { get; set; }
+
+        public string? PlayerAName { get; set; }
+        
+        public string? PlayerBName { get; set; }
         
         public ECellState[][] PlayerAPlayerBoard { get; set; } = null!;
         public ECellState[][] PlayerAFiringBoard { get; set; } = null!;
