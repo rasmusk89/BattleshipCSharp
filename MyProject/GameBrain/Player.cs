@@ -41,6 +41,11 @@ namespace GameBrain
             return PlayerBoard.Board;
         }
 
+        public List<Ship> GetShips()
+        {
+            return Ships;
+        }
+
         public void SetShips(List<Ship> ships)
         {
             Ships = ships;
@@ -80,7 +85,15 @@ namespace GameBrain
             if (opponentBoard[column, row] != ECellState.Empty)
             {
                 var cellState = opponentBoard[column, row];
-                var ship = opponent.Ships.First(x => x.CellState == cellState);
+                
+                Ship ship = new Ship();
+
+                foreach (var opponentShip in opponent.Ships.Where(opponentShip => opponentShip.CellState == cellState))
+                {
+                    ship = opponentShip;
+                    break;
+                }
+                // var ship = opponent.Ships.First(x => x.CellState == cellState);
                 ship.Hits++;
                 firingBoard[column, row] = ECellState.Hit;
                 opponentBoard[column, row] = ECellState.Hit;
@@ -289,20 +302,28 @@ namespace GameBrain
         private Coordinates RandomCoordinates()
         {
             Random rand = new Random(Guid.NewGuid().GetHashCode());
-            var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
-            var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 1;
+            var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 2;
+            var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 2;
 
             var column = rand.Next(1, boardWidth);
             var row = rand.Next(1, boardHeight);
-            Coordinates coordinates = new Coordinates(column, row);
             
+            Coordinates coordinates = new Coordinates(column, row);
+
+            while (!_validator.BombCoordinateFree(coordinates, OpponentBoard))
+            {
+                column = rand.Next(1, boardWidth);
+                row = rand.Next(1, boardHeight);
+                coordinates = new Coordinates(column, row);
+            }
+
             return coordinates;
         }
 
         private Coordinates AskCoordinates()
         {
             var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
-            Console.Write($"Insert Column (A-{IntToAlphabeticValue(boardWidth - 1)}) or press ENTER for random shot: ");
+            Console.Write($"Insert Column (A-{IntToAlphabeticValue(boardWidth - 1)}) or press ENTER for random coordinates: ");
             string columnInput = Console.ReadLine() ?? "";
             if (columnInput == "")
             {

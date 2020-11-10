@@ -9,7 +9,7 @@ namespace GameBrain
             var row = coordinates.Row - 1;
             var column = coordinates.Column - 1;
 
-            return board.Board[column, row] != ECellState.Bomb;
+            return board.Board[column, row] == ECellState.Empty;
         }
 
 
@@ -77,20 +77,23 @@ namespace GameBrain
             {
                 for (var i = 0; i < shipSize; i++)
                 {
-                    if (board.Board[column + i, row] == ECellState.Boat)
+                    if (board.Board[column + i, row] == ECellState.Empty)
                     {
-                        occupiedCells++;
+                        continue;
                     }
+                    occupiedCells++;
                 }
             }
             else
             {
                 for (var i = 0; i < shipSize; i++)
                 {
-                    if (board.Board[column, row + i] == ECellState.Boat)
+                    if (board.Board[column, row + i] == ECellState.Empty)
                     {
-                        occupiedCells++;
+                        continue;
                     }
+                    occupiedCells++;
+
                 }
             }
 

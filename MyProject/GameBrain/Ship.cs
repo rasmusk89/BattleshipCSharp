@@ -5,7 +5,7 @@ namespace GameBrain
 {
     public class Ship
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public int Width { get; set; }
 
@@ -15,6 +15,8 @@ namespace GameBrain
 
         public bool IsSunk => Hits >= Width;
 
+        public Ship()
+        {}
         public Ship(int width)
         {
             Width = width;

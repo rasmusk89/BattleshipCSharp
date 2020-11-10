@@ -50,17 +50,33 @@ namespace GameBrain
                 PlaceRandomShips();
             }
 
-            
             while (true)
             {
-                
-                PlaceBombs();
-                if (PlayerA.HasLost || PlayerB.HasLost)
+                if (_nextMoveByPlayerA)
                 {
-                    Console.WriteLine("GAME OVER");
+                    PlayerA.PlaceBomb(PlayerB);
+                    if (PlayerB.HasLost)
+                    {
+                        Console.WriteLine("PLayer A WON!");
+                        Console.ReadLine();
+                        return;
+                    }
+
+                    _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                    SaveGameAction();
+                }
+
+                PlayerB.PlaceBomb(PlayerA);
+                if (PlayerA.HasLost)
+                {
+                    _nextMoveByPlayerA = true;
+                    Console.WriteLine("PLayer B WON!");
                     Console.ReadLine();
                     return;
                 }
+
+                _nextMoveByPlayerA = true;
+                SaveGameAction();
             }
         }
 
@@ -172,6 +188,13 @@ namespace GameBrain
 
             while (true)
             {
+                if (_nextMoveByPlayerA)
+                {
+                    PlayerA.PlaceBomb(PlayerB);
+                    _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                }
+
+                PlayerB.PlaceBomb(PlayerA);
                 PlaceBombs();
             }
         }
@@ -182,6 +205,7 @@ namespace GameBrain
             Console.Write($"Player {PlayerA.GetName()}, press ENTER to place ships...");
             Console.ReadLine();
             PlayerA.PlaceShips();
+            SaveGameAction();
             Console.Clear();
             Console.Write($"Player {PlayerB.GetName()}, press ENTER to place ships...");
             Console.ReadLine();
@@ -206,6 +230,7 @@ namespace GameBrain
                 _nextMoveByPlayerA = !_nextMoveByPlayerA;
                 SaveGameAction();
             }
+
             PlayerB.PlaceBomb(PlayerA);
 
             _nextMoveByPlayerA = true;
@@ -220,7 +245,9 @@ namespace GameBrain
                 Width = _boardWidth,
                 Height = _boardHeight,
                 PlayerAName = PlayerA.GetName(),
-                PlayerBName = PlayerB.GetName()
+                PlayerBName = PlayerB.GetName(),
+                PlayerAShips = PlayerA.GetShips(),
+                PlayerBShips = PlayerB.GetShips()
             };
 
             state.PlayerAPlayerBoard = new ECellState[state.Width][];
@@ -237,7 +264,7 @@ namespace GameBrain
                     state.PlayerAPlayerBoard[x][y] = PlayerA.PlayerBoard.Board[x, y];
                 }
             }
-            
+
             state.PlayerAFiringBoard = new ECellState[state.Width][];
 
             for (var i = 0; i < state.PlayerAFiringBoard.Length; i++)
@@ -252,7 +279,7 @@ namespace GameBrain
                     state.PlayerAFiringBoard[x][y] = PlayerA.OpponentBoard.Board[x, y];
                 }
             }
-            
+
             state.PlayerBPlayerBoard = new ECellState[state.Width][];
 
             for (var i = 0; i < state.PlayerBPlayerBoard.Length; i++)
@@ -267,7 +294,7 @@ namespace GameBrain
                     state.PlayerBPlayerBoard[x][y] = PlayerB.PlayerBoard.Board[x, y];
                 }
             }
-            
+
             state.PlayerBFiringBoard = new ECellState[state.Width][];
 
             for (var i = 0; i < state.PlayerBFiringBoard.Length; i++)
@@ -288,7 +315,6 @@ namespace GameBrain
                 WriteIndented = true
             };
             return JsonSerializer.Serialize(state, jsonOptions);
-
         }
 
         private void SaveGameAction()
@@ -313,16 +339,18 @@ namespace GameBrain
         private void SetGameStateFromJsonString(string jsonString)
         {
             var state = JsonSerializer.Deserialize<GameState>(jsonString);
-        
+
             // restore actual state from deserialized state
             _nextMoveByPlayerA = state.NextMoveByPlayerA;
+            _boardWidth = state.Width;
+            _boardHeight = state.Height;
             PlayerA.Name = state.PlayerAName!;
             PlayerB.Name = state.PlayerBName!;
             PlayerA.PlayerBoard.Board = new ECellState[state.Width, state.Height];
             PlayerA.OpponentBoard.Board = new ECellState[state.Width, state.Height];
             PlayerB.PlayerBoard.Board = new ECellState[state.Width, state.Height];
             PlayerB.OpponentBoard.Board = new ECellState[state.Width, state.Height];
-        
+
             for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
@@ -330,7 +358,7 @@ namespace GameBrain
                     PlayerA.PlayerBoard.Board[x, y] = state.PlayerAPlayerBoard[x][y];
                 }
             }
-        
+
             for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
@@ -338,7 +366,7 @@ namespace GameBrain
                     PlayerA.OpponentBoard.Board[x, y] = state.PlayerAFiringBoard[x][y];
                 }
             }
-        
+
             for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
@@ -346,7 +374,7 @@ namespace GameBrain
                     PlayerB.PlayerBoard.Board[x, y] = state.PlayerBPlayerBoard[x][y];
                 }
             }
-        
+
             for (var x = 0; x < state.Width; x++)
             {
                 for (var y = 0; y < state.Height; y++)
@@ -355,7 +383,7 @@ namespace GameBrain
                 }
             }
         }
-        
+
         public void LoadGameAction()
         {
             // var files = System.IO.Directory.EnumerateFiles(".", "*").ToList();
@@ -372,14 +400,14 @@ namespace GameBrain
 
             SetGameStateFromJsonString(jsonString);
 
-            
             while (true)
             {
                 PlaceBombs();
+                if (!PlayerA.HasLost || !PlayerB.HasLost) continue;
+                Console.WriteLine("GAME OVER");
+                Console.ReadLine();
+                return;
             }
-
         }
-
-        
     }
 }
