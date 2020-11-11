@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Domain
+﻿namespace AnotherDomain
 {
     public class PlayerBoardState
     {
@@ -8,11 +6,10 @@ namespace Domain
 
         public int PlayerId { get; set; }
         public Player Player { get; set; } = null!;
-
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-        // serialized to json
+        
+        //Serialized from JSON
         public string BoardState { get; set; } = null!;
+
 
     }
 }

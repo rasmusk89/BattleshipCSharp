@@ -1,11 +1,6 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using DAL;
-using MenuSystem;
 using GameBrain;
-using GameConsoleUI;
-using Player = Domain.Player;
+using MenuSystem;
 
 namespace ConsoleApp
 {
@@ -47,7 +42,7 @@ namespace ConsoleApp
 
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Battleship", "B", gameType.RunMenu));
-            menu.AddMenuItem(new MenuItem("DB Test", "D", DbTest));
+            menu.AddMenuItem(new MenuItem("DB Test", "D", DefaultMenuAction));
             menu.RunMenu();
         }
 
@@ -80,16 +75,38 @@ namespace ConsoleApp
 
             return "";
         }
+        
+        
+        
 
-        private static string DbTest()
-        {
-            using var db = new ApplicationDbContext();
-            foreach (var player in db.Players!)
-            {
-                Console.WriteLine(player);
-            }
-
-            return "";
-        }
+        // private static string DbTest()
+        // {
+        //     using var db = new ApplicationDbContext();
+        //
+        //     var gamePlayer = new Player()
+        //     {
+        //         Name = "Rasmus"
+        //     };
+        //
+        //     Console.WriteLine("Before: ");
+        //     Console.WriteLine(gamePlayer);
+        //     db.Players.Add(gamePlayer);
+        //     
+        //     Console.WriteLine("After");
+        //     Console.WriteLine(gamePlayer);
+        //     
+        //     db.SaveChanges();
+        //
+        //     Console.WriteLine("After save: ");
+        //     Console.WriteLine(gamePlayer);
+        //     
+        //     Console.WriteLine("From db: ");
+        //     foreach (var player in db.Players!)
+        //     {
+        //         Console.WriteLine(player);
+        //     }
+        //
+        //     return "";
+        // }
     }
 }

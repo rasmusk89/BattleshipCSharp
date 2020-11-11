@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using DAL;
 
 namespace GameBrain
 {
@@ -22,15 +23,7 @@ namespace GameBrain
             PlayerA = new Player("Player A", 10, 10);
             PlayerB = new Player("Player B", 10, 10);
         }
-
-        public Game(int boardWidth, int boardHeight)
-        {
-            _boardWidth = boardWidth;
-            _boardHeight = boardHeight;
-            PlayerA = new Player("Player A", boardWidth, boardHeight);
-            PlayerB = new Player("Player B", boardWidth, boardHeight);
-        }
-
+        
         public void PlayRound()
         {
             Console.Clear();
@@ -341,7 +334,7 @@ namespace GameBrain
             var state = JsonSerializer.Deserialize<GameState>(jsonString);
 
             // restore actual state from deserialized state
-            _nextMoveByPlayerA = state.NextMoveByPlayerA;
+            _nextMoveByPlayerA = state!.NextMoveByPlayerA;
             _boardWidth = state.Width;
             _boardHeight = state.Height;
             PlayerA.Name = state.PlayerAName!;
