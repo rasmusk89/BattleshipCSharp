@@ -1,33 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GameBrain
 {
-    public static class GameOptions
+    public class GameOptions
     {
-        public static string GetAName()
+
+        public int BoardWidth { get; set; } = 10;
+        public int BoardHeight { get; set; } = 10;
+        public bool BoatsCanTouch { get; set; } = true;
+        public string PlayerAName { get; set; } = "Player A";
+        public string PlayerBName { get; set; } = "Player B";
+        public List<Ship> Ships { get; set; } = new List<Ship>
         {
-            Console.WriteLine("Player A Name: ");
-            return Console.ReadLine() ?? "PlayerA";
-        }
-        
-        public static string GetBName()
-        {
-            Console.WriteLine("Player B Name: ");
-            return Console.ReadLine() ?? "PlayerB";
-        }
-        
-        public static int GetBoardWidth()
-        {
-            Console.WriteLine("Board width: ");
-            return int.Parse(Console.ReadLine() ?? "10");
-        }
-        
-        public static int GetBoardHeight()
-        {
-            Console.WriteLine("Board height: ");
-            return int.Parse(Console.ReadLine() ?? "10");
-        }
-        
-        
+            new Ship(1),
+            new Ship(2),
+            new Ship(3),
+            new Ship(4),
+            new Ship(5)
+        };
+
+
     }
 }

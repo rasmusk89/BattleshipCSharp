@@ -14,10 +14,10 @@ namespace GameBrain
         private List<Ship> Ships { get; set; } = new List<Ship>
         {
             new Ship(1),
-            // new Ship(2),
-            // new Ship(3),
-            // new Ship(4),
-            // new Ship(5)
+            new Ship(2),
+            new Ship(3),
+            new Ship(4),
+            new Ship(5)
         };
 
         private readonly Validator _validator = new Validator();

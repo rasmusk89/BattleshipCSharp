@@ -1,8 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using DAL;
 using MenuSystem;
 using GameBrain;
 using GameConsoleUI;
+using Player = Domain.Player;
 
 namespace ConsoleApp
 {
@@ -21,7 +24,7 @@ namespace ConsoleApp
                 "Player VS Player",
                 "1",
                 Battleship));
-            
+
             var gameType = new Menu(MenuLevel.Level1);
             gameType.AddMenuItem(new MenuItem(
                 "Start Basic Game",
@@ -34,16 +37,17 @@ namespace ConsoleApp
                 "C",
                 CustomBattleship
             ));
-            
+
             gameType.AddMenuItem(new MenuItem(
                 "Load Last Game",
                 "L",
                 LoadGame
             ));
 
-            
+
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Battleship", "B", gameType.RunMenu));
+            menu.AddMenuItem(new MenuItem("DB Test", "D", DbTest));
             menu.RunMenu();
         }
 
@@ -60,7 +64,7 @@ namespace ConsoleApp
             game.CustomRound();
             return "";
         }
-        
+
         private static string LoadGame()
         {
             var game = new Game();
@@ -73,6 +77,17 @@ namespace ConsoleApp
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("\nNot implemented yet!");
             Console.ForegroundColor = ConsoleColor.Cyan;
+
+            return "";
+        }
+
+        private static string DbTest()
+        {
+            using var db = new ApplicationDbContext();
+            foreach (var player in db.Players!)
+            {
+                Console.WriteLine(player);
+            }
 
             return "";
         }
