@@ -1,7 +1,8 @@
-﻿namespace AnotherDomain
+﻿namespace Domain
 {
     public class GameBoard
     {
-        public CellState[,] Board { get; set; }  = null!;
+        // public CellState[,] Board { get; set; }  = null!;
+
     }
 }

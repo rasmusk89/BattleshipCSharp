@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace GameBrain
 {
     public class Player
     {
-        private readonly bool _shipsCanTouch;
         public string Name { get; set; }
+        public Domain.Enums.EPlayerType PlayerType { get; set; }
         public GameBoard PlayerBoard { get; set; }
         public FiringBoard OpponentBoard { get; set; }
-
-        private List<Ship> Ships { get; set; } = new List<Ship>
-        {
-            new Ship(1),
-            new Ship(2),
-            new Ship(3),
-            new Ship(4),
-            new Ship(5)
-        };
+        private List<Ship> Ships { get; set; }
+        public EShipsCanTouch ShipsCanTouch { get; set; }
 
         private readonly Validator _validator = new Validator();
 
@@ -27,13 +21,13 @@ namespace GameBrain
             get { return Ships.All(x => x.IsSunk); }
         }
 
-        public Player(string name, int boardWidth, int boardHeight, bool shipsCanTouch=false)
+        public Player(string name, int boardWidth, int boardHeight, List<Ship> ships, EShipsCanTouch shipsCanTouch)
         {
-            _shipsCanTouch = shipsCanTouch;
             Name = name;
-
             PlayerBoard = new GameBoard(boardWidth, boardHeight);
             OpponentBoard = new FiringBoard(boardWidth, boardHeight);
+            Ships = ships;
+            ShipsCanTouch = shipsCanTouch;
         }
 
         private ECellState[,] GetBoard()
@@ -226,7 +220,7 @@ namespace GameBrain
 
                     var occupiedCells = 0;
 
-                    if (!_shipsCanTouch)
+                    if (ShipsCanTouch == EShipsCanTouch.No)
                     {
                         var checkStartColumn = startColumn;
                         var checkEndColumn = endColumn;
@@ -371,6 +365,51 @@ namespace GameBrain
             };
 
             return orientation;
+        }
+
+        public string GetSerializedBoardState()
+        {
+
+            var state = new GameBoardState();
+            
+            var width = PlayerBoard.Board.GetUpperBound(0) + 1;
+            var height = PlayerBoard.Board.GetUpperBound(1) + 1;
+            
+            state.PlayerBoard = new ECellState[width][];
+            
+            for (var i = 0; i < state.PlayerBoard.Length; i++)
+            {
+                state.PlayerBoard[i] = new ECellState[height];
+            }
+
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    state.PlayerBoard[x][y] = PlayerBoard.Board[x, y];
+                }
+            }
+
+            state.OpponentBoard = new ECellState[width][];
+
+            for (var i = 0; i < state.OpponentBoard.Length; i++)
+            {
+                state.OpponentBoard[i] = new ECellState[height];
+            }
+
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    state.OpponentBoard[x][y] = OpponentBoard.Board[x, y];
+                }
+            }
+            var jsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            
+            return JsonSerializer.Serialize(state, jsonOptions);
         }
 
         private static string IntToAlphabeticValue(int index)

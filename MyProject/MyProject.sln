@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameConsoleUI", "GameConsol
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{6E7AFF67-BA1B-45B3-8158-A0C05AFC03A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{EFA862BF-D1E4-44CD-A0FE-ABAD4FE5EF92}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{23F4C04F-5B33-46C4-8A70-A007A72DCE1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,9 +44,9 @@ Global
 		{6E7AFF67-BA1B-45B3-8158-A0C05AFC03A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E7AFF67-BA1B-45B3-8158-A0C05AFC03A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E7AFF67-BA1B-45B3-8158-A0C05AFC03A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EFA862BF-D1E4-44CD-A0FE-ABAD4FE5EF92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EFA862BF-D1E4-44CD-A0FE-ABAD4FE5EF92}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EFA862BF-D1E4-44CD-A0FE-ABAD4FE5EF92}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EFA862BF-D1E4-44CD-A0FE-ABAD4FE5EF92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23F4C04F-5B33-46C4-8A70-A007A72DCE1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23F4C04F-5B33-46C4-8A70-A007A72DCE1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23F4C04F-5B33-46C4-8A70-A007A72DCE1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23F4C04F-5B33-46C4-8A70-A007A72DCE1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

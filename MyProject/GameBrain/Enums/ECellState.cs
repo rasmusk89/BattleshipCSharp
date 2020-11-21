@@ -22,5 +22,7 @@ namespace GameBrain
         Battleship,
         [Description("A")]
         Carrier,
+        [Description("Z")]
+        Custom,
     }
 }

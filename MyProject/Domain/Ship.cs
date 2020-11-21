@@ -1,19 +1,19 @@
-﻿namespace AnotherDomain
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Net.NetworkInformation;
+
+namespace Domain
 {
     public class Ship
     {
         public int ShipId { get; set; }
 
-        public string? Name { get; set; }
+        public string Name { get; set; } = null!;
 
+        [Range(1, int.MaxValue)]
         public int Width { get; set; }
 
-        public int Hits { get; set; }
-
-        public bool IsSunk { get; set; }
-
-        public int PlayerId { get; set; }
-        public Player Player { get; set; } = null!;
+        public ICollection<GameOptionShip> GameOptionShips { get; set; } = null!;
 
     }
 }

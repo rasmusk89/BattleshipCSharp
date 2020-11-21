@@ -11,6 +11,6 @@
             CellState = ECellState.Empty;
         }
         
-        public bool IsOccupied => CellState == ECellState.Boat;
+        public bool IsOccupied => CellState != ECellState.Empty;
     }
 }
