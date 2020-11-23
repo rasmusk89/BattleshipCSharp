@@ -119,6 +119,8 @@ namespace GameBrain
                     CellState = playerAShip.ECellState
                 });
             }
+            
+            // Should get with include!
             var gameBoardB = dbCtx.PlayerBoardStates
                     .Where(x => x.PlayerId == playerBId)
                     .Select(x => x.GameBoardState)

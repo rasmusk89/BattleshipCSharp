@@ -23,23 +23,16 @@ namespace GameBrain
         private readonly EShipsCanTouch _shipsCanTouch;
         private List<Ship> Ships { get; }
 
-
         public Game(GameOptions options)
         {
             _boardWidth = options.GetBoardWidth();
             _boardHeight = options.GetBoardHeight();
             Ships = options.Ships;
             PlayerA = options.PlayerA;
-            if (PlayerA.GetShips().Count < 1)
-            {
-                PlayerA.SetShips(options.Ships);
-            }
+            PlayerA.Ships = options.Ships;
             PlayerA.ShipsCanTouch = _shipsCanTouch;
             PlayerB = options.PlayerB;
-            if (PlayerB.GetShips().Count < 1)
-            {
-                PlayerB.SetShips(options.Ships);
-            }
+            PlayerB.Ships = options.Ships;
             PlayerB.ShipsCanTouch = _shipsCanTouch;
             _nextMoveByPlayerA = options.NextMoveByPlayerA;
             _shipsCanTouch = options.ShipsCanTouch;
@@ -72,15 +65,20 @@ namespace GameBrain
         
         public void PlayRound()
         {
-            
+            // SaveGameStateToDb();
+            Console.ReadLine();
             while (true)
             {
                 if (_nextMoveByPlayerA)
                 {
                     PlayerA.PlaceBomb(PlayerB);
                     Console.Clear();
-                    Console.Write($"Player {PlayerB.GetName()}, press enter to continue...");
-                    Console.ReadLine();
+                    Console.Write($"Player {PlayerB.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
+                    var inputB = Console.ReadLine();
+                    if (inputB.ToLower() == "esc")
+                    {
+                        return;
+                    }
                     if (PlayerB.HasLost)
                     {
                         Console.WriteLine("PLayer A WON!");
@@ -94,8 +92,12 @@ namespace GameBrain
 
                 PlayerB.PlaceBomb(PlayerA);
                 Console.Clear();
-                Console.Write($"Player {PlayerA.GetName()}, press enter to continue...");
-                Console.ReadLine();
+                Console.Write($"Player {PlayerA.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
+                var inputA = Console.ReadLine();
+                if (inputA.ToLower() == "esc")
+                {
+                    return;
+                }
                 if (PlayerA.HasLost)
                 {
                     _nextMoveByPlayerA = true;
@@ -107,6 +109,7 @@ namespace GameBrain
                 _nextMoveByPlayerA = true;
 
                 SaveGameAction();
+                // SaveInitialDataToDataBase();
             }
         }
 
@@ -430,6 +433,26 @@ namespace GameBrain
 
             dbCtx.Games.Add(game);
             dbCtx.SaveChanges();
+        }
+
+        private static void SaveGameStateToDb()
+        {
+            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
+                @"
+                Server=barrel.itcollege.ee,1533;
+                User Id=student;
+                Password=Student.Bad.password.0;
+                Database=raskil_db;
+                MultipleActiveResultSets=true;
+                ").Options;
+            using var dbCtx = new AppDbContext(dbOptions);
+
+            var game = dbCtx.Games
+                .OrderByDescending(id => id.GameId)
+                .FirstOrDefault();
+
+            
+
         }
 
        

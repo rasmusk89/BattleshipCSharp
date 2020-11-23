@@ -19,6 +19,13 @@ namespace Domain
 
         public int PlayerBId { get; set; }
         public Player PlayerB { get; set; } = null!;
-        
+
+        public override string ToString()
+        {
+            return $"GameID: {GameId}\n" +
+                   $"GameOptionID: {GameOptionId}\n" +
+                   $"PlayerAID: {PlayerAId}\n" +
+                   $"PlayerBID: {PlayerBId}\n";
+        }
     }
 }

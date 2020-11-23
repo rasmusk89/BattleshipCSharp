@@ -17,42 +17,40 @@ namespace GameBrain
         public bool IsSunk => Hits >= Width;
 
         public Ship()
-        {}
+        {
+        }
+
         public Ship(int width)
         {
             Width = width;
-
-            CellState = width switch
-            {
-                1 => Domain.Enums.ECellState.Patrol,
-                2 => Domain.Enums.ECellState.Cruiser,
-                3 => Domain.Enums.ECellState.Submarine,
-                4 => Domain.Enums.ECellState.Battleship,
-                5 => Domain.Enums.ECellState.Carrier,
-                _ => throw new Exception("Incorrect ship width!")
-            };
+            CellState = GetCellState(width);
             Name = CreateName(width);
         }
 
         private static string CreateName(int width)
         {
-            switch (width)
+            return width switch
             {
-                case 1:
-                    return "Patrol";
-;                case 2:
-                    return "Cruiser";
-                case 3:
-                    return "Submarine";
-                case 4:
-                    return "Battleship";
-                case 5:
-                    return "Carrier";
-                default:
-                    throw new Exception("Incorrect ship width!");
-            }
+                1 => "Patrol",
+                2 => "Cruiser",
+                3 => "Submarine",
+                4 => "Battleship",
+                5 => "Carrier",
+                _ => "Custom"
+            };
         }
-        
+
+        private static ECellState GetCellState(int width)
+        {
+            return width switch
+            {
+                1 => ECellState.Patrol,
+                2 => ECellState.Cruiser,
+                3 => ECellState.Submarine,
+                4 => ECellState.Battleship,
+                5 => ECellState.Carrier,
+                _ => ECellState.Custom
+            };
+        }
     }
-    
 }

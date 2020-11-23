@@ -10,7 +10,7 @@ namespace GameBrain
     {
         public string Name { get; set; }
         public EPlayerType PlayerType { get; set; }
-        public List<Ship> Ships { get; set; } = new List<Ship>();
+        public List<Ship> Ships { get; set; } = null!;
         public EShipsCanTouch ShipsCanTouch { get; set; }
         public GameBoard PlayerBoard { get; set; }
         public FiringBoard OpponentBoard { get; set; }
@@ -65,7 +65,6 @@ namespace GameBrain
             DrawBoardUI();
             Console.WriteLine($"{Name}, place Bomb!");
             Coordinates coordinates = AskCoordinates();
-
             while (!_validator.BombCoordinateFree(coordinates, OpponentBoard))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -82,13 +81,12 @@ namespace GameBrain
                 var cellState = opponentBoard[column, row];
                 
                 Ship ship = new Ship();
-
+                
                 foreach (var opponentShip in opponent.Ships.Where(opponentShip => opponentShip.CellState == cellState))
                 {
                     ship = opponentShip;
                     break;
                 }
-                // var ship = opponent.Ships.First(x => x.CellState == cellState);
                 ship.Hits++;
                 firingBoard[column, row] = ECellState.Hit;
                 opponentBoard[column, row] = ECellState.Hit;
