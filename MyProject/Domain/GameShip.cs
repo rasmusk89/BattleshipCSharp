@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain.Enums;
 
 namespace Domain
 {
@@ -14,6 +15,8 @@ namespace Domain
         public int Hits { get; set; }
 
         public bool IsSunk { get; set; }
+
+        public ECellState ECellState { get; set; }
 
         public int PlayerId { get; set; }
         public Player Player { get; set; } = null!;

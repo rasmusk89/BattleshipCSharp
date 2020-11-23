@@ -1,4 +1,6 @@
-﻿namespace GameBrain
+﻿using Domain.Enums;
+
+namespace GameBrain
 {
     public class Cell
     {

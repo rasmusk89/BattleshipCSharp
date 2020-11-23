@@ -75,6 +75,9 @@ namespace DAL.Migrations
                     b.Property<int>("NextMoveAfterHit")
                         .HasColumnType("int");
 
+                    b.Property<bool>("NextMoveByPlayerA")
+                        .HasColumnType("bit");
+
                     b.HasKey("GameOptionId");
 
                     b.ToTable("GameOptions");
@@ -111,6 +114,9 @@ namespace DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .UseIdentityColumn();
+
+                    b.Property<int>("ECellState")
+                        .HasColumnType("int");
 
                     b.Property<int>("Hits")
                         .HasColumnType("int");
@@ -162,12 +168,16 @@ namespace DAL.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<string>("BoardStatePlayer")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FiringBoardState")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("GameBoardState")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PlayerId")
                         .HasColumnType("int");
@@ -176,7 +186,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("PlayerBoardState");
+                    b.ToTable("PlayerBoardStates");
                 });
 
             modelBuilder.Entity("Domain.Ship", b =>

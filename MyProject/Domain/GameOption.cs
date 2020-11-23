@@ -20,9 +20,12 @@ namespace Domain
 
         public ENextMoveAfterHit NextMoveAfterHit { get; set; }
 
+        public bool NextMoveByPlayerA { get; set; }
+
         public ICollection<GameOptionShip> GameOptionShips { get; set; } = null!;
 
         public ICollection<Game> Games { get; set; } = null!;
+
 
     }
 }

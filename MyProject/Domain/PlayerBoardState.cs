@@ -12,6 +12,7 @@ namespace Domain
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         //Serialized to JSON
-        public string BoardStatePlayer { get; set; } = null!;
+        public string GameBoardState { get; set; } = null!;
+        public string FiringBoardState { get; set; } = null!;
     }
 }

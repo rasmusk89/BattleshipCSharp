@@ -1,8 +1,9 @@
-﻿namespace Domain
+﻿using Domain.Enums;
+
+namespace Domain
 {
     public class GameBoard
     {
-        // public CellState[,] Board { get; set; }  = null!;
-
+        public ECellState[,] Board { get; set; }  = null!;
     }
 }

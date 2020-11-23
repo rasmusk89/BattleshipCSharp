@@ -17,7 +17,8 @@ namespace DAL.Migrations
                     BoardWidth = table.Column<int>(type: "int", nullable: false),
                     BoardHeight = table.Column<int>(type: "int", nullable: false),
                     EShipsCanTouch = table.Column<int>(type: "int", nullable: false),
-                    NextMoveAfterHit = table.Column<int>(type: "int", nullable: false)
+                    NextMoveAfterHit = table.Column<int>(type: "int", nullable: false),
+                    NextMoveByPlayerA = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -96,6 +97,7 @@ namespace DAL.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Hits = table.Column<int>(type: "int", nullable: false),
                     IsSunk = table.Column<bool>(type: "bit", nullable: false),
+                    ECellState = table.Column<int>(type: "int", nullable: false),
                     PlayerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -110,20 +112,21 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerBoardState",
+                name: "PlayerBoardStates",
                 columns: table => new
                 {
                     PlayerBoardStateId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PlayerId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    BoardStatePlayer = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    GameBoardState = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FiringBoardState = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlayerBoardState", x => x.PlayerBoardStateId);
+                    table.PrimaryKey("PK_PlayerBoardStates", x => x.PlayerBoardStateId);
                     table.ForeignKey(
-                        name: "FK_PlayerBoardState_Players_PlayerId",
+                        name: "FK_PlayerBoardStates_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
                         principalColumn: "PlayerId",
@@ -188,8 +191,8 @@ namespace DAL.Migrations
                 column: "PlayerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlayerBoardState_PlayerId",
-                table: "PlayerBoardState",
+                name: "IX_PlayerBoardStates_PlayerId",
+                table: "PlayerBoardStates",
                 column: "PlayerId");
         }
 
@@ -205,7 +208,7 @@ namespace DAL.Migrations
                 name: "GameShips");
 
             migrationBuilder.DropTable(
-                name: "PlayerBoardState");
+                name: "PlayerBoardStates");
 
             migrationBuilder.DropTable(
                 name: "Ships");

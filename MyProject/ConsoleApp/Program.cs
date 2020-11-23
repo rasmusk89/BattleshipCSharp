@@ -8,7 +8,7 @@ using GameBrain;
 using MenuSystem;
 using Microsoft.EntityFrameworkCore;
 using EPlayerType = Domain.Enums.EPlayerType;
-using EShipsCanTouch = GameBrain.EShipsCanTouch;
+using EShipsCanTouch = Domain.Enums.EShipsCanTouch;
 using Game = GameBrain.Game;
 using Ship = GameBrain.Ship;
 
@@ -48,6 +48,12 @@ namespace ConsoleApp
                 "L",
                 LoadGame
             ));
+            
+            gameType.AddMenuItem(new MenuItem(
+                "Load Game from DB",
+                "D",
+                LoadGameDb
+            ));
 
 
             var menu = new Menu(MenuLevel.Level0);
@@ -60,7 +66,7 @@ namespace ConsoleApp
         {
             var options = new GameOptions();
             var game = new Game(options);
-            game.PlayRound();
+            game.StartGame();
             return "";
         }
 
@@ -133,10 +139,10 @@ namespace ConsoleApp
                 ships.Add(new Ship(5));
             }
 
-            var options = new GameOptions(width, height, playerAName, playerBName, shipsCanTouch, ships, false);
+            var options = new GameOptions(width, height, playerAName, playerBName, shipsCanTouch, ships, ENextMoveAfterHit.OtherPlayer);
 
             var game = new Game(options);
-            game.PlayRound();
+            game.StartGame();
             return "";
         }
 
@@ -249,6 +255,14 @@ namespace ConsoleApp
             dbCtx.Games.Add(game);
             dbCtx.SaveChanges();
 
+            return "";
+        }
+
+        private static string LoadGameDb()
+        {
+            var gameLoading = new GameLoading();
+            var game = new Game(gameLoading.LoadLastGameOptions());
+            game.PlayRound();
             return "";
         }
     }

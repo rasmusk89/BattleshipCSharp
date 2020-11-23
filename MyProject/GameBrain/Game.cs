@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using DAL;
 using Domain;
@@ -11,25 +12,40 @@ namespace GameBrain
 {
     public class Game
     {
-        private static int _boardWidth;
-        private static int _boardHeight;
-        private Player PlayerA { get; set; }
-        private Player PlayerB { get; set; }
+        private int _boardWidth;
 
-        private static bool _nextMoveByPlayerA = true;
+        private int _boardHeight;
+        private Player PlayerA { get; }
+        private Player PlayerB { get; }
 
-        private EShipsCanTouch _shipsCanTouch;
+        private bool _nextMoveByPlayerA;
+
+        private readonly EShipsCanTouch _shipsCanTouch;
+        private List<Ship> Ships { get; }
+
 
         public Game(GameOptions options)
         {
             _boardWidth = options.GetBoardWidth();
             _boardHeight = options.GetBoardHeight();
+            Ships = options.Ships;
             PlayerA = options.PlayerA;
+            if (PlayerA.GetShips().Count < 1)
+            {
+                PlayerA.SetShips(options.Ships);
+            }
+            PlayerA.ShipsCanTouch = _shipsCanTouch;
             PlayerB = options.PlayerB;
+            if (PlayerB.GetShips().Count < 1)
+            {
+                PlayerB.SetShips(options.Ships);
+            }
+            PlayerB.ShipsCanTouch = _shipsCanTouch;
+            _nextMoveByPlayerA = options.NextMoveByPlayerA;
             _shipsCanTouch = options.ShipsCanTouch;
         }
 
-        public void PlayRound()
+        public void StartGame()
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -37,6 +53,7 @@ namespace GameBrain
                               "| < - - - BATTLESHIP - - - > |\n" +
                               "+----------------------------+");
             Console.ForegroundColor = ConsoleColor.Cyan;
+
             Console.Write("Press ENTER to place ships or type \"R\" for random ships: ");
             string input = Console.ReadLine() ?? "";
             if (input.ToLower() != "r")
@@ -47,16 +64,23 @@ namespace GameBrain
             {
                 PlaceRandomShips();
             }
-
-            // Save options to database.
-            SaveToDataBase();
-
+            
+            SaveInitialDataToDataBase();
             SaveGameAction();
+            PlayRound();
+        }
+        
+        public void PlayRound()
+        {
+            
             while (true)
             {
                 if (_nextMoveByPlayerA)
                 {
                     PlayerA.PlaceBomb(PlayerB);
+                    Console.Clear();
+                    Console.Write($"Player {PlayerB.GetName()}, press enter to continue...");
+                    Console.ReadLine();
                     if (PlayerB.HasLost)
                     {
                         Console.WriteLine("PLayer A WON!");
@@ -69,6 +93,9 @@ namespace GameBrain
                 }
 
                 PlayerB.PlaceBomb(PlayerA);
+                Console.Clear();
+                Console.Write($"Player {PlayerA.GetName()}, press enter to continue...");
+                Console.ReadLine();
                 if (PlayerA.HasLost)
                 {
                     _nextMoveByPlayerA = true;
@@ -78,6 +105,7 @@ namespace GameBrain
                 }
 
                 _nextMoveByPlayerA = true;
+
                 SaveGameAction();
             }
         }
@@ -293,7 +321,7 @@ namespace GameBrain
             }
         }
 
-        public void SaveToDataBase()
+        private void SaveInitialDataToDataBase()
         {
             var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
                 @"
@@ -313,21 +341,21 @@ namespace GameBrain
 
             var game = new Domain.Game
             {
-                Description = PlayerA.Name + "_vs_" + PlayerB.Name + "@" + DateTime.Now.TimeOfDay
-            };
-
-            game.PlayerA = new Domain.Player
-            {
-                Name = PlayerA.Name,
-                EPlayerType = PlayerA.PlayerType,
-                PlayerBoardStates = new List<PlayerBoardState>()
-            };
-
-            game.PlayerB = new Domain.Player
-            {
-                Name = PlayerB.Name,
-                EPlayerType = PlayerB.PlayerType,
-                PlayerBoardStates = new List<PlayerBoardState>()
+                Description = PlayerA.Name + "_vs_" + PlayerB.Name + "@" + DateTime.Now.TimeOfDay,
+                PlayerA = new Domain.Player
+                {
+                    Name = PlayerA.Name,
+                    EPlayerType = PlayerA.PlayerType,
+                    PlayerBoardStates = new List<PlayerBoardState>(),
+                    GameShips = new List<GameShip>()
+                },
+                PlayerB = new Domain.Player
+                {
+                    Name = PlayerB.Name,
+                    EPlayerType = PlayerB.PlayerType,
+                    PlayerBoardStates = new List<PlayerBoardState>(),
+                    GameShips = new List<GameShip>()
+                }
             };
 
             var gameOptions = new GameOption
@@ -335,8 +363,10 @@ namespace GameBrain
                 Name = PlayerA.Name + "_vs_" + PlayerB.Name + "@" + DateTime.Now.TimeOfDay,
                 BoardWidth = _boardWidth,
                 BoardHeight = _boardHeight,
-                EShipsCanTouch = Domain.Enums.EShipsCanTouch.Yes,
-                NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer
+                EShipsCanTouch = _shipsCanTouch,
+                NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer,
+                GameOptionShips = new List<GameOptionShip>(),
+                NextMoveByPlayerA = _nextMoveByPlayerA
             };
 
             game.GameOption = gameOptions;
@@ -344,20 +374,64 @@ namespace GameBrain
             var playerABoardState = new PlayerBoardState
             {
                 Player = game.PlayerA,
-                BoardStatePlayer = PlayerA.GetSerializedBoardState()
+                GameBoardState = PlayerA.GetSerializedGameBoardState(),
+                FiringBoardState = PlayerA.GetSerializedFiringBoardState()
             };
 
             var playerBBoardState = new PlayerBoardState
             {
                 Player = game.PlayerB,
-                BoardStatePlayer = PlayerB.GetSerializedBoardState()
+                GameBoardState = PlayerB.GetSerializedGameBoardState(),
+                FiringBoardState = PlayerB.GetSerializedFiringBoardState()
             };
 
             game.PlayerA.PlayerBoardStates.Add(playerABoardState);
             game.PlayerB.PlayerBoardStates.Add(playerBBoardState);
 
+            foreach (var gameOptionShip in Ships.Select(ship => new GameOptionShip
+            {
+                GameOption = game.GameOption,
+                Ship = new Domain.Ship
+                {
+                    Name = ship.Name,
+                    Width = ship.Width
+                },
+                Amount = 1
+            }))
+            {
+                dbCtx.GameOptionShips.Add(gameOptionShip);
+            }
+
+            foreach (var gameShip in PlayerA.GetShips().Select(ship => new GameShip
+            {
+                Hits = ship.Hits,
+                Name = ship.Name,
+                Width = ship.Width,
+                IsSunk = ship.IsSunk,
+                Player = game.PlayerA,
+                ECellState = ship.CellState
+            }))
+            {
+                dbCtx.GameShips.Add(gameShip);
+            }
+
+            foreach (var gameShip in PlayerB.GetShips().Select(ship => new GameShip
+            {
+                Hits = ship.Hits,
+                Name = ship.Name,
+                Width = ship.Width,
+                IsSunk = ship.IsSunk,
+                Player = game.PlayerB,
+                ECellState = ship.CellState
+            }))
+            {
+                dbCtx.GameShips.Add(gameShip);
+            }
+
             dbCtx.Games.Add(game);
             dbCtx.SaveChanges();
         }
+
+       
     }
 }

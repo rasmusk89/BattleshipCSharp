@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Domain.Enums;
 
 namespace GameBrain
 {
     public class GameOptions
     {
-        public static int BoardWidth { get; set; }
-        public static int BoardHeight { get; set; }
+        public int BoardWidth { get; set; }
+        public int BoardHeight { get; set; }
         public EShipsCanTouch ShipsCanTouch { get; set; }
-        public static bool NextMoveAfterHit { get; set; }
+        public ENextMoveAfterHit NextMoveAfterHit { get; set; }
+        public bool NextMoveByPlayerA { get; set; }
         public Player PlayerA { get; set; }
         public Player PlayerB { get; set; }
-        public static List<Ship> Ships { get; set; } = new List<Ship>
+        public List<Ship> Ships { get; set; } = new List<Ship>
         {
             new Ship(1),
             new Ship(2),
@@ -25,17 +26,17 @@ namespace GameBrain
             BoardWidth = 10;
             BoardHeight = 10;
             ShipsCanTouch = EShipsCanTouch.Yes;
-            NextMoveAfterHit = false;
-            PlayerA = new Player("PlayerA", BoardWidth, BoardHeight, Ships, ShipsCanTouch);
-            PlayerB = new Player("PlayerB", BoardWidth, BoardHeight, Ships,  ShipsCanTouch);
+            NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
+            PlayerA = new Player("PlayerA", BoardWidth, BoardHeight, ShipsCanTouch);
+            PlayerB = new Player("PlayerB", BoardWidth, BoardHeight, ShipsCanTouch);
         }
 
-        public GameOptions(int boardWidth, int boardHeight, string playerAName, string playerBName, EShipsCanTouch shipsCanTouch, List<Ship> ships, bool nextMoveAfterHit)
+        public GameOptions(int boardWidth, int boardHeight, string playerAName, string playerBName, EShipsCanTouch shipsCanTouch, List<Ship> ships, ENextMoveAfterHit nextMoveAfterHit)
         {
             BoardWidth = boardWidth;
             BoardHeight = boardHeight;
-            PlayerA = new Player(playerAName, boardWidth, boardHeight, ships, shipsCanTouch);
-            PlayerB = new Player(playerBName, boardWidth, boardHeight, ships, shipsCanTouch);
+            PlayerA = new Player(playerAName, boardWidth, boardHeight, shipsCanTouch);
+            PlayerB = new Player(playerBName, boardWidth, boardHeight, shipsCanTouch);
             ShipsCanTouch = shipsCanTouch;
             Ships = ships;
             NextMoveAfterHit = nextMoveAfterHit;

@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Domain.Enums;
 
 namespace GameBrain
 {
     public class Player
     {
         public string Name { get; set; }
-        public Domain.Enums.EPlayerType PlayerType { get; set; }
+        public EPlayerType PlayerType { get; set; }
+        public List<Ship> Ships { get; set; } = new List<Ship>();
+        public EShipsCanTouch ShipsCanTouch { get; set; }
         public GameBoard PlayerBoard { get; set; }
         public FiringBoard OpponentBoard { get; set; }
-        private List<Ship> Ships { get; set; }
-        public EShipsCanTouch ShipsCanTouch { get; set; }
 
         private readonly Validator _validator = new Validator();
 
@@ -21,12 +22,12 @@ namespace GameBrain
             get { return Ships.All(x => x.IsSunk); }
         }
 
-        public Player(string name, int boardWidth, int boardHeight, List<Ship> ships, EShipsCanTouch shipsCanTouch)
+        public Player(string name, int boardWidth, int boardHeight, EShipsCanTouch shipsCanTouch)
         {
             Name = name;
+            // PlayerType = playerType;
             PlayerBoard = new GameBoard(boardWidth, boardHeight);
             OpponentBoard = new FiringBoard(boardWidth, boardHeight);
-            Ships = ships;
             ShipsCanTouch = shipsCanTouch;
         }
 
@@ -367,7 +368,7 @@ namespace GameBrain
             return orientation;
         }
 
-        public string GetSerializedBoardState()
+        public string GetSerializedGameBoardState()
         {
 
             var state = new GameBoardState();
@@ -390,8 +391,25 @@ namespace GameBrain
                 }
             }
 
-            state.OpponentBoard = new ECellState[width][];
+            
+            var jsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            
+            return JsonSerializer.Serialize(state, jsonOptions);
+        }
 
+        public string GetSerializedFiringBoardState()
+        {
+
+            var state = new FiringBoardState();
+            
+            var width = OpponentBoard.Board.GetUpperBound(0) + 1;
+            var height = OpponentBoard.Board.GetUpperBound(1) + 1;
+            
+            state.OpponentBoard = new ECellState[width][];
+            
             for (var i = 0; i < state.OpponentBoard.Length; i++)
             {
                 state.OpponentBoard[i] = new ECellState[height];
@@ -404,6 +422,7 @@ namespace GameBrain
                     state.OpponentBoard[x][y] = OpponentBoard.Board[x, y];
                 }
             }
+            
             var jsonOptions = new JsonSerializerOptions
             {
                 WriteIndented = true
@@ -411,7 +430,6 @@ namespace GameBrain
             
             return JsonSerializer.Serialize(state, jsonOptions);
         }
-
         private static string IntToAlphabeticValue(int index)
         {
             const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

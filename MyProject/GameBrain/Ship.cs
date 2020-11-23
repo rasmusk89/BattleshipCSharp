@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections;
+using Domain.Enums;
 
 namespace GameBrain
 {
     public class Ship
     {
-        public string? Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public int Width { get; set; }
 
         public int Hits { get; set; }
 
-        public readonly ECellState CellState;
+        public ECellState CellState;
 
         public bool IsSunk => Hits >= Width;
 
@@ -23,11 +24,11 @@ namespace GameBrain
 
             CellState = width switch
             {
-                1 => ECellState.Patrol,
-                2 => ECellState.Cruiser,
-                3 => ECellState.Submarine,
-                4 => ECellState.Battleship,
-                5 => ECellState.Carrier,
+                1 => Domain.Enums.ECellState.Patrol,
+                2 => Domain.Enums.ECellState.Cruiser,
+                3 => Domain.Enums.ECellState.Submarine,
+                4 => Domain.Enums.ECellState.Battleship,
+                5 => Domain.Enums.ECellState.Carrier,
                 _ => throw new Exception("Incorrect ship width!")
             };
             Name = CreateName(width);
