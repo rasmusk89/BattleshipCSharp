@@ -32,44 +32,47 @@ namespace GameBrain
 
             List<Ship> ships = new List<Ship>();
 
-            Console.WriteLine("Do you want Patrol (1x1) ships? (Y/N): ");
-            if (Console.ReadLine().ToLower() != "n")
+            do
             {
-                ships.Add(new Ship(1));
-            }
+                Console.WriteLine("Do you want Patrol (1x1) ships? (Y/N): ");
+                if (Console.ReadLine().ToLower() != "n")
+                {
+                    ships.Add(new Ship(1));
+                }
 
-            Console.WriteLine("Do you want Cruiser (2x1) ships?: ");
-            if (Console.ReadLine().ToLower() != "n")
-            {
-                ships.Add(new Ship(2));
-            }
+                Console.WriteLine("Do you want Cruiser (2x1) ships?: ");
+                if (Console.ReadLine().ToLower() != "n")
+                {
+                    ships.Add(new Ship(2));
+                }
 
-            Console.WriteLine("Do you want Submarine (3x1) ships?: ");
-            if (Console.ReadLine().ToLower() != "n")
-            {
-                ships.Add(new Ship(3));
-            }
+                Console.WriteLine("Do you want Submarine (3x1) ships?: ");
+                if (Console.ReadLine().ToLower() != "n")
+                {
+                    ships.Add(new Ship(3));
+                }
 
-            Console.WriteLine("Do you want Battleship (4x1) ships?: ");
-            if (Console.ReadLine().ToLower() != "n")
-            {
-                ships.Add(new Ship(4));
-            }
+                Console.WriteLine("Do you want Battleship (4x1) ships?: ");
+                if (Console.ReadLine().ToLower() != "n")
+                {
+                    ships.Add(new Ship(4));
+                }
 
-            Console.WriteLine("Do you want Carrier (5x1) ships?: ");
-            if (Console.ReadLine().ToLower() != "n")
-            {
-                ships.Add(new Ship(5));
-            }
-            
-            Console.WriteLine("Do you want Custom (?x1) ships?: ");
-            var longestShip = ships.Select(ship => ship.Width).Prepend(0).Max();
-            
-            if (Console.ReadLine().ToLower() != "n")
-            {
-                Console.WriteLine($"Select custom ship size {longestShip + 1} - {width}");
-                ships.Add(new Ship(int.Parse(Console.ReadLine())));
-            }
+                Console.WriteLine("Do you want Carrier (5x1) ships?: ");
+                if (Console.ReadLine().ToLower() != "n")
+                {
+                    ships.Add(new Ship(5));
+                }
+
+                Console.WriteLine("Do you want Custom (?x1) ships?: ");
+                var longestShip = ships.Select(ship => ship.Width).Prepend(0).Max();
+
+                if (Console.ReadLine().ToLower() != "n")
+                {
+                    Console.WriteLine($"Select custom ship size {longestShip + 1} - {width}");
+                    ships.Add(new Ship(int.Parse(Console.ReadLine())));
+                }
+            } while (ships.Count == 0);
             
             return new GameOptions
             {

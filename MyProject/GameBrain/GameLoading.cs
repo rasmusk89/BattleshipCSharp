@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using DAL;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace GameBrain
 {
     public class GameLoading
     {
-         public GameOptions LoadLastGameOptions()
+        public static GameOptions LoadLastGameOptions()
         {
+            Console.Clear();
+            Console.Write("Loading...");
             var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
                 @"
                 Server=barrel.itcollege.ee,1533;
@@ -81,11 +84,13 @@ namespace GameBrain
             }
 
             var gameBoardA = dbCtx.PlayerBoardStates
+                .OrderByDescending(x => x.PlayerBoardStateId)
                 .Where(x => x.PlayerId == playerAId)
                 .Select(x => x.GameBoardState)
                 .FirstOrDefault();
-                
+
             var firingBoardA = dbCtx.PlayerBoardStates
+                .OrderByDescending(x => x.PlayerBoardStateId)
                 .Where(x => x.PlayerId == playerAId)
                 .Select(x => x.FiringBoardState)
                 .FirstOrDefault();
@@ -119,16 +124,18 @@ namespace GameBrain
                     CellState = playerAShip.ECellState
                 });
             }
-            
+
             // Should get with include!
             var gameBoardB = dbCtx.PlayerBoardStates
-                    .Where(x => x.PlayerId == playerBId)
-                    .Select(x => x.GameBoardState)
-                    .FirstOrDefault();
+                .OrderByDescending(x => x.PlayerBoardStateId)
+                .Where(x => x.PlayerId == playerBId)
+                .Select(x => x.GameBoardState)
+                .FirstOrDefault();
             var firingBoardB = dbCtx.PlayerBoardStates
-                    .Where(x => x.PlayerId == playerBId)
-                    .Select(x => x.FiringBoardState)
-                    .FirstOrDefault();
+                .OrderByDescending(x => x.PlayerBoardStateId)
+                .Where(x => x.PlayerId == playerBId)
+                .Select(x => x.FiringBoardState)
+                .FirstOrDefault();
 
             var playerA = new Player(playerAName, boardWidth, boardHeight, shipsCanTouch)
             {
@@ -137,9 +144,9 @@ namespace GameBrain
                 PlayerBoard = new GameBoard(boardWidth, boardHeight),
                 OpponentBoard = new FiringBoard(boardWidth, boardHeight)
             };
-            
+
             var stateAGame = JsonSerializer.Deserialize<GameBoardState>(gameBoardA);
-            
+
             for (var x = 0; x < boardWidth; x++)
             {
                 for (var y = 0; y < boardHeight; y++)
@@ -147,7 +154,7 @@ namespace GameBrain
                     playerA.PlayerBoard.Board[x, y] = stateAGame!.PlayerBoard[x][y];
                 }
             }
-            
+
             var stateAFiring = JsonSerializer.Deserialize<FiringBoardState>(firingBoardA);
             for (var x = 0; x < boardWidth; x++)
             {
@@ -156,7 +163,7 @@ namespace GameBrain
                     playerA.OpponentBoard.Board[x, y] = stateAFiring!.OpponentBoard[x][y];
                 }
             }
-            
+
 
             var playerB = new Player(playerBName, boardWidth, boardHeight, shipsCanTouch)
             {
@@ -165,7 +172,7 @@ namespace GameBrain
                 PlayerBoard = new GameBoard(boardWidth, boardHeight),
                 OpponentBoard = new FiringBoard(boardWidth, boardHeight)
             };
-            
+
             var stateBGame = JsonSerializer.Deserialize<GameBoardState>(gameBoardB);
             for (var x = 0; x < boardWidth; x++)
             {
@@ -174,6 +181,7 @@ namespace GameBrain
                     playerB.PlayerBoard.Board[x, y] = stateBGame!.PlayerBoard[x][y];
                 }
             }
+
             var stateBFiring = JsonSerializer.Deserialize<FiringBoardState>(firingBoardB);
             for (var x = 0; x < boardWidth; x++)
             {
@@ -182,6 +190,7 @@ namespace GameBrain
                     playerB.OpponentBoard.Board[x, y] = stateBFiring!.OpponentBoard[x][y];
                 }
             }
+
             return new GameOptions
             {
                 BoardWidth = boardWidth,

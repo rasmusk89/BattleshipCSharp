@@ -29,10 +29,12 @@ namespace GameBrain
             _boardHeight = options.GetBoardHeight();
             Ships = options.Ships;
             PlayerA = options.PlayerA;
-            PlayerA.Ships = options.Ships;
+            // PlayerA.Ships = options.Ships;
+            PlayerA.Ships = Ships;
             PlayerA.ShipsCanTouch = _shipsCanTouch;
             PlayerB = options.PlayerB;
-            PlayerB.Ships = options.Ships;
+            // PlayerB.Ships = options.Ships;
+            PlayerB.Ships = Ships;
             PlayerB.ShipsCanTouch = _shipsCanTouch;
             _nextMoveByPlayerA = options.NextMoveByPlayerA;
             _shipsCanTouch = options.ShipsCanTouch;
@@ -57,28 +59,43 @@ namespace GameBrain
             {
                 PlaceRandomShips();
             }
-            
+
             SaveInitialDataToDataBase();
             SaveGameAction();
             PlayRound();
         }
-        
+
         public void PlayRound()
         {
-            // SaveGameStateToDb();
-            Console.ReadLine();
             while (true)
             {
+                // Console.WriteLine("Player A: ");
+                // foreach (var ship in PlayerA.Ships)
+                // {
+                //     Console.WriteLine(ship.Hits);
+                // }
+                //
+                // Console.WriteLine("Player B: ");
+                // foreach (var ship in PlayerB.Ships)
+                // {
+                //     Console.WriteLine(ship.Hits);
+                // }
+                // Console.ReadLine();
+                
+                
                 if (_nextMoveByPlayerA)
                 {
                     PlayerA.PlaceBomb(PlayerB);
+                    SaveGameStateToDb();
                     Console.Clear();
-                    Console.Write($"Player {PlayerB.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
+                    Console.Write(
+                        $"Player {PlayerB.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
                     var inputB = Console.ReadLine();
                     if (inputB.ToLower() == "esc")
                     {
                         return;
                     }
+
                     if (PlayerB.HasLost)
                     {
                         Console.WriteLine("PLayer A WON!");
@@ -91,13 +108,16 @@ namespace GameBrain
                 }
 
                 PlayerB.PlaceBomb(PlayerA);
+                SaveGameStateToDb();
                 Console.Clear();
-                Console.Write($"Player {PlayerA.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
+                Console.Write(
+                    $"Player {PlayerA.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
                 var inputA = Console.ReadLine();
                 if (inputA.ToLower() == "esc")
                 {
                     return;
                 }
+
                 if (PlayerA.HasLost)
                 {
                     _nextMoveByPlayerA = true;
@@ -336,11 +356,11 @@ namespace GameBrain
                 ").Options;
             using var dbCtx = new AppDbContext(dbOptions);
 
-            Console.WriteLine("Deleting database..");
-            dbCtx.Database.EnsureDeleted();
-            Console.WriteLine("Migrating database..");
+            // Console.WriteLine("Deleting database..");
+            // dbCtx.Database.EnsureDeleted();
+            Console.Write("Saving game...");
             dbCtx.Database.Migrate();
-            Console.WriteLine("Adding data to database..");
+            // Console.WriteLine("Adding data to database..");
 
             var game = new Domain.Game
             {
@@ -435,7 +455,7 @@ namespace GameBrain
             dbCtx.SaveChanges();
         }
 
-        private static void SaveGameStateToDb()
+        private void SaveGameStateToDb()
         {
             var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
                 @"
@@ -451,10 +471,41 @@ namespace GameBrain
                 .OrderByDescending(id => id.GameId)
                 .FirstOrDefault();
 
-            
+            var playerAShips = PlayerA.Ships;
+            foreach (var playerAShip in playerAShips)
+            {
+                dbCtx.GameShips
+                    .FirstOrDefault(x => x.PlayerId == game.PlayerAId &&
+                                         x.Width == playerAShip.Width).Hits = playerAShip.Hits;
+            }
 
+            var playerBShips = PlayerB.Ships;
+            foreach (var playerBShip in playerBShips)
+            {
+                dbCtx.GameShips
+                    .FirstOrDefault(x =>
+                        x.PlayerId == game.PlayerBId &&
+                        x.Width == playerBShip.Width)
+                    .Hits = playerBShip.Hits;
+            }
+
+
+            dbCtx.PlayerBoardStates
+                .Add(new PlayerBoardState
+                {
+                    GameBoardState = PlayerA.GetSerializedGameBoardState(),
+                    FiringBoardState = PlayerA.GetSerializedFiringBoardState(),
+                    PlayerId = game.PlayerAId
+                });
+
+            dbCtx.PlayerBoardStates
+                .Add(new PlayerBoardState
+                {
+                    GameBoardState = PlayerB.GetSerializedGameBoardState(),
+                    FiringBoardState = PlayerB.GetSerializedFiringBoardState(),
+                    PlayerId = game.PlayerBId
+                });
+            dbCtx.SaveChanges();
         }
-
-       
     }
 }

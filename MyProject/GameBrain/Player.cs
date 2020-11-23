@@ -59,8 +59,9 @@ namespace GameBrain
 
         public void PlaceBomb(Player opponent)
         {
-            var opponentBoard = opponent.GetBoard();
-            var firingBoard = OpponentBoard.Board;
+            var opponentShips = opponent.Ships;
+            var opponentBoard = opponent.PlayerBoard.Board;
+            var playerFiringBoard = OpponentBoard.Board;
 
             DrawBoardUI();
             Console.WriteLine($"{Name}, place Bomb!");
@@ -79,30 +80,27 @@ namespace GameBrain
             if (opponentBoard[column, row] != ECellState.Empty)
             {
                 var cellState = opponentBoard[column, row];
-                
-                Ship ship = new Ship();
-                
+
                 foreach (var opponentShip in opponent.Ships.Where(opponentShip => opponentShip.CellState == cellState))
                 {
-                    ship = opponentShip;
+                    opponentShip.Hits++;
+                    if (opponentShip.IsSunk)
+                    {
+                        Console.WriteLine($"You sunk opponents {opponentShip.Name}");
+                    }
                     break;
                 }
-                ship.Hits++;
-                firingBoard[column, row] = ECellState.Hit;
-                opponentBoard[column, row] = ECellState.Hit;
+                playerFiringBoard[column, row] = opponentBoard[column, row] = ECellState.Hit;
                 DrawBoardUI();
                 Console.WriteLine("HIT!");
-                if (ship.IsSunk)
-                {
-                    Console.WriteLine($"You sunk opponents {ship.Name}");
-                }
+                
 
                 Console.Write("Continue...");
                 Console.ReadLine();
             }
 
             if (opponentBoard[column, row] != ECellState.Empty) return;
-            firingBoard[column, row] = ECellState.Bomb;
+            playerFiringBoard[column, row] = ECellState.Bomb;
             opponentBoard[column, row] = ECellState.Bomb;
             DrawBoardUI();
             Console.WriteLine("MISS!");
@@ -285,10 +283,11 @@ namespace GameBrain
                             board[i - 1, j - 1] = state;
                         }
                     }
+
                     isOpen = false;
                 }
             }
-            
+
             Console.Clear();
         }
 
@@ -300,7 +299,7 @@ namespace GameBrain
 
             var column = rand.Next(1, boardWidth);
             var row = rand.Next(1, boardHeight);
-            
+
             Coordinates coordinates = new Coordinates(column, row);
 
             while (!_validator.BombCoordinateFree(coordinates, OpponentBoard))
@@ -316,7 +315,8 @@ namespace GameBrain
         private Coordinates AskCoordinates()
         {
             var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
-            Console.Write($"Insert Column (A-{IntToAlphabeticValue(boardWidth - 1)}) or press ENTER for random coordinates: ");
+            Console.Write(
+                $"Insert Column (A-{IntToAlphabeticValue(boardWidth - 1)}) or press ENTER for random coordinates: ");
             string columnInput = Console.ReadLine() ?? "";
             if (columnInput == "")
             {
@@ -368,14 +368,13 @@ namespace GameBrain
 
         public string GetSerializedGameBoardState()
         {
-
             var state = new GameBoardState();
-            
+
             var width = PlayerBoard.Board.GetUpperBound(0) + 1;
             var height = PlayerBoard.Board.GetUpperBound(1) + 1;
-            
+
             state.PlayerBoard = new ECellState[width][];
-            
+
             for (var i = 0; i < state.PlayerBoard.Length; i++)
             {
                 state.PlayerBoard[i] = new ECellState[height];
@@ -389,25 +388,24 @@ namespace GameBrain
                 }
             }
 
-            
+
             var jsonOptions = new JsonSerializerOptions
             {
                 WriteIndented = true
             };
-            
+
             return JsonSerializer.Serialize(state, jsonOptions);
         }
 
         public string GetSerializedFiringBoardState()
         {
-
             var state = new FiringBoardState();
-            
+
             var width = OpponentBoard.Board.GetUpperBound(0) + 1;
             var height = OpponentBoard.Board.GetUpperBound(1) + 1;
-            
+
             state.OpponentBoard = new ECellState[width][];
-            
+
             for (var i = 0; i < state.OpponentBoard.Length; i++)
             {
                 state.OpponentBoard[i] = new ECellState[height];
@@ -420,14 +418,15 @@ namespace GameBrain
                     state.OpponentBoard[x][y] = OpponentBoard.Board[x, y];
                 }
             }
-            
+
             var jsonOptions = new JsonSerializerOptions
             {
                 WriteIndented = true
             };
-            
+
             return JsonSerializer.Serialize(state, jsonOptions);
         }
+
         private static string IntToAlphabeticValue(int index)
         {
             const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -452,6 +451,5 @@ namespace GameBrain
             GameBoardUI.DrawBoard(OpponentBoard);
             Console.WriteLine();
         }
-
     }
 }

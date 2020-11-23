@@ -93,7 +93,7 @@ namespace ConsoleApp
         private static string LoadGameDb()
         {
             var gameLoading = new GameLoading();
-            var game = new Game(gameLoading.LoadLastGameOptions());
+            var game = new Game(GameLoading.LoadLastGameOptions());
             game.PlayRound();
             return "";
         }
