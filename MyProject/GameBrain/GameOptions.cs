@@ -26,17 +26,17 @@ namespace GameBrain
         {
             BoardWidth = 10;
             BoardHeight = 10;
-            ShipsCanTouch = EShipsCanTouch.Yes;
+            
+            ShipsCanTouch = EShipsCanTouch.No;
+            
             NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
             PlayerA = new Player("Player 1")
             {
-                PlayerBoard = new GameBoard(BoardWidth, BoardHeight),
-                FiringBoard = new GameBoard(BoardWidth, BoardHeight)
+                GameBoard = new GameBoard(BoardWidth, BoardHeight),
             };
             PlayerB = new Player("Player 2")
             {
-                PlayerBoard = new GameBoard(BoardWidth, BoardHeight),
-                FiringBoard = new GameBoard(BoardWidth, BoardHeight)
+                GameBoard = new GameBoard(BoardWidth, BoardHeight),
             };
             NextMoveByPlayerA = true;
         }
@@ -69,60 +69,19 @@ namespace GameBrain
             return PlayerB;
         }
 
+        public int GetBoardHeight()
+        {
+            return BoardHeight;
+        }
 
         public int GetBoardWidth()
         {
             return BoardWidth;
         }
 
-        public void SetBoardWidth(int width)
-        {
-            BoardWidth = width;
-        }
-
-        public int GetBoardHeight()
-        {
-            return BoardHeight;
-        }
-
-        public void SetBoardHeight(int height)
-        {
-            BoardHeight = height;
-        }
-
         public EShipsCanTouch GetShipsCanTouch()
         {
             return ShipsCanTouch;
-        }
-
-        public void SetShipsCanTouch(EShipsCanTouch canTouch)
-        {
-            ShipsCanTouch = canTouch;
-        }
-
-        // public Player GetPlayerA()
-        // {
-        //     return PlayerA;
-        // }
-
-        public void SetPlayerAName(string name)
-        {
-            PlayerA.SetName(name);
-        }
-
-        // public Player GetPlayerB()
-        // {
-        //     return PlayerB;
-        // }
-
-        public void SetPlayerBName(string name)
-        {
-            PlayerB.SetName(name);
-        }
-
-        public void SetShips(List<Ship> ships)
-        {
-            Ships = ships;
         }
     }
 }

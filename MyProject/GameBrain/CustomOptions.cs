@@ -9,6 +9,13 @@ namespace GameBrain
     {
         public GameOptions GetCustomOptions()
         {
+            Console.Clear();
+            Console.Write("Set player A name: ");
+            string playerAName = Console.ReadLine();
+
+            Console.Write("Set player B name: ");
+            string playerBName = Console.ReadLine();
+            
             Console.Write("Set board width: ");
             var width = int.Parse(Console.ReadLine());
 
@@ -22,13 +29,6 @@ namespace GameBrain
             Console.Write("Can player move again after successful hit?(Y/N): ");
             var nextMove = Console.ReadLine();
             var nextMoveAfterHit = nextMove.ToLower() == "y" ? ENextMoveAfterHit.SamePlayer : ENextMoveAfterHit.OtherPlayer;
-           
-
-            Console.Write("Set player A name: ");
-            string playerAName = Console.ReadLine();
-
-            Console.Write("Set player B name: ");
-            string playerBName = Console.ReadLine();
 
             List<Ship> ships = new List<Ship>();
 
@@ -73,31 +73,10 @@ namespace GameBrain
                     ships.Add(new Ship(int.Parse(Console.ReadLine())));
                 }
             } while (ships.Count == 0);
-            
-            return new GameOptions(width, height, new Player(playerAName), new Player(playerBName), canShipsTouch, ships, nextMoveAfterHit)
-            {
-                // BoardWidth = width,
-                // BoardHeight = height,
-                // NextMoveAfterHit = nextMoveAfterHit,
-                // // NextMoveByPlayerA = true,
-                // PlayerA = new Player()
-                // {
-                //     // Nullable?
-                //     Name = playerAName!
-                // },
-                // PlayerB = new Player()
-                // {
-                //     // Nullable?
-                //     Name = playerBName!
-                // },
-                // Ships = ships,
-                // ShipsCanTouch = canShipsTouch
-            };
-        }
 
-        public void ValidateInput()
-        {
-            
+            return new GameOptions(width, height, new Player(playerAName), new Player(playerBName), canShipsTouch,
+                ships, nextMoveAfterHit);
+
         }
     }
 }
