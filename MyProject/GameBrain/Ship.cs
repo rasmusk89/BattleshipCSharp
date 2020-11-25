@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using Domain.Enums;
+﻿using Domain.Enums;
 
 namespace GameBrain
 {

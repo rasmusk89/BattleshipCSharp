@@ -137,12 +137,12 @@ namespace GameBrain
                 .Select(x => x.FiringBoardState)
                 .FirstOrDefault();
 
-            var playerA = new Player(playerAName, boardWidth, boardHeight, shipsCanTouch)
+            var playerA = new Player(playerAName)
             {
                 Ships = shipsA,
                 PlayerType = playerAType,
                 PlayerBoard = new GameBoard(boardWidth, boardHeight),
-                OpponentBoard = new FiringBoard(boardWidth, boardHeight)
+                FiringBoard = new GameBoard(boardWidth, boardHeight)
             };
 
             var stateAGame = JsonSerializer.Deserialize<GameBoardState>(gameBoardA);
@@ -151,26 +151,26 @@ namespace GameBrain
             {
                 for (var y = 0; y < boardHeight; y++)
                 {
-                    playerA.PlayerBoard.Board[x, y] = stateAGame!.PlayerBoard[x][y];
+                    playerA.GetPlayerBoard()[x, y] = stateAGame!.Board[x][y];
                 }
             }
 
-            var stateAFiring = JsonSerializer.Deserialize<FiringBoardState>(firingBoardA);
+            var stateAFiring = JsonSerializer.Deserialize<GameBoardState>(firingBoardA);
             for (var x = 0; x < boardWidth; x++)
             {
                 for (var y = 0; y < boardHeight; y++)
                 {
-                    playerA.OpponentBoard.Board[x, y] = stateAFiring!.OpponentBoard[x][y];
+                    playerA.GetFiringBoard()[x, y] = stateAFiring!.Board[x][y];
                 }
             }
 
 
-            var playerB = new Player(playerBName, boardWidth, boardHeight, shipsCanTouch)
+            var playerB = new Player(playerBName)
             {
                 Ships = shipsB,
                 PlayerType = playerBType,
                 PlayerBoard = new GameBoard(boardWidth, boardHeight),
-                OpponentBoard = new FiringBoard(boardWidth, boardHeight)
+                FiringBoard = new GameBoard(boardWidth, boardHeight)
             };
 
             var stateBGame = JsonSerializer.Deserialize<GameBoardState>(gameBoardB);
@@ -178,28 +178,29 @@ namespace GameBrain
             {
                 for (var y = 0; y < boardHeight; y++)
                 {
-                    playerB.PlayerBoard.Board[x, y] = stateBGame!.PlayerBoard[x][y];
+                    playerB.GetPlayerBoard()[x, y] = stateBGame!.Board[x][y];
                 }
             }
 
-            var stateBFiring = JsonSerializer.Deserialize<FiringBoardState>(firingBoardB);
+            var stateBFiring = JsonSerializer.Deserialize<GameBoardState>(firingBoardB);
             for (var x = 0; x < boardWidth; x++)
             {
                 for (var y = 0; y < boardHeight; y++)
                 {
-                    playerB.OpponentBoard.Board[x, y] = stateBFiring!.OpponentBoard[x][y];
+                    playerB.GetFiringBoard()[x, y] = stateBFiring!.Board[x][y];
                 }
             }
 
-            return new GameOptions
+            // Should not have "shipsA"!!!!
+            return new GameOptions(boardWidth, boardHeight, playerA, playerB, shipsCanTouch, shipsA, nextMoveAfterHit)
             {
-                BoardWidth = boardWidth,
-                BoardHeight = boardHeight,
-                ShipsCanTouch = shipsCanTouch,
-                NextMoveAfterHit = nextMoveAfterHit,
-                NextMoveByPlayerA = nextMoveByPlayerA,
-                PlayerA = playerA,
-                PlayerB = playerB,
+                // BoardWidth = boardWidth,
+                // BoardHeight = boardHeight,
+                // ShipsCanTouch = shipsCanTouch,
+                // NextMoveAfterHit = nextMoveAfterHit,
+                // NextMoveByPlayerA = nextMoveByPlayerA,
+                // PlayerA = playerA,
+                // PlayerB = playerB,
             };
         }
     }

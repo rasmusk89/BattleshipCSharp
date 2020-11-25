@@ -5,33 +5,35 @@ namespace GameBrain
 {
     public class Validator
     {
-        public bool BombCoordinateFree(Coordinates coordinates, FiringBoard board)
+        public bool BombCoordinateFree(int x, int y, ECellState[,] board)
         {
-            var row = coordinates.Row - 1;
-            var column = coordinates.Column - 1;
+            var row = x - 1;
+            var column = y - 1;
 
-            return board.Board[column, row] == ECellState.Empty;
+            return board[column, row] == ECellState.Empty;
         }
 
-
-        public bool OrientationIsValid(string input)
+        public static bool OrientationIsValid(string input)
         {
             return input.ToLower() == "h" || input.ToLower() == "v";
         }
 
-        public bool RowIsValid(string input, GameBoard board)
+        public bool RowIsValid(string input, int boardHeight)
         {
-            var boardWidth = board.Board.GetUpperBound(0) + 1;
+            if (input.Contains("-") || input.Contains("+") || input.Contains("*") || input.Contains("/"))
+            {
+                return false;
+            }
 
             if (IsNumeric(input))
             {
-                return int.Parse(input) <= boardWidth && int.Parse(input) > 0;
+                return int.Parse(input) <= boardHeight && int.Parse(input) > 0;
             }
 
             return false;
         }
 
-        public bool ColumnIsValid(string input, GameBoard board)
+        public bool ColumnIsValid(string input, int boardWidth)
         {
             if (input.Length < 1)
             {
@@ -43,42 +45,35 @@ namespace GameBrain
                 return false;
             }
 
-            var boardHeight = board.Board.GetUpperBound(1) + 1;
-
             var number = ConvertStringToInteger(input.ToUpper());
 
-            return number <= boardHeight && number > 0;
+            return number <= boardWidth && number > 0;
         }
 
-        public bool CoordinatesAreValid(Coordinates coordinates, EOrientation orientation, GameBoard board,
-            int shipSize)
+        public bool CoordinatesAreValid(int x, int y, int boardWidth, int boardHeight, Ship ship,
+            EOrientation orientation)
         {
-            var boardWidth = board.Board.GetUpperBound(0) + 1;
-            var boardHeight = board.Board.GetUpperBound(1) + 1;
-
-            var column = coordinates.Column - 1;
-            var row = coordinates.Row - 1;
+            var column = x - 1;
+            var row = y - 1;
             if (orientation == EOrientation.Horizontal)
             {
-                return column + shipSize <= boardWidth;
+                return column + ship.Width <= boardWidth;
             }
 
-            return row + shipSize <= boardHeight;
+            return row + ship.Width <= boardHeight;
         }
 
-        public bool AreaFree(Coordinates coordinates, EOrientation orientation, GameBoard board, int shipSize)
+        public bool ShipAreaFree(int x, int y, Player player,Ship ship, EOrientation orientation)
         {
-            var row = coordinates.Row - 1;
-            var column = coordinates.Column - 1;
-
-
+            var column = x - 1;
+            var row = y - 1;
             var occupiedCells = 0;
 
             if (orientation == EOrientation.Horizontal)
             {
-                for (var i = 0; i < shipSize; i++)
+                for (var i = 0; i < ship.Width; i++)
                 {
-                    if (board.Board[column + i, row] == ECellState.Empty)
+                    if (player.GetPlayerBoard()[column + i, row] == ECellState.Empty)
                     {
                         continue;
                     }
@@ -87,26 +82,25 @@ namespace GameBrain
             }
             else
             {
-                for (var i = 0; i < shipSize; i++)
+                for (var i = 0; i < ship.Width; i++)
                 {
-                    if (board.Board[column, row + i] == ECellState.Empty)
+                    if (player.GetPlayerBoard()[column, row + i] == ECellState.Empty)
                     {
                         continue;
                     }
                     occupiedCells++;
-
                 }
             }
 
             return occupiedCells == 0;
         }
 
-        public bool IsNumeric(string x)
+        private bool IsNumeric(string x)
         {
             return int.TryParse(x, out _);
         }
 
-        public int ConvertStringToInteger(string input)
+        public static int ConvertStringToInteger(string input)
         {
             int numericValueOfString;
 

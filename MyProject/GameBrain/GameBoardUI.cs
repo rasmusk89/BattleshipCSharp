@@ -5,9 +5,9 @@ namespace GameBrain
 {
     public static class GameBoardUI
     {
-        public static void DrawBoard(GameBoard gameBoard)
+        public static void DrawBoards(Player player)
         {
-            var board = gameBoard.Board;
+            var board = player.GetPlayerBoard();
             var width = board.GetUpperBound(0) + 1;
             var height = board.GetUpperBound(1) + 1;
 
@@ -54,6 +54,66 @@ namespace GameBrain
                     {
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.Write($"{CellString(board[j, i])}  ");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+                }
+
+                Console.Write($"{(i + 1).ToString()}");
+                Console.WriteLine();
+            }
+
+            // Last line
+            Console.Write("   ");
+            for (var i = 0; i < width; i++)
+            {
+                Console.Write(IntToAlphabeticValue(i).Length < 2
+                    ? $"{IntToAlphabeticValue(i)}  "
+                    : $"{IntToAlphabeticValue(i)} ");
+            }
+
+            Console.WriteLine();
+        }
+        
+        public static void DrawBoardWithoutShips(GameBoard opponentBoard)
+        {
+            var board = opponentBoard.Board;
+            var width = board.GetUpperBound(0) + 1;
+            var height = board.GetUpperBound(1) + 1;
+
+            Console.Write("   ");
+
+            // First line
+            for (var i = 0; i < width; i++)
+            {
+                Console.Write(IntToAlphabeticValue(i).Length < 2
+                    ? $"{IntToAlphabeticValue(i)}  "
+                    : $"{IntToAlphabeticValue(i)} ");
+            }
+
+            // Middle part
+            Console.WriteLine();
+
+            for (var i = 0; i < height; i++)
+            {
+                Console.Write(i < 9 ? $" {(i + 1).ToString()} " : $"{(i + 1).ToString()} ");
+                for (var j = 0; j < width; j++)
+                {
+                    if (board[j, i] == ECellState.Bomb)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"{CellString(board[j, i])}  ");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+                    if (board[j, i] == ECellState.Hit)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.Write($"{CellString(board[j, i])}  ");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.Write($"~  ");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                     }
                 }

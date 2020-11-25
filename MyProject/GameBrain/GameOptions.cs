@@ -5,14 +5,15 @@ namespace GameBrain
 {
     public class GameOptions
     {
-        public int BoardWidth { get; set; }
-        public int BoardHeight { get; set; }
-        public EShipsCanTouch ShipsCanTouch { get; set; }
-        public ENextMoveAfterHit NextMoveAfterHit { get; set; }
-        public bool NextMoveByPlayerA { get; set; }
-        public Player PlayerA { get; set; }
-        public Player PlayerB { get; set; }
-        public List<Ship> Ships { get; set; } = new List<Ship>
+        private int BoardWidth { get; set; }
+        private int BoardHeight { get; set; }
+        private EShipsCanTouch ShipsCanTouch { get; set; }
+        private ENextMoveAfterHit NextMoveAfterHit { get; set; }
+        private Player PlayerA { get; set; }
+        private Player PlayerB { get; set; }
+        private bool NextMoveByPlayerA { get; set; }
+
+        private List<Ship> Ships { get; set; } = new()
         {
             new Ship(1),
             new Ship(2),
@@ -27,20 +28,47 @@ namespace GameBrain
             BoardHeight = 10;
             ShipsCanTouch = EShipsCanTouch.Yes;
             NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
-            PlayerA = new Player("PlayerA", BoardWidth, BoardHeight, ShipsCanTouch);
-            PlayerB = new Player("PlayerB", BoardWidth, BoardHeight, ShipsCanTouch);
+            PlayerA = new Player("Player 1")
+            {
+                PlayerBoard = new GameBoard(BoardWidth, BoardHeight),
+                FiringBoard = new GameBoard(BoardWidth, BoardHeight)
+            };
+            PlayerB = new Player("Player 2")
+            {
+                PlayerBoard = new GameBoard(BoardWidth, BoardHeight),
+                FiringBoard = new GameBoard(BoardWidth, BoardHeight)
+            };
+            NextMoveByPlayerA = true;
         }
 
-        public GameOptions(int boardWidth, int boardHeight, string playerAName, string playerBName, EShipsCanTouch shipsCanTouch, List<Ship> ships, ENextMoveAfterHit nextMoveAfterHit)
+        public GameOptions(int boardWidth, int boardHeight, Player playerA, Player playerB,
+            EShipsCanTouch shipsCanTouch, List<Ship> ships, ENextMoveAfterHit nextMoveAfterHit)
         {
             BoardWidth = boardWidth;
             BoardHeight = boardHeight;
-            PlayerA = new Player(playerAName, boardWidth, boardHeight, shipsCanTouch);
-            PlayerB = new Player(playerBName, boardWidth, boardHeight, shipsCanTouch);
+            PlayerA = playerA;
+            PlayerB = playerB;
             ShipsCanTouch = shipsCanTouch;
             Ships = ships;
             NextMoveAfterHit = nextMoveAfterHit;
+            NextMoveByPlayerA = true;
         }
+
+        public List<Ship> GetShips()
+        {
+            return Ships;
+        }
+
+        public Player GetPlayerA()
+        {
+            return PlayerA;
+        }
+
+        public Player GetPlayerB()
+        {
+            return PlayerB;
+        }
+
 
         public int GetBoardWidth()
         {
@@ -72,21 +100,21 @@ namespace GameBrain
             ShipsCanTouch = canTouch;
         }
 
-        public Player GetPlayerA()
-        {
-            return PlayerA;
-        }
+        // public Player GetPlayerA()
+        // {
+        //     return PlayerA;
+        // }
 
         public void SetPlayerAName(string name)
         {
             PlayerA.SetName(name);
         }
-        
-        public Player GetPlayerB()
-        {
-            return PlayerB;
-        }
-        
+
+        // public Player GetPlayerB()
+        // {
+        //     return PlayerB;
+        // }
+
         public void SetPlayerBName(string name)
         {
             PlayerB.SetName(name);
@@ -96,6 +124,5 @@ namespace GameBrain
         {
             Ships = ships;
         }
-
     }
 }

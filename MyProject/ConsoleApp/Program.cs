@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DAL;
-using Domain;
-using Domain.Enums;
 using GameBrain;
 using MenuSystem;
-using Microsoft.EntityFrameworkCore;
-using EPlayerType = Domain.Enums.EPlayerType;
-using EShipsCanTouch = Domain.Enums.EShipsCanTouch;
-using Game = GameBrain.Game;
-using Ship = GameBrain.Ship;
 
 namespace ConsoleApp
 {

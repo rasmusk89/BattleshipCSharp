@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
 using DAL;
 using Domain;
 using Domain.Enums;
@@ -12,32 +10,34 @@ namespace GameBrain
 {
     public class Game
     {
-        private int _boardWidth;
+        private readonly int _boardWidth;
 
-        private int _boardHeight;
+        private readonly int _boardHeight;
+
         private Player PlayerA { get; }
+
         private Player PlayerB { get; }
 
-        private bool _nextMoveByPlayerA;
+        private bool _nextMoveByPlayerA = true;
 
         private readonly EShipsCanTouch _shipsCanTouch;
+
         private List<Ship> Ships { get; }
+
+        private readonly Validator _validator = new();
 
         public Game(GameOptions options)
         {
             _boardWidth = options.GetBoardWidth();
             _boardHeight = options.GetBoardHeight();
-            Ships = options.Ships;
-            PlayerA = options.PlayerA;
-            // PlayerA.Ships = options.Ships;
-            PlayerA.Ships = Ships;
-            PlayerA.ShipsCanTouch = _shipsCanTouch;
-            PlayerB = options.PlayerB;
-            // PlayerB.Ships = options.Ships;
-            PlayerB.Ships = Ships;
-            PlayerB.ShipsCanTouch = _shipsCanTouch;
-            _nextMoveByPlayerA = options.NextMoveByPlayerA;
-            _shipsCanTouch = options.ShipsCanTouch;
+            Ships = options.GetShips();
+            PlayerA = options.GetPlayerA();
+            PlayerB = options.GetPlayerB();
+            PlayerA.SetBoards(_boardWidth, _boardHeight);
+            PlayerB.SetBoards(_boardWidth, _boardHeight);
+            PlayerA.SetShips(Ships);
+            PlayerB.SetShips(Ships);
+            _shipsCanTouch = options.GetShipsCanTouch();
         }
 
         public void StartGame()
@@ -53,202 +53,318 @@ namespace GameBrain
             string input = Console.ReadLine() ?? "";
             if (input.ToLower() != "r")
             {
-                PlaceShips();
+                Console.Clear();
+                PlaceShips(PlayerA);
+                Console.Clear();
+                PlaceShips(PlayerB);
             }
             else
             {
-                PlaceRandomShips();
+                Console.Clear();
+                PlaceRandomShips(PlayerA);
+                PlaceRandomShips(PlayerB);
             }
 
-            SaveInitialDataToDataBase();
-            SaveGameAction();
-            PlayRound();
+            // SaveInitialDataToDataBase();
+            // SaveGameAction();
+            // PlayRound();
         }
 
         public void PlayRound()
         {
-            while (true)
+            // while (true)
+            // {
+            //     if (_nextMoveByPlayerA)
+            //     {
+            //         // PlayerA.PlaceBomb(PlayerB);
+            //         SaveGameStateToDb();
+            //         Console.Clear();
+            //         Console.Write(
+            //             $"Player {PlayerB.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
+            //         var inputB = Console.ReadLine();
+            //         if (inputB.ToLower() == "esc")
+            //         {
+            //             return;
+            //         }
+            //
+            //         if (PlayerB.HasLost)
+            //         {
+            //             Console.WriteLine("PLayer A WON!");
+            //             Console.ReadLine();
+            //             return;
+            //         }
+            //
+            //         _nextMoveByPlayerA = !_nextMoveByPlayerA;
+            //         SaveGameAction();
+            //     }
+            //
+            //     // PlayerB.PlaceBomb(PlayerA);
+            //     SaveGameStateToDb();
+            //     Console.Clear();
+            //     Console.Write(
+            //         $"Player {PlayerA.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
+            //     var inputA = Console.ReadLine();
+            //     if (inputA.ToLower() == "esc")
+            //     {
+            //         return;
+            //     }
+            //
+            //     if (PlayerA.HasLost)
+            //     {
+            //         _nextMoveByPlayerA = true;
+            //         Console.WriteLine("PLayer B WON!");
+            //         Console.ReadLine();
+            //         return;
+            //     }
+            //
+            //     _nextMoveByPlayerA = true;
+            //
+            //     SaveGameAction();
+            // }
+        }
+
+        private void PlaceShips(Player player)
+        {
+            Console.Clear();
+            Console.WriteLine();
+            foreach (var ship in player.GetShips())
             {
-                // Console.WriteLine("Player A: ");
-                // foreach (var ship in PlayerA.Ships)
-                // {
-                //     Console.WriteLine(ship.Hits);
-                // }
-                //
-                // Console.WriteLine("Player B: ");
-                // foreach (var ship in PlayerB.Ships)
-                // {
-                //     Console.WriteLine(ship.Hits);
-                // }
-                // Console.ReadLine();
-                
-                
-                if (_nextMoveByPlayerA)
+                Console.WriteLine($"Player {player.GetName()} place ships.");
+                GameBoardUI.DrawBoards(player);
+                Console.WriteLine();
+                Console.WriteLine($"Ship: {ship.Name}, Size: {ship.Width}x1");
+                var orientation = EOrientation.Horizontal;
+                var (column, row) = AskCoordinates();
+                if (ship.Width > 1)
                 {
-                    PlayerA.PlaceBomb(PlayerB);
-                    SaveGameStateToDb();
-                    Console.Clear();
-                    Console.Write(
-                        $"Player {PlayerB.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
-                    var inputB = Console.ReadLine();
-                    if (inputB.ToLower() == "esc")
-                    {
-                        return;
-                    }
-
-                    if (PlayerB.HasLost)
-                    {
-                        Console.WriteLine("PLayer A WON!");
-                        Console.ReadLine();
-                        return;
-                    }
-
-                    _nextMoveByPlayerA = !_nextMoveByPlayerA;
-                    SaveGameAction();
+                    orientation = AskOrientation();
                 }
 
-                PlayerB.PlaceBomb(PlayerA);
-                SaveGameStateToDb();
+                while (!_validator.CoordinatesAreValid(column, row, _boardWidth, _boardHeight, ship, orientation))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Out of bounds!");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    (column, row) = AskCoordinates();
+                    if (ship.Width > 1)
+                    {
+                        orientation = AskOrientation();
+                    }
+                }
+                while (!_validator.ShipAreaFree(column, row, player, ship, orientation))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Ship already on path!");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    (column, row) = AskCoordinates();
+                    if (ship.Width > 1)
+                    {
+                        orientation = AskOrientation();
+                    }
+                }
+                player.PlaceShip(column, row, ship, orientation);
                 Console.Clear();
-                Console.Write(
-                    $"Player {PlayerA.GetName()}, type \"esc\" to return to menu or press enter to continue: ");
-                var inputA = Console.ReadLine();
-                if (inputA.ToLower() == "esc")
-                {
-                    return;
-                }
-
-                if (PlayerA.HasLost)
-                {
-                    _nextMoveByPlayerA = true;
-                    Console.WriteLine("PLayer B WON!");
-                    Console.ReadLine();
-                    return;
-                }
-
-                _nextMoveByPlayerA = true;
-
-                SaveGameAction();
-                // SaveInitialDataToDataBase();
             }
         }
 
-        private void PlaceShips()
+        private static EOrientation AskOrientation()
         {
-            Console.Clear();
-            Console.Write($"Player {PlayerA.GetName()}, press ENTER to place ships...");
-            Console.ReadLine();
-            PlayerA.PlaceShips();
-            SaveGameAction();
-            Console.Clear();
-            Console.Write($"Player {PlayerB.GetName()}, press ENTER to place ships...");
-            Console.ReadLine();
-            PlayerB.PlaceShips();
-            SaveGameAction();
-            Console.Clear();
-            Console.Write("Continue...");
-        }
+            Console.Write("Insert orientation Horizontal(H) or Vertical(V): ");
+            string input = Console.ReadLine() ?? "";
 
-        private void PlaceRandomShips()
-        {
-            PlayerA.PlaceRandomShips();
-            PlayerB.PlaceRandomShips();
-            SaveGameAction();
-        }
-
-        private void PlaceBombs()
-        {
-            if (_nextMoveByPlayerA)
+            while (!Validator.OrientationIsValid(input))
             {
-                PlayerA.PlaceBomb(PlayerB);
-                _nextMoveByPlayerA = !_nextMoveByPlayerA;
-                SaveGameAction();
+                Console.Write("Please enter correct orientation Horizontal(H) or Vertical(V): ");
+                input = Console.ReadLine() ?? "";
             }
 
-            PlayerB.PlaceBomb(PlayerA);
+            var orientation = input.Trim().ToLower() switch
+            {
+                "h" => EOrientation.Horizontal,
+                "v" => EOrientation.Vertical,
+                _ => EOrientation.Horizontal
+            };
 
-            _nextMoveByPlayerA = true;
-            SaveGameAction();
+            return orientation;
         }
+
+        private static (int x, int y) RandomCoordinates(int width, int height)
+        {
+            Random rand = new(Guid.NewGuid().GetHashCode());
+            var column = rand.Next(1, width + 1);
+            var row = rand.Next(1, height + 1);
+            return (rand.Next(1, column), rand.Next(1, row));
+        }
+
+        private (int x, int y) AskCoordinates()
+        {
+            Console.Write(
+                $"Insert Column (A-{IntToAlphabeticValue(_boardWidth - 1)}) or press ENTER for random coordinates: ");
+            string columnInput = Console.ReadLine() ?? "";
+            if (columnInput == "")
+            {
+                return RandomCoordinates(_boardWidth, _boardHeight);
+            }
+
+            while (!_validator.ColumnIsValid(columnInput, _boardWidth))
+            {
+                Console.Write($"Please insert correct Column (A-{IntToAlphabeticValue(_boardWidth - 1)}): ");
+                columnInput = Console.ReadLine() ?? "";
+            }
+
+            var column = Validator.ConvertStringToInteger(columnInput);
+
+            Console.Write($"Insert Row (1-{_boardHeight}): ");
+            string rowInput = Console.ReadLine() ?? "";
+            while (!_validator.RowIsValid(rowInput, _boardHeight))
+            {
+                Console.Write($"Please enter correct row (1-{_boardHeight}): ");
+                rowInput = Console.ReadLine() ?? "";
+            }
+
+            var row = int.Parse(rowInput);
+            return (column, row);
+        }
+
+
+        private static string IntToAlphabeticValue(int index)
+        {
+            const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            var value = "";
+
+            if (index >= letters.Length)
+                value += letters[index / letters.Length - 1];
+
+            value += letters[index % letters.Length];
+
+            return value;
+        }
+
+        private void PlaceRandomShips(Player player)
+        {
+            var random = new Random();
+            for (var i = player.Ships.Count - 1; i >= 0; i--)
+            {
+                var ship = player.GetShips()[i];
+                var x = random.Next(1, _boardWidth);
+                var y = random.Next(1, _boardHeight);
+                var orientation = EOrientation.Vertical;
+                var orientationIndex = random.Next(1, 101) % 2;
+
+                orientation = orientationIndex switch
+                {
+                    0 => EOrientation.Horizontal,
+                    1 => EOrientation.Vertical,
+                    _ => orientation
+                };
+
+                while (!_validator.CoordinatesAreValid(x, y, _boardWidth, _boardHeight, ship, orientation)
+                       || !_validator.ShipAreaFree(x, y, player, ship, orientation))
+                {
+                    x = random.Next(1, _boardWidth);
+                    y = random.Next(1, _boardHeight);
+                    orientationIndex = random.Next(1, 101) % 2;
+                }
+                
+                player.PlaceShip(x, y, ship, orientation);
+            }
+        }
+
+        // private void PlaceBombs()
+        // {
+        //     if (_nextMoveByPlayerA)
+        //     {
+        //         PlayerA.PlaceBomb(PlayerB);
+        //         _nextMoveByPlayerA = !_nextMoveByPlayerA;
+        //         SaveGameAction();
+        //     }
+        //
+        //     PlayerB.PlaceBomb(PlayerA);
+        //
+        //     _nextMoveByPlayerA = true;
+        //     SaveGameAction();
+        // }
 
         private string GetSerializedGameState()
         {
-            var state = new GameState
-            {
-                NextMoveByPlayerA = _nextMoveByPlayerA,
-                Width = _boardWidth,
-                Height = _boardHeight,
-                PlayerAName = PlayerA.GetName(),
-                PlayerBName = PlayerB.GetName(),
-                PlayerAShips = PlayerA.GetShips(),
-                PlayerBShips = PlayerB.GetShips()
-            };
-
-            state.PlayerAPlayerBoard = new ECellState[state.Width][];
-
-            for (var i = 0; i < state.PlayerAPlayerBoard.Length; i++)
-            {
-                state.PlayerAPlayerBoard[i] = new ECellState[state.Height];
-            }
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    state.PlayerAPlayerBoard[x][y] = PlayerA.PlayerBoard.Board[x, y];
-                }
-            }
-
-            state.PlayerAFiringBoard = new ECellState[state.Width][];
-
-            for (var i = 0; i < state.PlayerAFiringBoard.Length; i++)
-            {
-                state.PlayerAFiringBoard[i] = new ECellState[state.Height];
-            }
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    state.PlayerAFiringBoard[x][y] = PlayerA.OpponentBoard.Board[x, y];
-                }
-            }
-
-            state.PlayerBPlayerBoard = new ECellState[state.Width][];
-
-            for (var i = 0; i < state.PlayerBPlayerBoard.Length; i++)
-            {
-                state.PlayerBPlayerBoard[i] = new ECellState[state.Height];
-            }
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    state.PlayerBPlayerBoard[x][y] = PlayerB.PlayerBoard.Board[x, y];
-                }
-            }
-
-            state.PlayerBFiringBoard = new ECellState[state.Width][];
-
-            for (var i = 0; i < state.PlayerBFiringBoard.Length; i++)
-            {
-                state.PlayerBFiringBoard[i] = new ECellState[state.Height];
-            }
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    state.PlayerBFiringBoard[x][y] = PlayerB.OpponentBoard.Board[x, y];
-                }
-            }
-
-            var jsonOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            return JsonSerializer.Serialize(state, jsonOptions);
+            // var state = new GameState
+            // {
+            //     NextMoveByPlayerA = _nextMoveByPlayerA,
+            //     Width = _boardWidth,
+            //     Height = _boardHeight,
+            //     PlayerAName = PlayerA.GetName(),
+            //     PlayerBName = PlayerB.GetName(),
+            //     PlayerAShips = PlayerA.GetShips(),
+            //     PlayerBShips = PlayerB.GetShips()
+            // };
+            //
+            // state.PlayerAPlayerBoard = new ECellState[state.Width][];
+            //
+            // for (var i = 0; i < state.PlayerAPlayerBoard.Length; i++)
+            // {
+            //     state.PlayerAPlayerBoard[i] = new ECellState[state.Height];
+            // }
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         state.PlayerAPlayerBoard[x][y] = PlayerA.PlayerBoard.Board[x, y];
+            //     }
+            // }
+            //
+            // state.PlayerAFiringBoard = new ECellState[state.Width][];
+            //
+            // for (var i = 0; i < state.PlayerAFiringBoard.Length; i++)
+            // {
+            //     state.PlayerAFiringBoard[i] = new ECellState[state.Height];
+            // }
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         state.PlayerAFiringBoard[x][y] = PlayerA.OpponentBoard.Board[x, y];
+            //     }
+            // }
+            //
+            // state.PlayerBPlayerBoard = new ECellState[state.Width][];
+            //
+            // for (var i = 0; i < state.PlayerBPlayerBoard.Length; i++)
+            // {
+            //     state.PlayerBPlayerBoard[i] = new ECellState[state.Height];
+            // }
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         state.PlayerBPlayerBoard[x][y] = PlayerB.PlayerBoard.Board[x, y];
+            //     }
+            // }
+            //
+            // state.PlayerBFiringBoard = new ECellState[state.Width][];
+            //
+            // for (var i = 0; i < state.PlayerBFiringBoard.Length; i++)
+            // {
+            //     state.PlayerBFiringBoard[i] = new ECellState[state.Height];
+            // }
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         state.PlayerBFiringBoard[x][y] = PlayerB.OpponentBoard.Board[x, y];
+            //     }
+            // }
+            //
+            // var jsonOptions = new JsonSerializerOptions
+            // {
+            //     WriteIndented = true
+            // };
+            // return JsonSerializer.Serialize(state, jsonOptions);
+            return "";
         }
 
         private void SaveGameAction()
@@ -262,86 +378,86 @@ namespace GameBrain
             //     fileName = defaultName;
             // }
 
-            const string? name = "Battleship.json";
-
-            var serializedGame = GetSerializedGameState();
-
-            File.WriteAllText(name, serializedGame);
+            // const string? name = "Battleship.json";
+            //
+            // var serializedGame = GetSerializedGameState();
+            //
+            // File.WriteAllText(name, serializedGame);
         }
 
 
         private void SetGameStateFromJsonString(string jsonString)
         {
-            var state = JsonSerializer.Deserialize<GameState>(jsonString);
-
-            // restore actual state from deserialized state
-            _nextMoveByPlayerA = state!.NextMoveByPlayerA;
-            _boardWidth = state.Width;
-            _boardHeight = state.Height;
-            PlayerA.Name = state.PlayerAName!;
-            PlayerB.Name = state.PlayerBName!;
-            PlayerA.PlayerBoard.Board = new ECellState[state.Width, state.Height];
-            PlayerA.OpponentBoard.Board = new ECellState[state.Width, state.Height];
-            PlayerB.PlayerBoard.Board = new ECellState[state.Width, state.Height];
-            PlayerB.OpponentBoard.Board = new ECellState[state.Width, state.Height];
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    PlayerA.PlayerBoard.Board[x, y] = state.PlayerAPlayerBoard[x][y];
-                }
-            }
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    PlayerA.OpponentBoard.Board[x, y] = state.PlayerAFiringBoard[x][y];
-                }
-            }
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    PlayerB.PlayerBoard.Board[x, y] = state.PlayerBPlayerBoard[x][y];
-                }
-            }
-
-            for (var x = 0; x < state.Width; x++)
-            {
-                for (var y = 0; y < state.Height; y++)
-                {
-                    PlayerB.OpponentBoard.Board[x, y] = state.PlayerBFiringBoard[x][y];
-                }
-            }
+            // var state = JsonSerializer.Deserialize<GameState>(jsonString);
+            //
+            // // restore actual state from deserialized state
+            // _nextMoveByPlayerA = state!.NextMoveByPlayerA;
+            // _boardWidth = state.Width;
+            // _boardHeight = state.Height;
+            // PlayerA.Name = state.PlayerAName!;
+            // PlayerB.Name = state.PlayerBName!;
+            // PlayerA.PlayerBoard.Board = new ECellState[state.Width, state.Height];
+            // PlayerA.OpponentBoard.Board = new ECellState[state.Width, state.Height];
+            // PlayerB.PlayerBoard.Board = new ECellState[state.Width, state.Height];
+            // PlayerB.OpponentBoard.Board = new ECellState[state.Width, state.Height];
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         PlayerA.PlayerBoard.Board[x, y] = state.PlayerAPlayerBoard[x][y];
+            //     }
+            // }
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         PlayerA.OpponentBoard.Board[x, y] = state.PlayerAFiringBoard[x][y];
+            //     }
+            // }
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         PlayerB.PlayerBoard.Board[x, y] = state.PlayerBPlayerBoard[x][y];
+            //     }
+            // }
+            //
+            // for (var x = 0; x < state.Width; x++)
+            // {
+            //     for (var y = 0; y < state.Height; y++)
+            //     {
+            //         PlayerB.OpponentBoard.Board[x, y] = state.PlayerBFiringBoard[x][y];
+            //     }
+            // }
         }
 
         public void LoadGameAction()
         {
-            // var files = System.IO.Directory.EnumerateFiles(".", "*").ToList();
-            // for (var i = 0; i < files.Count; i++)
-            // {
-            //     Console.WriteLine($"{i} - {files[i]}");
-            // }
+            // // var files = System.IO.Directory.EnumerateFiles(".", "*").ToList();
+            // // for (var i = 0; i < files.Count; i++)
+            // // {
+            // //     Console.WriteLine($"{i} - {files[i]}");
+            // // }
+            // //
+            // // var fileNo = Console.ReadLine();
+            // // var fileName = files[int.Parse(fileNo!.Trim())];
             //
-            // var fileNo = Console.ReadLine();
-            // var fileName = files[int.Parse(fileNo!.Trim())];
-
-            // var jsonString = System.IO.File.ReadAllText(fileName);
-            var jsonString = File.ReadAllText("Battleship.json");
-
-            SetGameStateFromJsonString(jsonString);
-
-            while (true)
-            {
-                PlaceBombs();
-                if (!PlayerA.HasLost || !PlayerB.HasLost) continue;
-                Console.WriteLine("GAME OVER");
-                Console.ReadLine();
-                return;
-            }
+            // // var jsonString = System.IO.File.ReadAllText(fileName);
+            // var jsonString = File.ReadAllText("Battleship.json");
+            //
+            // SetGameStateFromJsonString(jsonString);
+            //
+            // while (true)
+            // {
+            //     PlaceBombs();
+            //     if (!PlayerA.HasLost || !PlayerB.HasLost) continue;
+            //     Console.WriteLine("GAME OVER");
+            //     Console.ReadLine();
+            //     return;
+            // }
         }
 
         private void SaveInitialDataToDataBase()
@@ -386,7 +502,7 @@ namespace GameBrain
                 Name = PlayerA.Name + "_vs_" + PlayerB.Name + "@" + DateTime.Now.TimeOfDay,
                 BoardWidth = _boardWidth,
                 BoardHeight = _boardHeight,
-                EShipsCanTouch = _shipsCanTouch,
+                // EShipsCanTouch = _shipsCanTouch,
                 NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer,
                 GameOptionShips = new List<GameOptionShip>(),
                 NextMoveByPlayerA = _nextMoveByPlayerA

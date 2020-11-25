@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using Domain.Enums;
 
@@ -8,32 +7,52 @@ namespace GameBrain
 {
     public class Player
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Player";
+
         public EPlayerType PlayerType { get; set; }
-        public List<Ship> Ships { get; set; } = null!;
+
+        public List<Ship> Ships { get; set; } = new();
+
+        public GameBoard PlayerBoard { get; set; } = null!;
+
+        public GameBoard FiringBoard { get; set; } = null!;
+
+        public bool HasLost { get; set; } = false;
+
+        private readonly Validator _validator = new();
+
+        // To game options
         public EShipsCanTouch ShipsCanTouch { get; set; }
-        public GameBoard PlayerBoard { get; set; }
-        public FiringBoard OpponentBoard { get; set; }
+        // public FiringBoard OpponentBoard { get; set; }
 
-        private readonly Validator _validator = new Validator();
+        // public bool HasLost
+        // {
+        //     get { return Ships.All(x => x.IsSunk); }
+        // }
 
-        public bool HasLost
+        public Player()
         {
-            get { return Ships.All(x => x.IsSunk); }
         }
 
-        public Player(string name, int boardWidth, int boardHeight, EShipsCanTouch shipsCanTouch)
+        public Player(string name)
         {
             Name = name;
-            // PlayerType = playerType;
-            PlayerBoard = new GameBoard(boardWidth, boardHeight);
-            OpponentBoard = new FiringBoard(boardWidth, boardHeight);
-            ShipsCanTouch = shipsCanTouch;
         }
 
-        private ECellState[,] GetBoard()
+        public void SetBoards(int width, int height)
+        {
+            PlayerBoard = new GameBoard(width, height);
+            FiringBoard = new GameBoard(width, height);
+        }
+
+        public ECellState[,] GetPlayerBoard()
         {
             return PlayerBoard.Board;
+        }
+
+        public ECellState[,] GetFiringBoard()
+        {
+            return FiringBoard.Board;
         }
 
         public List<Ship> GetShips()
@@ -46,7 +65,6 @@ namespace GameBrain
             Ships = ships;
         }
 
-
         public string GetName()
         {
             return Name;
@@ -57,313 +75,131 @@ namespace GameBrain
             Name = name;
         }
 
-        public void PlaceBomb(Player opponent)
+        public void PlaceBomb(Player opponent, int x, int y)
         {
-            var opponentShips = opponent.Ships;
-            var opponentBoard = opponent.PlayerBoard.Board;
-            var playerFiringBoard = OpponentBoard.Board;
+            opponent.GetPlayerBoard()[x, y] = ECellState.Bomb;
 
-            DrawBoardUI();
-            Console.WriteLine($"{Name}, place Bomb!");
-            Coordinates coordinates = AskCoordinates();
-            while (!_validator.BombCoordinateFree(coordinates, OpponentBoard))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Bomb has already placed there!");
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                coordinates = AskCoordinates();
-            }
 
-            var column = coordinates.Column - 1;
-            var row = coordinates.Row - 1;
-
-            if (opponentBoard[column, row] != ECellState.Empty)
-            {
-                var cellState = opponentBoard[column, row];
-
-                foreach (var opponentShip in opponent.Ships.Where(opponentShip => opponentShip.CellState == cellState))
-                {
-                    opponentShip.Hits++;
-                    if (opponentShip.IsSunk)
-                    {
-                        Console.WriteLine($"You sunk opponents {opponentShip.Name}");
-                    }
-                    break;
-                }
-                playerFiringBoard[column, row] = opponentBoard[column, row] = ECellState.Hit;
-                DrawBoardUI();
-                Console.WriteLine("HIT!");
-                
-
-                Console.Write("Continue...");
-                Console.ReadLine();
-            }
-
-            if (opponentBoard[column, row] != ECellState.Empty) return;
-            playerFiringBoard[column, row] = ECellState.Bomb;
-            opponentBoard[column, row] = ECellState.Bomb;
-            DrawBoardUI();
-            Console.WriteLine("MISS!");
-            Console.Write("Continue...");
-            Console.ReadLine();
+            // // var opponentShips = opponent.Ships;
+            // // var opponentBoard = opponent.GetPlayerBoard();
+            // // var playerFiringBoard = FiringBoard.Board;
+            // //
+            // // DrawGameUI();
+            // // Console.WriteLine($"{Name}, place Bomb!");
+            // // Coordinates coordinates = AskCoordinates();
+            // // while (!_validator.BombCoordinateFree(coordinates, opponentBoard))
+            // // {
+            // //     Console.ForegroundColor = ConsoleColor.Red;
+            // //     Console.WriteLine("Bomb has already placed there!");
+            // //     Console.ForegroundColor = ConsoleColor.Cyan;
+            // //     coordinates = AskCoordinates();
+            // // }
+            // //
+            // // var column = coordinates.Column - 1;
+            // // var row = coordinates.Row - 1;
+            // //
+            // // if (opponentBoard[column, row] != ECellState.Empty)
+            // // {
+            // //     var cellState = opponentBoard[column, row];
+            // //
+            // //     foreach (var opponentShip in opponent.Ships.Where(opponentShip => opponentShip.CellState == cellState))
+            // //     {
+            // //         opponentShip.Hits++;
+            // //         if (opponentShip.IsSunk)
+            // //         {
+            // //             Console.WriteLine($"You sunk opponents {opponentShip.Name}");
+            // //         }
+            // //         break;
+            // //     }
+            // //     playerFiringBoard[column, row] = opponentBoard[column, row] = ECellState.Hit;
+            // //     DrawGameUI();
+            // //     Console.WriteLine("HIT!");
+            // //     
+            // //
+            // //     Console.Write("Continue...");
+            // //     Console.ReadLine();
+            // }
+            //
+            // if (opponentBoard[column, row] != ECellState.Empty) return;
+            // playerFiringBoard[column, row] = ECellState.Bomb;
+            // opponentBoard[column, row] = ECellState.Bomb;
+            // DrawGameUI();
+            // Console.WriteLine("MISS!");
+            // Console.Write("Continue...");
+            // Console.ReadLine();
         }
 
-        public void PlaceShips()
+        // public void PlaceShips()
+        // {
+        //     foreach (var ship in Ships)
+        //     {
+        //         DrawGameUI();
+        //
+        //         Console.WriteLine($"Ship: {ship.Name}, Size: {ship.Width}x1");
+        //
+        //         Coordinates coordinates = AskCoordinates();
+        //         var orientation = EOrientation.Horizontal;
+        //         if (ship.Width != 1)
+        //         {
+        //             orientation = AskOrientation();
+        //         }
+        //
+        //         while (!_validator.CoordinatesAreValid(coordinates, orientation, PlayerBoard, ship.Width))
+        //         {
+        //             Console.ForegroundColor = ConsoleColor.Red;
+        //             Console.WriteLine("Out of bounds!");
+        //             Console.ForegroundColor = ConsoleColor.Cyan;
+        //             coordinates = AskCoordinates();
+        //             orientation = AskOrientation();
+        //         }
+        //
+        //         while (!_validator.AreaFree(coordinates, orientation, PlayerBoard, ship.Width))
+        //         {
+        //             Console.ForegroundColor = ConsoleColor.Red;
+        //             Console.WriteLine("Ship already placed there!");
+        //             Console.ForegroundColor = ConsoleColor.Cyan;
+        //             coordinates = AskCoordinates();
+        //             orientation = AskOrientation();
+        //         }
+        //
+        //         // PlaceShip(coordinates, ship, orientation);
+        //     }
+        //
+        //     DrawGameUI();
+        //     Console.Write("Continue...");
+        //     Console.ReadLine();
+        // }
+
+        public void PlaceShip(int x, int y, Ship ship, EOrientation orientation)
         {
-            foreach (var ship in Ships)
-            {
-                DrawBoardUI();
-
-                Console.WriteLine($"Ship: {ship.Name}, Size: {ship.Width}x1");
-
-                Coordinates coordinates = AskCoordinates();
-                var orientation = EOrientation.Horizontal;
-                if (ship.Width != 1)
-                {
-                    orientation = AskOrientation();
-                }
-
-                while (!_validator.CoordinatesAreValid(coordinates, orientation, PlayerBoard, ship.Width))
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Out of bounds!");
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    coordinates = AskCoordinates();
-                    orientation = AskOrientation();
-                }
-
-                while (!_validator.AreaFree(coordinates, orientation, PlayerBoard, ship.Width))
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Ship already placed there!");
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    coordinates = AskCoordinates();
-                    orientation = AskOrientation();
-                }
-
-                PlaceShip(coordinates, ship, orientation);
-            }
-
-            DrawBoardUI();
-            Console.Write("Continue...");
-            Console.ReadLine();
-        }
-
-        private void PlaceShip(Coordinates coordinates, Ship ship, EOrientation orientation)
-        {
-            var column = coordinates.Column;
-            var row = coordinates.Row;
             var shipSize = ship.Width;
             var board = PlayerBoard.Board;
             var state = ship.CellState;
 
             if (orientation == EOrientation.Horizontal)
             {
-                for (var i = column; i < column + shipSize; i++)
+                for (var i = x; i < x + shipSize; i++)
                 {
-                    board[i - 1, row - 1] = state;
+                    board[i - 1, y - 1] = state;
                 }
             }
 
             if (orientation != EOrientation.Vertical) return;
             {
-                for (var i = row; i < row + shipSize; i++)
+                for (var i = y; i < y + shipSize; i++)
                 {
-                    board[column - 1, i - 1] = state;
+                    board[x - 1, i - 1] = state;
                 }
             }
         }
 
-        public void PlaceRandomShips()
+        private (int x, int y) RandomCoordinates(int width, int height)
         {
-            Random rand = new Random(Guid.NewGuid().GetHashCode());
-            var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
-            var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 1;
-            var board = PlayerBoard.Board;
-            foreach (var ship in Ships)
-            {
-                var isOpen = true;
-                while (isOpen)
-                {
-                    var startColumn = rand.Next(1, boardWidth);
-                    var startRow = rand.Next(1, boardHeight);
-                    var endColumn = startColumn;
-                    var endRow = startRow;
-                    var orientation = rand.Next(1, 101) % 2; //0 for Horizontal
-                    var state = ship.CellState;
+            Random rand = new(Guid.NewGuid().GetHashCode());
+            var column = rand.Next(1, width + 1);
+            var row = rand.Next(1, height + 2);
 
-                    if (orientation == 0)
-                    {
-                        for (var i = 1; i < ship.Width; i++)
-                        {
-                            endRow++;
-                        }
-                    }
-
-                    else
-                    {
-                        for (var i = 1; i < ship.Width; i++)
-                        {
-                            endColumn++;
-                        }
-                    }
-
-                    //We cannot place ships beyond the boundaries of the board
-                    if (endRow > boardHeight || endColumn > boardWidth)
-                    {
-                        isOpen = true;
-                        continue; //Restart the while loop to select a new random panel
-                    }
-
-                    var occupiedCells = 0;
-
-                    if (ShipsCanTouch == EShipsCanTouch.No)
-                    {
-                        var checkStartColumn = startColumn;
-                        var checkEndColumn = endColumn;
-                        var checkStartRow = startRow;
-                        var checkEndRow = endRow;
-                        if (startColumn > 1)
-                        {
-                            checkStartColumn = startColumn - 1;
-                        }
-
-                        if (endColumn < boardWidth)
-                        {
-                            checkEndColumn = endColumn + 1;
-                        }
-
-                        if (startRow > 1)
-                        {
-                            checkStartRow = startRow - 1;
-                        }
-
-                        if (endRow < boardHeight)
-                        {
-                            checkEndRow = endRow + 1;
-                        }
-
-                        for (var i = checkStartColumn; i <= checkEndColumn; i++)
-                        {
-                            for (var j = checkStartRow; j <= checkEndRow; j++)
-                            {
-                                if (board[i - 1, j - 1] != ECellState.Empty)
-                                {
-                                    occupiedCells++;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (var i = startColumn; i <= endColumn; i++)
-                        {
-                            for (var j = startRow; j <= endRow; j++)
-                            {
-                                if (board[i - 1, j - 1] == ECellState.Empty)
-                                {
-                                    continue;
-                                }
-
-                                occupiedCells++;
-                            }
-                        }
-                    }
-
-                    if (occupiedCells != 0)
-                    {
-                        isOpen = true;
-                        continue;
-                    }
-
-                    for (var i = startColumn; i <= endColumn; i++)
-                    {
-                        for (var j = startRow; j <= endRow; j++)
-                        {
-                            board[i - 1, j - 1] = state;
-                        }
-                    }
-
-                    isOpen = false;
-                }
-            }
-
-            Console.Clear();
-        }
-
-        private Coordinates RandomCoordinates()
-        {
-            Random rand = new Random(Guid.NewGuid().GetHashCode());
-            var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 2;
-            var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 2;
-
-            var column = rand.Next(1, boardWidth);
-            var row = rand.Next(1, boardHeight);
-
-            Coordinates coordinates = new Coordinates(column, row);
-
-            while (!_validator.BombCoordinateFree(coordinates, OpponentBoard))
-            {
-                column = rand.Next(1, boardWidth);
-                row = rand.Next(1, boardHeight);
-                coordinates = new Coordinates(column, row);
-            }
-
-            return coordinates;
-        }
-
-        private Coordinates AskCoordinates()
-        {
-            var boardWidth = PlayerBoard.Board.GetUpperBound(0) + 1;
-            Console.Write(
-                $"Insert Column (A-{IntToAlphabeticValue(boardWidth - 1)}) or press ENTER for random coordinates: ");
-            string columnInput = Console.ReadLine() ?? "";
-            if (columnInput == "")
-            {
-                return RandomCoordinates();
-            }
-
-            while (!_validator.ColumnIsValid(columnInput, PlayerBoard))
-            {
-                Console.Write($"Please insert correct Column (A-{IntToAlphabeticValue(boardWidth - 1)}): ");
-                columnInput = Console.ReadLine() ?? "";
-            }
-
-            var column = _validator.ConvertStringToInteger(columnInput);
-
-            var boardHeight = PlayerBoard.Board.GetUpperBound(1) + 1;
-            Console.Write($"Insert Row (1-{boardHeight}): ");
-            string rowInput = Console.ReadLine() ?? "";
-            while (!_validator.RowIsValid(rowInput, PlayerBoard))
-            {
-                Console.Write($"Please enter correct row (1-{boardHeight}): ");
-                rowInput = Console.ReadLine() ?? "";
-            }
-
-            var row = int.Parse(rowInput);
-
-            return new Coordinates(column, row);
-        }
-
-        private EOrientation AskOrientation()
-        {
-            Console.Write("Insert orientation Horizontal(H) or Vertical(V): ");
-            string input = Console.ReadLine() ?? "";
-
-            while (!_validator.OrientationIsValid(input))
-            {
-                Console.Write("Please enter correct orientation (H) or (V): ");
-                input = Console.ReadLine() ?? "";
-            }
-
-            var orientation = input.Trim().ToLower() switch
-            {
-                "h" => EOrientation.Horizontal,
-                "v" => EOrientation.Vertical,
-                _ => EOrientation.Horizontal
-            };
-
-            return orientation;
+            return (rand.Next(1, column), rand.Next(1, row));
         }
 
         public string GetSerializedGameBoardState()
@@ -373,18 +209,18 @@ namespace GameBrain
             var width = PlayerBoard.Board.GetUpperBound(0) + 1;
             var height = PlayerBoard.Board.GetUpperBound(1) + 1;
 
-            state.PlayerBoard = new ECellState[width][];
+            state.Board = new ECellState[width][];
 
-            for (var i = 0; i < state.PlayerBoard.Length; i++)
+            for (var i = 0; i < state.Board.Length; i++)
             {
-                state.PlayerBoard[i] = new ECellState[height];
+                state.Board[i] = new ECellState[height];
             }
 
             for (var x = 0; x < width; x++)
             {
                 for (var y = 0; y < height; y++)
                 {
-                    state.PlayerBoard[x][y] = PlayerBoard.Board[x, y];
+                    state.Board[x][y] = PlayerBoard.Board[x, y];
                 }
             }
 
@@ -399,23 +235,23 @@ namespace GameBrain
 
         public string GetSerializedFiringBoardState()
         {
-            var state = new FiringBoardState();
+            var state = new GameBoardState();
 
-            var width = OpponentBoard.Board.GetUpperBound(0) + 1;
-            var height = OpponentBoard.Board.GetUpperBound(1) + 1;
+            var width = FiringBoard.Board.GetUpperBound(0) + 1;
+            var height = FiringBoard.Board.GetUpperBound(1) + 1;
 
-            state.OpponentBoard = new ECellState[width][];
+            state.Board = new ECellState[width][];
 
-            for (var i = 0; i < state.OpponentBoard.Length; i++)
+            for (var i = 0; i < state.Board.Length; i++)
             {
-                state.OpponentBoard[i] = new ECellState[height];
+                state.Board[i] = new ECellState[height];
             }
 
             for (var x = 0; x < width; x++)
             {
                 for (var y = 0; y < height; y++)
                 {
-                    state.OpponentBoard[x][y] = OpponentBoard.Board[x, y];
+                    state.Board[x][y] = FiringBoard.Board[x, y];
                 }
             }
 
@@ -441,14 +277,14 @@ namespace GameBrain
             return value;
         }
 
-        private void DrawBoardUI()
+        private void DrawGameUI()
         {
             Console.Clear();
             Console.WriteLine($"- - - {Name.ToUpper()} BOARD - - -");
-            GameBoardUI.DrawBoard(PlayerBoard);
+            // GameBoardUI.DrawBoardWithShips(PlayerBoard);
             Console.WriteLine();
             Console.WriteLine("- - - OPPONENT BOARD - - -");
-            GameBoardUI.DrawBoard(OpponentBoard);
+            GameBoardUI.DrawBoardWithoutShips(PlayerBoard);
             Console.WriteLine();
         }
     }

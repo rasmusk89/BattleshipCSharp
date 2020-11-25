@@ -74,16 +74,24 @@ namespace GameBrain
                 }
             } while (ships.Count == 0);
             
-            return new GameOptions
+            return new GameOptions(width, height, new Player(playerAName), new Player(playerBName), canShipsTouch, ships, nextMoveAfterHit)
             {
-                BoardWidth = width,
-                BoardHeight = height,
-                NextMoveAfterHit = nextMoveAfterHit,
-                NextMoveByPlayerA = true,
-                PlayerA = new Player(playerAName, width, height, canShipsTouch),
-                PlayerB = new Player(playerBName, width, height, canShipsTouch),
-                Ships = ships,
-                ShipsCanTouch = canShipsTouch
+                // BoardWidth = width,
+                // BoardHeight = height,
+                // NextMoveAfterHit = nextMoveAfterHit,
+                // // NextMoveByPlayerA = true,
+                // PlayerA = new Player()
+                // {
+                //     // Nullable?
+                //     Name = playerAName!
+                // },
+                // PlayerB = new Player()
+                // {
+                //     // Nullable?
+                //     Name = playerBName!
+                // },
+                // Ships = ships,
+                // ShipsCanTouch = canShipsTouch
             };
         }
 

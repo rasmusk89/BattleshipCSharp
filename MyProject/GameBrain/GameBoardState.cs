@@ -4,6 +4,6 @@ namespace GameBrain
 {
     public class GameBoardState
     {
-        public ECellState[][] PlayerBoard { get; set; } = null!;
+        public ECellState[][] Board { get; set; } = null!;
     }
 }
