@@ -8,23 +8,23 @@ namespace GameBrain
 {
     public class Player
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Player";
 
-        private EPlayerType PlayerType { get; set; }
+        public EPlayerType PlayerType { get; set; }
 
         public List<Ship> Ships { get; set; } = new();
 
-        private GameBoard GameBoard { get; set; } = null!;
+        public GameBoard GameBoard { get; set; } = null!;
 
         public bool HasLost
         {
             get { return Ships.All(x => x.IsSunk); }
         }
 
-        public Player(string name)
-        {
-            Name = name;
-        }
+        // public Player(string name)
+        // {
+        //     Name = name;
+        // }
 
         public void SetBoard(int width, int height)
         {

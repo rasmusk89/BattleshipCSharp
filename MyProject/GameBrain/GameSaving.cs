@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameBrain
 {
-    public class GameSaving
+    public static class GameSaving
     {
         private static AppDbContext GetConnection()
         {
@@ -29,7 +29,6 @@ namespace GameBrain
             Console.Write("Saving...");
             dbCtx.Database.EnsureDeleted();
             dbCtx.Database.Migrate();
-
 
             var playerOne = gameState.PlayerAState;
             var playerTwo = gameState.PlayerBState;

@@ -33,11 +33,11 @@ namespace ConsoleApp
                 CustomBattleship
             ));
 
-            // gameType.AddMenuItem(new MenuItem(
-            //     "Load Last Game",
-            //     "L",
-            //     LoadGame
-            // ));
+            gameType.AddMenuItem(new MenuItem(
+                "Load Last Game",
+                "L",
+                LoadGame
+            ));
             
             // gameType.AddMenuItem(new MenuItem(
             //     "Load Game from DB",
@@ -70,13 +70,12 @@ namespace ConsoleApp
             return "";
         }
 
-        // private static string LoadGame()
-        // {
-        //     var options = new GameOptions();
-        //     var game = new Game(options);
-        //     game.LoadGameAction();
-        //     return "";
-        // }
+        private static string LoadGame()
+        {
+            var gameLoading = new GameLoading();
+            gameLoading.LoadLastGame().StartGame();
+            return "";
+        }
 
         
 

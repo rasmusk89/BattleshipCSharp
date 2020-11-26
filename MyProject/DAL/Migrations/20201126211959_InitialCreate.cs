@@ -39,7 +39,7 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ships",
+                name: "Ship",
                 columns: table => new
                 {
                     ShipId = table.Column<int>(type: "int", nullable: false)
@@ -49,7 +49,7 @@ namespace DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Ships", x => x.ShipId);
+                    table.PrimaryKey("PK_Ship", x => x.ShipId);
                 });
 
             migrationBuilder.CreateTable(
@@ -112,7 +112,7 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerBoardState",
+                name: "PlayerBoardStates",
                 columns: table => new
                 {
                     PlayerBoardStateId = table.Column<int>(type: "int", nullable: false)
@@ -123,9 +123,9 @@ namespace DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlayerBoardState", x => x.PlayerBoardStateId);
+                    table.PrimaryKey("PK_PlayerBoardStates", x => x.PlayerBoardStateId);
                     table.ForeignKey(
-                        name: "FK_PlayerBoardState_Players_PlayerId",
+                        name: "FK_PlayerBoardStates_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
                         principalColumn: "PlayerId",
@@ -133,7 +133,7 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GameOptionShips",
+                name: "GameOptionShip",
                 columns: table => new
                 {
                     GameOptionShipId = table.Column<int>(type: "int", nullable: false)
@@ -144,29 +144,29 @@ namespace DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GameOptionShips", x => x.GameOptionShipId);
+                    table.PrimaryKey("PK_GameOptionShip", x => x.GameOptionShipId);
                     table.ForeignKey(
-                        name: "FK_GameOptionShips_GameOptions_GameOptionId",
+                        name: "FK_GameOptionShip_GameOptions_GameOptionId",
                         column: x => x.GameOptionId,
                         principalTable: "GameOptions",
                         principalColumn: "GameOptionId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_GameOptionShips_Ships_ShipId",
+                        name: "FK_GameOptionShip_Ship_ShipId",
                         column: x => x.ShipId,
-                        principalTable: "Ships",
+                        principalTable: "Ship",
                         principalColumn: "ShipId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_GameOptionShips_GameOptionId",
-                table: "GameOptionShips",
+                name: "IX_GameOptionShip_GameOptionId",
+                table: "GameOptionShip",
                 column: "GameOptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GameOptionShips_ShipId",
-                table: "GameOptionShips",
+                name: "IX_GameOptionShip_ShipId",
+                table: "GameOptionShip",
                 column: "ShipId");
 
             migrationBuilder.CreateIndex(
@@ -190,15 +190,15 @@ namespace DAL.Migrations
                 column: "PlayerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlayerBoardState_PlayerId",
-                table: "PlayerBoardState",
+                name: "IX_PlayerBoardStates_PlayerId",
+                table: "PlayerBoardStates",
                 column: "PlayerId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "GameOptionShips");
+                name: "GameOptionShip");
 
             migrationBuilder.DropTable(
                 name: "Games");
@@ -207,10 +207,10 @@ namespace DAL.Migrations
                 name: "GameShips");
 
             migrationBuilder.DropTable(
-                name: "PlayerBoardState");
+                name: "PlayerBoardStates");
 
             migrationBuilder.DropTable(
-                name: "Ships");
+                name: "Ship");
 
             migrationBuilder.DropTable(
                 name: "GameOptions");

@@ -1,16 +1,75 @@
-﻿// using System;
-// using System.Collections.Generic;
-// using System.Linq;
-// using System.Text.Json;
-// using DAL;
-// using Microsoft.EntityFrameworkCore;
-//
-// namespace GameBrain
-// {
-//     public class GameLoading
-//     {
-//         public static GameOptions LoadLastGameOptions()
-//         {
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using DAL;
+using Domain;
+using Microsoft.EntityFrameworkCore;
+
+namespace GameBrain
+{
+    public class GameLoading
+    {
+        public Game LoadLastGame()
+        {
+            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
+                @"
+                 Server=barrel.itcollege.ee,1533;
+                 User Id=student;
+                 Password=Student.Bad.password.0;
+                 Database=raskil_db;
+                 MultipleActiveResultSets=true;
+                 ").Options;
+            using var dbCtx = new AppDbContext(dbOptions);
+
+            var lastGame = dbCtx.Games.OrderByDescending(x => x.GameId).First();
+            var DbPlayerA = dbCtx.Players.First(x => x.PlayerId == lastGame.PlayerAId);
+            var DbPlayerAShips = new List<GameShip>();
+            foreach (var gameShip in dbCtx.GameShips.Where(x => x.PlayerId == DbPlayerA.PlayerId))
+            {
+                DbPlayerAShips.Add(gameShip);
+            }
+            var playerABoard = JsonSerializer.Deserialize<GameBoard>(dbCtx.PlayerBoardStates
+                .First(x => x.PlayerId == DbPlayerA.PlayerId).GameBoardState);
+            
+            
+            
+            // var boardA = JsonSerializer.Deserialize<GameBoard>(playerABoard);
+            // var playerB = dbCtx.Players.First(x => x.PlayerId == lastGame.PlayerBId);
+            //
+            // Console.WriteLine(playerA.Name);
+            // Console.WriteLine(playerB.Name);
+            // Console.ReadLine();
+
+            // var playerA = new Player
+            // {
+            //     Name = lastGame.PlayerA.Name,
+            //     PlayerType = lastGame.PlayerA.EPlayerType
+            // };
+
+            // var playerAShips = lastGame.PlayerA.GameShips
+            //     .Select(ship => new Ship {CellState = ship.ECellState, Hits = ship.Hits, Name = ship.Name, Width = ship.Width})
+            //     .ToList();
+            
+            // var playerABoard = JsonSerializer.Deserialize<GameBoard>(lastGame.PlayerA.PlayerBoardStates.First().GameBoardState);
+            ///////////////////////////////////////
+            // Console.WriteLine(JsonSerializer.Deserialize<GameBoard>(lastGame.PlayerA.PlayerBoardStates.First().GameBoardState));
+            // Console.ReadLine();
+            
+            
+            // var playerB = new Player
+            // {
+            //     Name = lastGame.PlayerB.Name,
+            //     PlayerType = lastGame.PlayerB.EPlayerType
+            // };
+            // var playerBShips;
+            // var playerBBoard;
+            return new Game(new GameOptions());
+        }
+    }
+}
+
+
 //             Console.Clear();
 //             Console.Write("Loading...");
 //             var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(

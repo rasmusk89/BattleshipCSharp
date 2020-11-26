@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201126201918_InitialCreate")]
+    [Migration("20201126211959_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,7 +107,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("ShipId");
 
-                    b.ToTable("GameOptionShips");
+                    b.ToTable("GameOptionShip");
                 });
 
             modelBuilder.Entity("Domain.GameShip", b =>
@@ -185,7 +185,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("PlayerBoardState");
+                    b.ToTable("PlayerBoardStates");
                 });
 
             modelBuilder.Entity("Domain.Ship", b =>
@@ -205,7 +205,7 @@ namespace DAL.Migrations
 
                     b.HasKey("ShipId");
 
-                    b.ToTable("Ships");
+                    b.ToTable("Ship");
                 });
 
             modelBuilder.Entity("Domain.Game", b =>

@@ -105,7 +105,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("ShipId");
 
-                    b.ToTable("GameOptionShips");
+                    b.ToTable("GameOptionShip");
                 });
 
             modelBuilder.Entity("Domain.GameShip", b =>
@@ -183,7 +183,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("PlayerBoardState");
+                    b.ToTable("PlayerBoardStates");
                 });
 
             modelBuilder.Entity("Domain.Ship", b =>
@@ -203,7 +203,7 @@ namespace DAL.Migrations
 
                     b.HasKey("ShipId");
 
-                    b.ToTable("Ships");
+                    b.ToTable("Ship");
                 });
 
             modelBuilder.Entity("Domain.Game", b =>

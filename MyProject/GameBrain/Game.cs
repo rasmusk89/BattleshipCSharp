@@ -8,23 +8,28 @@ namespace GameBrain
     {
         private readonly int _boardHeight;
         private readonly int _boardWidth;
-        private Player PlayerA { get; }
-        private Player PlayerB { get; }
+        public Player PlayerA { get; set; }
+        public Player PlayerB { get; set; }
         private List<Ship> Ships { get; set; }
         private readonly EShipsCanTouch _shipsCanTouch;
         private bool _nextMoveByPlayerA = true;
         private readonly GameOptions _gameOptions;
         private readonly Validator _validator = new();
-        private GameSaving GameSaving { get; set; } = new();
 
         public Game(GameOptions options)
         {
             _boardHeight = options.GetBoardHeight();
             _boardWidth = options.GetBoardWidth();
             Ships = options.GetShips();
-            PlayerA = new Player("Player1");
+            PlayerA = new Player()
+            {
+                Name = "Player 1"
+            };
             PlayerA.SetShips(Ships);
-            PlayerB = new Player("Player2");
+            PlayerB = new Player()
+            {
+                Name = "Player 2"
+            };
             PlayerB.SetShips(Ships);
             PlayerA.SetBoard(_boardWidth, _boardHeight);
             PlayerB.SetBoard(_boardWidth, _boardHeight);
@@ -44,7 +49,6 @@ namespace GameBrain
             var (playerAName, playerBName) = GetPlayerNames();
             PlayerA.SetName(playerAName);
             PlayerB.SetName(playerBName);
-            GameSaving.InitialSave(GetGameState());
             Console.Write("Press ENTER to place ships or type \"R\" for random ships: ");
             string input = Console.ReadLine() ?? "";
             if (input.ToLower() != "r")
@@ -60,6 +64,7 @@ namespace GameBrain
                 PlaceRandomShips(PlayerA);
                 PlaceRandomShips(PlayerB);
             }
+            GameSaving.InitialSave(GetGameState());
             PlayRound();
         }
 
@@ -664,5 +669,6 @@ namespace GameBrain
         }
         
         */
+        
     }
 }
