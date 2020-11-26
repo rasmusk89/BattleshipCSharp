@@ -74,7 +74,7 @@ namespace GameBrain
             var shipsA = new List<Ship>();
             foreach (var playerAShip in playerAShips)
             {
-                shipsA.Add(new Ship
+                shipsA.Add(new Ship()
                 {
                     Name = playerAShip.Name,
                     Width = playerAShip.Width,

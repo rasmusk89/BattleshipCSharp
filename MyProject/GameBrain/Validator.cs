@@ -5,11 +5,6 @@ namespace GameBrain
 {
     public class Validator
     {
-        public bool BombCoordinateFree(int column, int row, Player opponent)
-        {
-            return opponent.GetPlayerBoard()[column, row] != ECellState.Bomb 
-                   || opponent.GetPlayerBoard()[column, row] != ECellState.Hit;
-        }
 
         public bool OrientationIsValid(string input)
         {
@@ -47,7 +42,7 @@ namespace GameBrain
 
             return false;
         }
-
+        
         public bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
             EOrientation orientation)
         {
@@ -61,9 +56,14 @@ namespace GameBrain
             return y + ship.Width <= boardHeight;
         }
         
-        public bool BombCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight)
+        public bool BombCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Player opponent)
         {
-            return column >= 0 && column <= boardWidth && row >= 0 && row <= boardHeight;
+            var sizeValid = column >= 0 && column <= boardWidth && row >= 0 && row <= boardHeight;
+            var noBomb = opponent.GetPlayerBoard()[column, row] == ECellState.Empty 
+                || opponent.GetPlayerBoard()[column, row] != ECellState.Bomb
+                && opponent.GetPlayerBoard()[column, row] != ECellState.Hit;
+
+            return sizeValid && noBomb;
         }
 
         public bool ShipAreaFree(int column, int row, Player player, Ship ship, EOrientation orientation,

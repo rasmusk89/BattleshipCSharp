@@ -21,10 +21,6 @@ namespace GameBrain
             get { return Ships.All(x => x.IsSunk); }
         }
 
-        // public Player()
-        // {
-        // }
-
         public Player(string name)
         {
             Name = name;
@@ -55,7 +51,7 @@ namespace GameBrain
             return Name;
         }
 
-        private static bool IsHit(int column, int row, Player opponent)
+        public bool IsHit(int column, int row, Player opponent)
         {
             return opponent.GetPlayerBoard()[column, row] != ECellState.Empty;
         }
@@ -63,14 +59,16 @@ namespace GameBrain
         private static void RegisterHit(int column, int row, Player opponent)
         {
             var shipState = opponent.GetPlayerBoard()[column, row];
+            var ship = new Ship();
 
-            foreach (var ship in opponent.Ships.Where(ship => ship.CellState == shipState))
+            foreach (var opponentShip in opponent.Ships.Where(opponentShip => opponentShip.CellState == shipState && !opponentShip.IsSunk))
             {
-                ship.Hits++;
+                ship = opponentShip;
             }
+            ship.Hits++;
         }
 
-        public static void PlaceBomb(int column, int row, Player opponent)
+        public void PlaceBomb(int column, int row, Player opponent)
         {
             if (IsHit(column, row, opponent))
             {
@@ -113,15 +111,6 @@ namespace GameBrain
             }
         }
 
-        private (int column, int row) RandomCoordinates(int width, int height)
-        {
-            Random rand = new(Guid.NewGuid().GetHashCode());
-            var column = rand.Next(1, width + 1);
-            var row = rand.Next(1, height + 2);
-
-            return (rand.Next(1, column), rand.Next(1, row));
-        }
-
         public string GetSerializedGameBoardState()
         {
             var state = new GameBoardState();
@@ -152,60 +141,6 @@ namespace GameBrain
 
             return JsonSerializer.Serialize(state, jsonOptions);
         }
-
-        // public string GetSerializedFiringBoardState()
-        // {
-        //     var state = new GameBoardState();
-        //
-        //     var width = FiringBoard.Board.GetUpperBound(0) + 1;
-        //     var height = FiringBoard.Board.GetUpperBound(1) + 1;
-        //
-        //     state.Board = new ECellState[width][];
-        //
-        //     for (var i = 0; i < state.Board.Length; i++)
-        //     {
-        //         state.Board[i] = new ECellState[height];
-        //     }
-        //
-        //     for (var x = 0; x < width; x++)
-        //     {
-        //         for (var y = 0; y < height; y++)
-        //         {
-        //             state.Board[x][y] = FiringBoard.Board[x, y];
-        //         }
-        //     }
-        //
-        //     var jsonOptions = new JsonSerializerOptions
-        //     {
-        //         WriteIndented = true
-        //     };
-        //
-        //     return JsonSerializer.Serialize(state, jsonOptions);
-        // }
-
-        private static string IntToAlphabeticValue(int index)
-        {
-            const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-            var value = "";
-
-            if (index >= letters.Length)
-                value += letters[index / letters.Length - 1];
-
-            value += letters[index % letters.Length];
-
-            return value;
-        }
-
-        private void DrawGameUI()
-        {
-            Console.Clear();
-            Console.WriteLine($"- - - {Name.ToUpper()} BOARD - - -");
-            // GameBoardUI.DrawBoardWithShips(PlayerBoard);
-            Console.WriteLine();
-            Console.WriteLine("- - - OPPONENT BOARD - - -");
-            // GameBoardUI.DrawBoardWithoutShips(PlayerBoard);
-            Console.WriteLine();
-        }
+        
     }
 }

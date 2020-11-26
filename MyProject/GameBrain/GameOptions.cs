@@ -13,23 +13,14 @@ namespace GameBrain
         private Player PlayerB { get; set; }
         private bool NextMoveByPlayerA { get; set; }
 
-        // private List<Ship> Ships { get; set; } = new ();
-        // // {
-        // //     new Ship(1),
-        // //     new Ship(2),
-        // //     new Ship(3),
-        // //     new Ship(4),
-        // //     new Ship(5)
-        // // };
-
         public GameOptions()
         {
             BoardWidth = 10;
             BoardHeight = 10;
-            
+
             ShipsCanTouch = EShipsCanTouch.No;
             NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
-            
+
             PlayerA = new Player("Player 1")
             {
                 GameBoard = new GameBoard(BoardWidth, BoardHeight),
@@ -54,27 +45,21 @@ namespace GameBrain
                     new Ship(5)
                 }
             };
-            
+
             NextMoveByPlayerA = true;
         }
 
         public GameOptions(int boardWidth, int boardHeight, Player playerA, Player playerB,
-            EShipsCanTouch shipsCanTouch, /*List<Ship> ships,*/ ENextMoveAfterHit nextMoveAfterHit)
+            EShipsCanTouch shipsCanTouch, ENextMoveAfterHit nextMoveAfterHit)
         {
             BoardWidth = boardWidth;
             BoardHeight = boardHeight;
             PlayerA = playerA;
             PlayerB = playerB;
             ShipsCanTouch = shipsCanTouch;
-            // Ships = ships;
             NextMoveAfterHit = nextMoveAfterHit;
             NextMoveByPlayerA = true;
         }
-
-        // public List<Ship> GetShips()
-        // {
-        //     return Ships;
-        // }
 
         public Player GetPlayerA()
         {

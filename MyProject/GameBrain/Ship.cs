@@ -38,7 +38,7 @@ namespace GameBrain
                 _ => "Custom"
             };
         }
-        
+
         private static ECellState GetCellState(int width)
         {
             return width switch
