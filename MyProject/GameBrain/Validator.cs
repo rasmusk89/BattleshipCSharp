@@ -5,20 +5,18 @@ namespace GameBrain
 {
     public class Validator
     {
-        public bool BombCoordinateFree(int x, int y, ECellState[,] board)
+        public bool BombCoordinateFree(int column, int row, Player opponent)
         {
-            var row = x - 1;
-            var column = y - 1;
-
-            return board[column, row] == ECellState.Empty;
+            return opponent.GetPlayerBoard()[column, row] != ECellState.Bomb 
+                   || opponent.GetPlayerBoard()[column, row] != ECellState.Hit;
         }
 
-        public static bool OrientationIsValid(string input)
+        public bool OrientationIsValid(string input)
         {
             return input.ToLower() == "h" || input.ToLower() == "v";
         }
 
-        public bool ColumnIsValid(string input, int boardWidth)
+        public bool ColumnInputIsValid(string input, int boardWidth)
         {
             if (input.Length < 1)
             {
@@ -35,7 +33,7 @@ namespace GameBrain
             return number <= boardWidth && number > 0;
         }
 
-        public bool RowIsValid(string input, int boardHeight)
+        public bool RowInputIsValid(string input, int boardHeight)
         {
             if (input.Contains("-") || input.Contains("+") || input.Contains("*") || input.Contains("/"))
             {
@@ -50,7 +48,7 @@ namespace GameBrain
             return false;
         }
 
-        public bool CoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
+        public bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
             EOrientation orientation)
         {
             var x = column;
@@ -61,6 +59,11 @@ namespace GameBrain
             }
 
             return y + ship.Width <= boardHeight;
+        }
+        
+        public bool BombCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight)
+        {
+            return column >= 0 && column <= boardWidth && row >= 0 && row <= boardHeight;
         }
 
         public bool ShipAreaFree(int column, int row, Player player, Ship ship, EOrientation orientation,
@@ -97,12 +100,12 @@ namespace GameBrain
                 {
                     return board[column, row] == ECellState.Empty;
                 }
-                Console.WriteLine("startColumn: " + startColumn + ", endColumn: " + endColumn);
-                Console.WriteLine("startRow: " + startRow + ", endRow: " + endRow);
-                Console.ReadLine();
-                for (int i = startColumn; i <= endColumn; i++)
+                // Console.WriteLine("startColumn: " + startColumn + ", endColumn: " + endColumn);
+                // Console.WriteLine("startRow: " + startRow + ", endRow: " + endRow);
+                // Console.ReadLine();
+                for (var i = startColumn; i <= endColumn; i++)
                 {
-                    for (int j = startRow; j <= endRow; j++)
+                    for (var j = startRow; j <= endRow; j++)
                     {
                         if (board[i, j] == ECellState.Empty)
                         {
@@ -149,13 +152,13 @@ namespace GameBrain
                 {
                     --endRow;
                 }
-                Console.WriteLine("startColumn: " + startColumn + ", endColumn: " + endColumn);
-                Console.WriteLine("startRow: " + startRow + ", endRow: " + endRow);
-                Console.ReadLine();
+                // Console.WriteLine("startColumn: " + startColumn + ", endColumn: " + endColumn);
+                // Console.WriteLine("startRow: " + startRow + ", endRow: " + endRow);
+                // Console.ReadLine();
 
-                for (int i = startColumn - 1; i <= endColumn + 1; i++)
+                for (var i = startColumn - 1; i <= endColumn + 1; i++)
                 {
-                    for (int j = startRow - 1; j <= endRow + 1; j++)
+                    for (var j = startRow - 1; j <= endRow + 1; j++)
                     {
                         if (board[i, j] == ECellState.Empty)
                         {

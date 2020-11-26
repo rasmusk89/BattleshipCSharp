@@ -11,17 +11,34 @@ namespace GameBrain
         {
             Console.Clear();
             Console.Write("Set player A name: ");
-            string playerAName = Console.ReadLine();
+            string playerAName = Console.ReadLine() ?? "Player1";
 
             Console.Write("Set player B name: ");
-            string playerBName = Console.ReadLine();
+            string playerBName = Console.ReadLine() ?? "Player2";
             
             Console.Write("Set board width: ");
-            var width = int.Parse(Console.ReadLine());
+            var widthInput =Console.ReadLine() ?? "10";
+            while (!NumericInputCorrect(widthInput!))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Please enter correct width: ");
+                widthInput = Console.ReadLine();
+                Console.ForegroundColor = ConsoleColor.Cyan;
+            }
+            var width = int.Parse(widthInput);
 
             Console.Write("Set board height: ");
-            var height = int.Parse(Console.ReadLine());
+            var heightInput = Console.ReadLine() ?? "10";
+            while (!NumericInputCorrect(heightInput!))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Please enter correct height: ");
+                heightInput = Console.ReadLine();
+                Console.ForegroundColor = ConsoleColor.Cyan;
+            }
 
+            var height = int.Parse(heightInput);
+            
             Console.Write("Can ships touch? (Y/N): ");
             var canTouch = Console.ReadLine();
             var canShipsTouch = canTouch.ToLower() == "y" ? EShipsCanTouch.Yes : EShipsCanTouch.No;
@@ -74,9 +91,42 @@ namespace GameBrain
                 }
             } while (ships.Count == 0);
 
-            return new GameOptions(width, height, new Player(playerAName), new Player(playerBName), canShipsTouch,
-                ships, nextMoveAfterHit);
+            List<Ship> playerAShips = new ();
+            List<Ship> playerBShips = new ();
+            foreach (var ship in ships)
+            {
+                playerAShips.Add(new Ship(ship.Width));
+                playerBShips.Add(new Ship(ship.Width));
+            }
 
+            Player playerA = new (playerAName)
+            {
+                Ships = playerAShips
+            };
+
+            Player playerB = new (playerBName)
+            {
+                Ships = playerBShips
+            };
+
+            return new GameOptions(width, height, playerA, playerB, canShipsTouch,
+                /*ships,*/ nextMoveAfterHit);
+
+        }
+
+        private bool NumericInputCorrect(string number)
+        {
+            if (!IsNumeric(number))
+            {
+                return false;
+            }
+
+            return int.Parse(number) >= 1 && int.Parse(number) <= 60;
+        }
+        
+        private bool IsNumeric(string x)
+        {
+            return int.TryParse(x, out _);
         }
     }
 }

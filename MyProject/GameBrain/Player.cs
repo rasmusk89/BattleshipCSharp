@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Domain.Enums;
 
@@ -7,7 +8,7 @@ namespace GameBrain
 {
     public class Player
     {
-        public string Name { get; set; } = "Player";
+        public string Name { get; set; }
 
         public EPlayerType PlayerType { get; set; }
 
@@ -15,11 +16,14 @@ namespace GameBrain
 
         public GameBoard GameBoard { get; set; } = null!;
 
-        public bool HasLost { get; set; } = false;
-
-        public Player()
+        public bool HasLost
         {
+            get { return Ships.All(x => x.IsSunk); }
         }
+
+        // public Player()
+        // {
+        // }
 
         public Player(string name)
         {
@@ -51,10 +55,32 @@ namespace GameBrain
             return Name;
         }
 
-
-        public void PlaceBomb(Player opponent, int column, int row)
+        private static bool IsHit(int column, int row, Player opponent)
         {
-            opponent.GetPlayerBoard()[column, row] = ECellState.Bomb;
+            return opponent.GetPlayerBoard()[column, row] != ECellState.Empty;
+        }
+
+        private static void RegisterHit(int column, int row, Player opponent)
+        {
+            var shipState = opponent.GetPlayerBoard()[column, row];
+
+            foreach (var ship in opponent.Ships.Where(ship => ship.CellState == shipState))
+            {
+                ship.Hits++;
+            }
+        }
+
+        public static void PlaceBomb(int column, int row, Player opponent)
+        {
+            if (IsHit(column, row, opponent))
+            {
+                RegisterHit(column, row, opponent);
+                opponent.GetPlayerBoard()[column, row] = ECellState.Hit;
+            }
+            else
+            {
+                opponent.GetPlayerBoard()[column, row] = ECellState.Bomb;
+            }
         }
 
         public void PlaceShip(int column, int row, Ship ship, EOrientation orientation)
@@ -62,20 +88,28 @@ namespace GameBrain
             var shipSize = ship.Width;
             var board = GameBoard.Board;
             var state = ship.CellState;
-            if (orientation == EOrientation.Horizontal)
+            switch (orientation)
             {
-                for (var i = 0; i < shipSize; i++)
+                case EOrientation.Horizontal:
                 {
-                    board[column + i, row] = state;
-                }
-            }
+                    for (var i = 0; i < shipSize; i++)
+                    {
+                        board[column + i, row] = state;
+                    }
 
-            if (orientation == EOrientation.Vertical)
-            {
-                for (var i = 0; i < shipSize; i++)
-                {
-                    board[column, row + i] = state;
+                    break;
                 }
+                case EOrientation.Vertical:
+                {
+                    for (var i = 0; i < shipSize; i++)
+                    {
+                        board[column, row + i] = state;
+                    }
+
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(orientation), orientation, null);
             }
         }
 
