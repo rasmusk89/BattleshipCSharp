@@ -47,7 +47,7 @@ namespace GameBrain
             var nextMove = Console.ReadLine();
             var nextMoveAfterHit = nextMove.ToLower() == "y" ? ENextMoveAfterHit.SamePlayer : ENextMoveAfterHit.OtherPlayer;
 
-            List<Ship> ships = new List<Ship>();
+            List<Ship> ships = new ();
 
             do
             {
@@ -91,26 +91,7 @@ namespace GameBrain
                 }
             } while (ships.Count == 0);
 
-            List<Ship> playerAShips = new ();
-            List<Ship> playerBShips = new ();
-            foreach (var ship in ships)
-            {
-                playerAShips.Add(new Ship(ship.Width));
-                playerBShips.Add(new Ship(ship.Width));
-            }
-
-            Player playerA = new (playerAName)
-            {
-                Ships = playerAShips
-            };
-
-            Player playerB = new (playerBName)
-            {
-                Ships = playerBShips
-            };
-
-            return new GameOptions(width, height, playerA, playerB, canShipsTouch,
-                /*ships,*/ nextMoveAfterHit);
+            return new GameOptions(width, height, canShipsTouch, nextMoveAfterHit, ships);
 
         }
 

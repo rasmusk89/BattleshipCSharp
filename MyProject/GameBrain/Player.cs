@@ -41,9 +41,18 @@ namespace GameBrain
             return Ships;
         }
 
-        public void SetShips(List<Ship> ships)
+        public void SetShips(IEnumerable<Ship> ships)
         {
-            Ships = ships;
+            foreach (var ship in ships)
+            {
+                Ships.Add(new Ship
+                {
+                    CellState = ship.CellState,
+                    Hits = ship.Hits,
+                    Name = ship.Name,
+                    Width = ship.Width
+                });
+            }
         }
 
         public string GetName()
@@ -51,7 +60,12 @@ namespace GameBrain
             return Name;
         }
 
-        public bool IsHit(int column, int row, Player opponent)
+        public void SetName(string name)
+        {
+            Name = name;
+        }
+
+        private static bool IsHit(int column, int row, Player opponent)
         {
             return opponent.GetPlayerBoard()[column, row] != ECellState.Empty;
         }
@@ -61,10 +75,12 @@ namespace GameBrain
             var shipState = opponent.GetPlayerBoard()[column, row];
             var ship = new Ship();
 
-            foreach (var opponentShip in opponent.Ships.Where(opponentShip => opponentShip.CellState == shipState && !opponentShip.IsSunk))
+            foreach (var opponentShip in opponent.Ships.Where(opponentShip =>
+                opponentShip.CellState == shipState && !opponentShip.IsSunk))
             {
                 ship = opponentShip;
             }
+
             ship.Hits++;
         }
 
@@ -141,6 +157,5 @@ namespace GameBrain
 
             return JsonSerializer.Serialize(state, jsonOptions);
         }
-        
     }
 }

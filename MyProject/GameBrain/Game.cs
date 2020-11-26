@@ -16,7 +16,9 @@ namespace GameBrain
 
         private Player PlayerA { get; } 
 
-        private Player PlayerB { get; } 
+        private Player PlayerB { get; }
+
+        private List<Ship> Ships { get; set; }
 
         private bool _nextMoveByPlayerA = true;
 
@@ -28,8 +30,11 @@ namespace GameBrain
         {
             _boardHeight = options.GetBoardHeight();
             _boardWidth = options.GetBoardWidth();
-            PlayerA = options.GetPlayerA();
-            PlayerB = options.GetPlayerB();
+            Ships = options.GetShips();
+            PlayerA = new Player("Player1");
+            PlayerA.SetShips(Ships);
+            PlayerB = new Player("Player2");
+            PlayerB.SetShips(Ships);
             PlayerA.SetBoard(_boardWidth, _boardHeight);
             PlayerB.SetBoard(_boardWidth, _boardHeight);
             _shipsCanTouch = options.GetShipsCanTouch();
@@ -44,6 +49,10 @@ namespace GameBrain
                               "+----------------------------+");
             Console.ForegroundColor = ConsoleColor.Cyan;
 
+            var (playerAName, playerBName) = GetPlayerNames();
+            PlayerA.SetName(playerAName);
+            PlayerB.SetName(playerBName);
+            
             Console.Write("Press ENTER to place ships or type \"R\" for random ships: ");
             string input = Console.ReadLine() ?? "";
             if (input.ToLower() != "r")
@@ -74,8 +83,43 @@ namespace GameBrain
             Console.ReadLine();
         }
 
+        private (string playerAName, string playerBName) GetPlayerNames()
+        {
+            string playerAName;
+            Console.Write("Player ONE, please enter your name: ");
+            var inputA = Console.ReadLine();
+            if (inputA == "")
+            {
+                playerAName = "PLayer One";
+            }
+            playerAName = inputA ?? "PLayer One";
+
+            string playerBName;
+            Console.Write("Player TWO, please enter your name: ");
+            var inputB = Console.ReadLine();
+            if (inputB == "")
+            {
+                playerBName = "PLayer Two";
+            }
+            playerBName = inputB ?? "PLayer Two";
+
+            return (playerAName, playerBName);
+        }
+
         private bool PlaceBombs(Player playerA, Player playerB)
         {
+            Console.WriteLine("PlayerA ship hits: ");
+            foreach (var ship in playerA.GetShips())
+            {
+                Console.WriteLine(ship.Hits);
+            }
+            Console.WriteLine("PlayerB ship hits: ");
+            foreach (var ship in playerB.GetShips())
+            {
+                Console.WriteLine(ship.Hits);
+            }
+
+            Console.ReadLine();
             Console.Clear();
             Console.WriteLine();
             if (_nextMoveByPlayerA)
@@ -108,7 +152,7 @@ namespace GameBrain
                 Console.ReadLine();
                 Console.Clear();
                 GameBoardUI.DrawBoards(playerB, playerA);
-                
+                Console.WriteLine("Place bomb!");
                 var (column, row) = AskCoordinates();
                 while (!_validator.BombCoordinatesAreValid(column, row, _boardWidth, _boardHeight, playerA))
                 {
@@ -202,8 +246,8 @@ namespace GameBrain
         private (int x, int y) RandomCoordinates(int width, int height)
         {
             Random rand = new(Guid.NewGuid().GetHashCode());
-            var column = rand.Next(1, width);
-            var row = rand.Next(1, height);
+            var column = rand.Next(0, width);
+            var row = rand.Next(0, height);
             return (column, row);
         }
 
@@ -466,12 +510,8 @@ namespace GameBrain
                 MultipleActiveResultSets=true;
                 ").Options;
             using var dbCtx = new AppDbContext(dbOptions);
-
-            // Console.WriteLine("Deleting database..");
-            // dbCtx.Database.EnsureDeleted();
             Console.Write("Saving game...");
             dbCtx.Database.Migrate();
-            // Console.WriteLine("Adding data to database..");
 
             var game = new Domain.Game
             {
