@@ -100,9 +100,7 @@ namespace GameBrain
                 {
                     return board[column, row] == ECellState.Empty;
                 }
-                // Console.WriteLine("startColumn: " + startColumn + ", endColumn: " + endColumn);
-                // Console.WriteLine("startRow: " + startRow + ", endRow: " + endRow);
-                // Console.ReadLine();
+
                 for (var i = startColumn; i <= endColumn; i++)
                 {
                     for (var j = startRow; j <= endRow; j++)
@@ -152,9 +150,6 @@ namespace GameBrain
                 {
                     --endRow;
                 }
-                // Console.WriteLine("startColumn: " + startColumn + ", endColumn: " + endColumn);
-                // Console.WriteLine("startRow: " + startRow + ", endRow: " + endRow);
-                // Console.ReadLine();
 
                 for (var i = startColumn - 1; i <= endColumn + 1; i++)
                 {

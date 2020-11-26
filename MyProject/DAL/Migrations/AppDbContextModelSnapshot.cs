@@ -34,6 +34,9 @@ namespace DAL.Migrations
                     b.Property<int>("GameOptionId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("NextMoveByPlayerA")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PlayerAId")
                         .HasColumnType("int");
 
@@ -74,9 +77,6 @@ namespace DAL.Migrations
 
                     b.Property<int>("NextMoveAfterHit")
                         .HasColumnType("int");
-
-                    b.Property<bool>("NextMoveByPlayerA")
-                        .HasColumnType("bit");
 
                     b.HasKey("GameOptionId");
 
@@ -126,7 +126,8 @@ namespace DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int>("PlayerId")
                         .HasColumnType("int");
@@ -171,10 +172,6 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FiringBoardState")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("GameBoardState")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -186,7 +183,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("PlayerBoardStates");
+                    b.ToTable("PlayerBoardState");
                 });
 
             modelBuilder.Entity("Domain.Ship", b =>
@@ -198,7 +195,8 @@ namespace DAL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int>("Width")
                         .HasColumnType("int");

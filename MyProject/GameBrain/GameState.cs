@@ -1,30 +1,26 @@
 ﻿using System.Collections.Generic;
+using Domain;
 using Domain.Enums;
 
 namespace GameBrain
 {
     public class GameState
     {
-        public bool NextMoveByPlayerA { get; set; }
-        
-        public int Width { get; set; }
+        public int BoardWidthState { get; set; }
 
-        public int Height { get; set; }
+        public int BoardHeightState { get; set; }
 
-        public string? PlayerAName { get; set; }
-        
-        public string? PlayerBName { get; set; }
+        public Player PlayerAState { get; set; } = null!;
 
-        public List<Ship>? PlayerAShips { get; set; }
+        public Player PlayerBState { get; set; } = null!;
         
-        public List<Ship>? PlayerBShips { get; set; }
-        public ECellState[][] PlayerAPlayerBoard { get; set; } = null!;
-        public ECellState[][] PlayerAFiringBoard { get; set; } = null!;
-        
-        public ECellState[][] PlayerBPlayerBoard { get; set; } = null!;
-        public ECellState[][] PlayerBFiringBoard { get; set; } = null!;
+        public bool NextMoveByPlayerAState { get; set; }
 
-        
+        public List<Ship> ShipsState { get; set; } = null!;
+
+        public EShipsCanTouch ShipsCanTouchState { get; set; }
+
+        public GameOptions GameOptions { get; set; } = null!;
 
     }
 }

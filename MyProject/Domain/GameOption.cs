@@ -9,8 +9,7 @@ namespace Domain
     {
         public int GameOptionId { get; set; }
 
-        [MaxLength(128)]
-        public string Name { get; set; } = null!;
+        [MaxLength(128)] public string Name { get; set; } = null!;
 
         public int BoardWidth { get; set; }
 
@@ -20,12 +19,8 @@ namespace Domain
 
         public ENextMoveAfterHit NextMoveAfterHit { get; set; }
 
-        public bool NextMoveByPlayerA { get; set; }
-
         public ICollection<GameOptionShip> GameOptionShips { get; set; } = null!;
 
         public ICollection<Game> Games { get; set; } = null!;
-
-
     }
 }

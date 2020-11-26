@@ -13,6 +13,5 @@ namespace Domain
         
         //Serialized to JSON
         public string GameBoardState { get; set; } = null!;
-        public string FiringBoardState { get; set; } = null!;
     }
 }

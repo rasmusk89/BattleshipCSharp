@@ -10,11 +10,11 @@ namespace GameBrain
     {
         public string Name { get; set; }
 
-        public EPlayerType PlayerType { get; set; }
+        private EPlayerType PlayerType { get; set; }
 
         public List<Ship> Ships { get; set; } = new();
 
-        public GameBoard GameBoard { get; set; } = null!;
+        private GameBoard GameBoard { get; set; } = null!;
 
         public bool HasLost
         {
@@ -63,6 +63,11 @@ namespace GameBrain
         public void SetName(string name)
         {
             Name = name;
+        }
+
+        public EPlayerType GetPlayerType()
+        {
+            return PlayerType;
         }
 
         private static bool IsHit(int column, int row, Player opponent)

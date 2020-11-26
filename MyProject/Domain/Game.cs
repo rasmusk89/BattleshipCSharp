@@ -10,6 +10,8 @@ namespace Domain
         [MaxLength(512)]
         public string Description { get; set; } =
             DateTime.Now.ToShortDateString() + "_" + DateTime.Now.ToShortTimeString();
+
+        public bool NextMoveByPlayerA { get; set; }
         
         public int GameOptionId { get; set; }
         public GameOption GameOption { get; set; } = null!;
@@ -19,13 +21,6 @@ namespace Domain
 
         public int PlayerBId { get; set; }
         public Player PlayerB { get; set; } = null!;
-
-        public override string ToString()
-        {
-            return $"GameID: {GameId}\n" +
-                   $"GameOptionID: {GameOptionId}\n" +
-                   $"PlayerAID: {PlayerAId}\n" +
-                   $"PlayerBID: {PlayerBId}\n";
-        }
+        
     }
 }

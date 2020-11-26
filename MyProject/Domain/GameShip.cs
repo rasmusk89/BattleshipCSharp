@@ -10,6 +10,7 @@ namespace Domain
         [Range(1, int.MaxValue)]
         public int Width { get; set; }
 
+        [MaxLength(128)]
         public string Name { get; set; } = null!;
 
         public int Hits { get; set; }
