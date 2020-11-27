@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text.Json;
 using DAL;
 using Domain;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace GameBrain
 {
@@ -22,52 +24,147 @@ namespace GameBrain
                  ").Options;
             using var dbCtx = new AppDbContext(dbOptions);
 
-            var lastGame = dbCtx.Games.OrderByDescending(x => x.GameId).First();
-            var DbPlayerA = dbCtx.Players.First(x => x.PlayerId == lastGame.PlayerAId);
-            var DbPlayerAShips = new List<GameShip>();
-            foreach (var gameShip in dbCtx.GameShips.Where(x => x.PlayerId == DbPlayerA.PlayerId))
+            var lastGame = dbCtx.Games.OrderByDescending(x => x.GameId)
+                .Include(option => option.GameOption)
+                .Include(player => player.PlayerA)
+                .Include(player => player.PlayerB)
+                .First();
+
+
+            var playerAShips = dbCtx.GameShips
+                .Where(id => id.PlayerId == lastGame.PlayerAId)
+                .ToList()
+                .Select(gameShip => new Ship()
+                {
+                    Name = gameShip.Name,
+                    CellState = gameShip.ECellState,
+                    Hits = gameShip.Hits,
+                    Width = gameShip.Width
+                })
+                .ToList();
+
+            var playerBShips = dbCtx.GameShips
+                .Where(id => id.PlayerId == lastGame.PlayerBId)
+                .ToList()
+                .Select(gameShip => new Ship()
+                {
+                    Name = gameShip.Name,
+                    CellState = gameShip.ECellState,
+                    Hits = gameShip.Hits,
+                    Width = gameShip.Width
+                })
+                .ToList();
+            
+            var boardA = dbCtx.PlayerBoardStates
+                .OrderByDescending(x => x.CreatedAt)
+                .Where(id => id.PlayerId == lastGame.PlayerAId)
+                .Select(x => x.GameBoardState).First();
+            
+            var boardB = dbCtx.PlayerBoardStates
+                .OrderByDescending(x => x.CreatedAt)
+                .Where(id => id.PlayerId == lastGame.PlayerBId)
+                .Select(x => x.GameBoardState).First();
+
+            var tempA = JsonSerializer.Deserialize<GameBoardState>(boardA)!.Board;
+            var tempB = JsonSerializer.Deserialize<GameBoardState>(boardB)!.Board;
+            
+            var gameBoardA = new GameBoard(lastGame.GameOption.BoardWidth, lastGame.GameOption.BoardHeight);
+            for (var x = 0; x < lastGame.GameOption.BoardWidth; x++)
             {
-                DbPlayerAShips.Add(gameShip);
+                for (var y = 0; y < lastGame.GameOption.BoardHeight; y++)
+                {
+                    gameBoardA.Board[x, y] = tempA[x][y];
+                }
             }
-            var playerABoard = JsonSerializer.Deserialize<GameBoard>(dbCtx.PlayerBoardStates
-                .First(x => x.PlayerId == DbPlayerA.PlayerId).GameBoardState);
-            
-            
-            
-            // var boardA = JsonSerializer.Deserialize<GameBoard>(playerABoard);
-            // var playerB = dbCtx.Players.First(x => x.PlayerId == lastGame.PlayerBId);
-            //
-            // Console.WriteLine(playerA.Name);
-            // Console.WriteLine(playerB.Name);
-            // Console.ReadLine();
 
-            // var playerA = new Player
-            // {
-            //     Name = lastGame.PlayerA.Name,
-            //     PlayerType = lastGame.PlayerA.EPlayerType
-            // };
+            var gameBoardB = new GameBoard(lastGame.GameOption.BoardWidth, lastGame.GameOption.BoardHeight);
+            for (var x = 0; x < lastGame.GameOption.BoardWidth; x++)
+            {
+                for (var y = 0; y < lastGame.GameOption.BoardHeight; y++)
+                {
+                    gameBoardB.Board[x, y] = tempB[x][y];
+                }
+            }
 
-            // var playerAShips = lastGame.PlayerA.GameShips
-            //     .Select(ship => new Ship {CellState = ship.ECellState, Hits = ship.Hits, Name = ship.Name, Width = ship.Width})
-            //     .ToList();
+            var playerA = new Player
+            {
+                Name = lastGame.PlayerA.Name,
+                PlayerType = lastGame.PlayerA.EPlayerType,
+                Ships = playerAShips,
+                GameBoard = gameBoardA
+            };
             
-            // var playerABoard = JsonSerializer.Deserialize<GameBoard>(lastGame.PlayerA.PlayerBoardStates.First().GameBoardState);
-            ///////////////////////////////////////
-            // Console.WriteLine(JsonSerializer.Deserialize<GameBoard>(lastGame.PlayerA.PlayerBoardStates.First().GameBoardState));
-            // Console.ReadLine();
+            var playerB = new Player
+            {
+                Name = lastGame.PlayerB.Name,
+                PlayerType = lastGame.PlayerA.EPlayerType,
+                Ships = playerBShips,
+                GameBoard = gameBoardB
+            };
             
+            var options = new GameOptions
+            {
+                BoardWidth = lastGame.GameOption.BoardWidth,
+                BoardHeight = lastGame.GameOption.BoardHeight,
+                NextMoveAfterHit = lastGame.GameOption.NextMoveAfterHit,
+                ShipsCanTouch = lastGame.GameOption.EShipsCanTouch,
+            };
+
+            var game = new Game(options)
+            {
+                PlayerA = playerA,
+                PlayerB = playerB
+            };
             
-            // var playerB = new Player
-            // {
-            //     Name = lastGame.PlayerB.Name,
-            //     PlayerType = lastGame.PlayerB.EPlayerType
-            // };
-            // var playerBShips;
-            // var playerBBoard;
-            return new Game(new GameOptions());
+            return game;
         }
     }
 }
+
+// Console.WriteLine(playerABoard);
+// Console.ReadLine();
+
+// var DbPlayerA = dbCtx.Players.First(x => x.PlayerId == lastGame.PlayerAId);
+// var DbPlayerAShips = new List<GameShip>();
+// foreach (var gameShip in dbCtx.GameShips.Where(x => x.PlayerId == DbPlayerA.PlayerId))
+// {
+//     DbPlayerAShips.Add(gameShip);
+// }
+// var playerABoard = JsonSerializer.Deserialize<GameBoard>(dbCtx.PlayerBoardStatesGames
+//     .First(x => x.PlayerId == DbPlayerA.PlayerId).GameBoardState);
+
+
+// var boardA = JsonSerializer.Deserialize<GameBoard>(playerABoard);
+// var playerB = dbCtx.Players.First(x => x.PlayerId == lastGame.PlayerBId);
+//
+// Console.WriteLine(playerA.Name);
+// Console.WriteLine(playerB.Name);
+// Console.ReadLine();
+
+// var playerA = new Player
+// {
+//     Name = lastGame.PlayerA.Name,
+//     PlayerType = lastGame.PlayerA.EPlayerType
+// };
+
+// var playerAShips = lastGame.PlayerA.GameShips
+//     .Select(ship => new Ship {CellState = ship.ECellState, Hits = ship.Hits, Name = ship.Name, Width = ship.Width})
+//     .ToList();
+
+// var playerABoard = JsonSerializer.Deserialize<GameBoard>(lastGame.PlayerA.PlayerBoardStates.First().GameBoardState);
+///////////////////////////////////////
+// Console.WriteLine(JsonSerializer.Deserialize<GameBoard>(lastGame.PlayerA.PlayerBoardStates.First().GameBoardState));
+// Console.ReadLine();
+
+
+// var playerB = new Player
+// {
+//     Name = lastGame.PlayerB.Name,
+//     PlayerType = lastGame.PlayerB.EPlayerType
+// };
+// var playerBShips;
+// var playerBBoard;
+// return new Game(new GameOptions());
 
 
 //             Console.Clear();

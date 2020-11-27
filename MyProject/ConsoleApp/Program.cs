@@ -73,20 +73,10 @@ namespace ConsoleApp
         private static string LoadGame()
         {
             var gameLoading = new GameLoading();
-            gameLoading.LoadLastGame().StartGame();
+            gameLoading.LoadLastGame().PlayRound();
             return "";
         }
 
-        
-
-        // private static string LoadGameDb()
-        // {
-        //     var gameLoading = new GameLoading();
-        //     var game = new Game(GameLoading.LoadLastGameOptions());
-        //     game.PlayRound();
-        //     return "";
-        // }
-        
         private static string DefaultMenuAction()
         {
             Console.ForegroundColor = ConsoleColor.Red;

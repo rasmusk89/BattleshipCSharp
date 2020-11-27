@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201126211959_InitialCreate")]
+    [Migration("20201127105100_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,31 +83,6 @@ namespace DAL.Migrations
                     b.HasKey("GameOptionId");
 
                     b.ToTable("GameOptions");
-                });
-
-            modelBuilder.Entity("Domain.GameOptionShip", b =>
-                {
-                    b.Property<int>("GameOptionShipId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GameOptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShipId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GameOptionShipId");
-
-                    b.HasIndex("GameOptionId");
-
-                    b.HasIndex("ShipId");
-
-                    b.ToTable("GameOptionShip");
                 });
 
             modelBuilder.Entity("Domain.GameShip", b =>
@@ -188,26 +163,6 @@ namespace DAL.Migrations
                     b.ToTable("PlayerBoardStates");
                 });
 
-            modelBuilder.Entity("Domain.Ship", b =>
-                {
-                    b.Property<int>("ShipId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("int");
-
-                    b.HasKey("ShipId");
-
-                    b.ToTable("Ship");
-                });
-
             modelBuilder.Entity("Domain.Game", b =>
                 {
                     b.HasOne("Domain.GameOption", "GameOption")
@@ -235,25 +190,6 @@ namespace DAL.Migrations
                     b.Navigation("PlayerB");
                 });
 
-            modelBuilder.Entity("Domain.GameOptionShip", b =>
-                {
-                    b.HasOne("Domain.GameOption", "GameOption")
-                        .WithMany("GameOptionShips")
-                        .HasForeignKey("GameOptionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Ship", "Ship")
-                        .WithMany("GameOptionShips")
-                        .HasForeignKey("ShipId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("GameOption");
-
-                    b.Navigation("Ship");
-                });
-
             modelBuilder.Entity("Domain.GameShip", b =>
                 {
                     b.HasOne("Domain.Player", "Player")
@@ -278,8 +214,6 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Domain.GameOption", b =>
                 {
-                    b.Navigation("GameOptionShips");
-
                     b.Navigation("Games");
                 });
 
@@ -288,11 +222,6 @@ namespace DAL.Migrations
                     b.Navigation("GameShips");
 
                     b.Navigation("PlayerBoardStates");
-                });
-
-            modelBuilder.Entity("Domain.Ship", b =>
-                {
-                    b.Navigation("GameOptionShips");
                 });
 #pragma warning restore 612, 618
         }

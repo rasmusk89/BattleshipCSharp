@@ -5,11 +5,11 @@ namespace GameBrain
 {
     public class GameOptions
     {
-        private int BoardWidth { get; set; }
-        private int BoardHeight { get; set; }
-        private EShipsCanTouch ShipsCanTouch { get; set; }
-        private ENextMoveAfterHit NextMoveAfterHit { get; set; }
-        private List<Ship> Ships { get; set; } = new()
+        public int BoardWidth { get; set; }
+        public int BoardHeight { get; set; }
+        public EShipsCanTouch ShipsCanTouch { get; set; }
+        public ENextMoveAfterHit NextMoveAfterHit { get; set; }
+        public List<Ship> Ships { get; set; } = new()
         {
             new Ship(1),
             new Ship(2),

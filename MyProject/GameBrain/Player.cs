@@ -21,11 +21,6 @@ namespace GameBrain
             get { return Ships.All(x => x.IsSunk); }
         }
 
-        // public Player(string name)
-        // {
-        //     Name = name;
-        // }
-
         public void SetBoard(int width, int height)
         {
             GameBoard = new GameBoard(width, height);
@@ -153,7 +148,6 @@ namespace GameBrain
                     state.Board[x][y] = GameBoard.Board[x, y];
                 }
             }
-
 
             var jsonOptions = new JsonSerializerOptions
             {

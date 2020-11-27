@@ -26,7 +26,6 @@ namespace GameBrain
         public static void InitialSave(GameState gameState)
         {
             using var dbCtx = GetConnection();
-            Console.Write("Saving...");
             dbCtx.Database.EnsureDeleted();
             dbCtx.Database.Migrate();
 

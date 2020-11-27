@@ -10,12 +10,6 @@ namespace GameBrain
         public GameOptions GetCustomOptions()
         {
             Console.Clear();
-            Console.Write("Set player A name: ");
-            string playerAName = Console.ReadLine() ?? "Player1";
-
-            Console.Write("Set player B name: ");
-            string playerBName = Console.ReadLine() ?? "Player2";
-            
             Console.Write("Set board width: ");
             var widthInput =Console.ReadLine() ?? "10";
             while (!NumericInputCorrect(widthInput!))

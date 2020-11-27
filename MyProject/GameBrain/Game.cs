@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Domain.Enums;
 
 namespace GameBrain
@@ -68,7 +69,7 @@ namespace GameBrain
             PlayRound();
         }
 
-        private void PlayRound()
+        public void PlayRound()
         {
             var gameOver = false;
             while (!gameOver)
@@ -77,6 +78,13 @@ namespace GameBrain
             }
 
             Console.WriteLine("GAME OVER!");
+            Console.ReadLine();
+        }
+
+        public void Test()
+        {
+            GameBoardUI.DrawPlayerBoard(PlayerA);
+            GameBoardUI.DrawPlayerBoard(PlayerB);
             Console.ReadLine();
         }
 
@@ -320,7 +328,7 @@ namespace GameBrain
 
         private GameState GetGameState()
         {
-            return new()
+            var state =  new GameState()
             {
                 BoardHeightState = _boardHeight,
                 BoardWidthState = _boardWidth,
@@ -329,9 +337,39 @@ namespace GameBrain
                 PlayerBState = PlayerB,
                 ShipsState = Ships,
                 ShipsCanTouchState = _shipsCanTouch,
-                GameOptions = _gameOptions
+                GameOptions = _gameOptions,
             };
+
+            state.PlayerABoardState = new ECellState[state.BoardWidthState][];
+
+            for (var i = 0; i < state.BoardWidthState; i++)
+            {
+                state.PlayerABoardState[i] = new ECellState[state.BoardHeightState];
+            }
+            for (var x = 0; x < state.BoardWidthState; x++)
+            {
+                for (var y = 0; y < state.BoardHeightState; y++)
+                {
+                    state.PlayerABoardState[x][y] = PlayerA.GetPlayerBoard()[x, y];
+                }
+            }
+            
+            state.PlayerBBoardState = new ECellState[state.BoardWidthState][];
+
+            for (var i = 0; i < state.BoardWidthState; i++)
+            {
+                state.PlayerBBoardState[i] = new ECellState[state.BoardHeightState];
+            }
+            for (var x = 0; x < state.BoardWidthState; x++)
+            {
+                for (var y = 0; y < state.BoardHeightState; y++)
+                {
+                    state.PlayerBBoardState[x][y] = PlayerB.GetPlayerBoard()[x, y];
+                }
+            }
+            return state;
         }
+        
 
         /*
          private string GetSerializedGameState()

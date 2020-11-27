@@ -21,6 +21,10 @@ namespace GameBrain
         public EShipsCanTouch ShipsCanTouchState { get; set; }
 
         public GameOptions GameOptions { get; set; } = null!;
+        
+        public ECellState[][] PlayerABoardState { get; set; } = null!;
+        
+        public ECellState[][] PlayerBBoardState { get; set; } = null!;
 
     }
 }
