@@ -30,6 +30,12 @@ namespace GameBrain
         {
             return GameBoard.Board;
         }
+        
+        public ECellState GetCell(int x, int y)
+        {
+            return GameBoard.Board[x,y];
+        }
+
 
         public List<Ship> GetShips()
         {

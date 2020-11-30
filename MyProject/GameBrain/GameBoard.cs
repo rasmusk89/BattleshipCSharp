@@ -15,6 +15,5 @@ namespace GameBrain
             Height = height;
             Board = new ECellState[width, height];
         }
-        
     }
 }

@@ -1,13 +1,133 @@
 ﻿@page
+@using Domain.Enums
 @model WebApp.Pages.GamePlay.Index
 
 <h1>GamePlay</h1>
 
-<div class="container">
-  <div class="row">
-    <div class="col">
+@functions
+{
+
+    static string GetCellState(ECellState state)
+    {
+       var result = "";
+        result = state switch
+        {
+            ECellState.Empty => "",
+            ECellState.Bomb => "O",
+            ECellState.Patrol => "P",
+            ECellState.Cruiser => "C",
+            ECellState.Submarine => "S",
+            ECellState.Battleship => "B",
+            ECellState.Carrier => "A",
+            ECellState.Custom => "C",
+            _ => result
+            };
+        return result;
+    }
+
+    private static string IntToAlphabeticValue(int index)
+    {
+        const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        var value = "";
+
+        if (index >= letters.Length)
+            value += letters[index / letters.Length - 1];
+
+        value += letters[index % letters.Length];
+
+        return value;
+    }
+}
+
+<div class="row">
+    <div class="col border-right text-center">
+        <table class="table table-bordered">
+            <h4>Player One Board</h4>
+            @for (var y = 0; y < Model.Game!.GameOption.BoardWidth + 2; y++)
+            {
+                <tr>
+                    @for (var x = 0; x < Model.Game!.GameOption.BoardHeight + 2; x++)
+                    {
+                        <td>
+                            @if (y == 0 && x == 0
+                                 || y == Model.Game!.GameOption.BoardHeight + 1 && x == Model.Game!.GameOption.BoardWidth + 1
+                                 || y == 0 && x == Model.Game!.GameOption.BoardWidth + 1
+                                 || y == Model.Game!.GameOption.BoardHeight + 1 && x == 0)
+                            {
+                            }
+                            else if (y == 0 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1
+                                     || y == Model.Game!.GameOption.BoardHeight + 1 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1)
+                            {
+                                <p style="color: red">
+                                    <strong>@IntToAlphabeticValue(x - 1)</strong>
+                                </p>
+                            }
+                            else if (x == 0 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1
+                                     || x == Model.Game!.GameOption.BoardWidth + 1 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1)
+                            {
+                                <p style="color: red">
+                                    <strong>@y</strong>
+                                </p>
+                            }
+                            else
+                            {
+                            }
+                        </td>
+                    }
+
+                </tr>
+            }
+        </table>
     </div>
     <div class="col">
+        <table class="table table-bordered text-center">
+
+            <h4>Player Two Board</h4>
+            @for (var y = 0; y < Model.Game!.GameOption.BoardWidth + 2; y++)
+            {
+                <tr>
+                    @for (var x = 0; x < Model.Game!.GameOption.BoardHeight + 2; x++)
+                    {
+                        @if (y == 0 && x == 0
+                             || y == Model.Game!.GameOption.BoardHeight + 1 && x == Model.Game!.GameOption.BoardWidth + 1
+                             || y == 0 && x == Model.Game!.GameOption.BoardWidth + 1
+                             || y == Model.Game!.GameOption.BoardHeight + 1 && x == 0)
+                        {
+                            <td>
+
+                            </td>
+                        }
+                        else if (y == 0 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1
+                                 || y == Model.Game!.GameOption.BoardHeight + 1 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1)
+                        {
+                            <td>
+                                <p style="color: red">
+                                    <strong>@IntToAlphabeticValue(x - 1)</strong>
+                                </p>
+                            </td>
+                        }
+                        else if (x == 0 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1
+                                 || x == Model.Game!.GameOption.BoardWidth + 1 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1)
+                        {
+                            <td>
+                                <p style="color: red">
+                                    <strong>@y</strong>
+                                </p>
+                            </td>
+                        }
+                        else
+                        {
+                            <td onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
+                                    @Html.Raw(GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1)))
+                                </a>
+                            </td>
+                        }
+                    }
+                </tr>
+            }
+        </table>
     </div>
-  </div>
+
 </div>

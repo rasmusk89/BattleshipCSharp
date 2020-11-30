@@ -11,10 +11,10 @@ namespace DAL
         public DbSet<Player> Players { get; set; } = null!;
         public DbSet<GameShip> GameShips { get; set; } = null!;
         public DbSet<PlayerBoardState> PlayerBoardStates { get; set; } = null!;
+        public DbSet<Ship> Ships { get; set; } = null!;
 
         // public DbSet<GameOptionShip> GameOptionShips { get; set; } = null!;
-        // public DbSet<Ship> Ships { get; set; } = null!;
-        
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
