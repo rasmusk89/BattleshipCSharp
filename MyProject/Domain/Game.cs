@@ -11,16 +11,13 @@ namespace Domain
         public string Description { get; set; } =
             DateTime.Now.ToShortDateString() + "_" + DateTime.Now.ToShortTimeString();
 
-        public bool NextMoveByPlayerA { get; set; }
-        
-        public int GameOptionId { get; set; }
-        public GameOption GameOption { get; set; } = null!;
+        public int? GameOptionId { get; set; }
+        public GameOption GameOption { get; set; } = default!;
 
-        public int PlayerAId { get; set; }
-        public Player PlayerA { get; set; } = null!;
+        public int? PlayerAId { get; set; }
+        public Player PlayerA { get; set; } = default!;
 
-        public int PlayerBId { get; set; }
-        public Player PlayerB { get; set; } = null!;
-        
+        public int? PlayerBId { get; set; }
+        public Player PlayerB { get; set; } = default!;
     }
 }

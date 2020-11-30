@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -31,7 +31,7 @@ namespace DAL.Migrations
                     PlayerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    EPlayerType = table.Column<int>(type: "int", nullable: false)
+                    PlayerType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,10 +45,9 @@ namespace DAL.Migrations
                     GameId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
-                    NextMoveByPlayerA = table.Column<bool>(type: "bit", nullable: false),
-                    GameOptionId = table.Column<int>(type: "int", nullable: false),
-                    PlayerAId = table.Column<int>(type: "int", nullable: false),
-                    PlayerBId = table.Column<int>(type: "int", nullable: false)
+                    GameOptionId = table.Column<int>(type: "int", nullable: true),
+                    PlayerAId = table.Column<int>(type: "int", nullable: true),
+                    PlayerBId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

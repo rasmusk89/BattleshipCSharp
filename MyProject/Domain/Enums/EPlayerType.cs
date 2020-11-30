@@ -3,7 +3,7 @@
     public enum EPlayerType
     {
         Human,
-        AI
+        Ai
 
     }
 }

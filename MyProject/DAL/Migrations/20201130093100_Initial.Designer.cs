@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201127105100_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20201130093100_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,16 +33,13 @@ namespace DAL.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<int>("GameOptionId")
+                    b.Property<int?>("GameOptionId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("NextMoveByPlayerA")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PlayerAId")
+                    b.Property<int?>("PlayerAId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PlayerBId")
+                    b.Property<int?>("PlayerBId")
                         .HasColumnType("int");
 
                     b.HasKey("GameId");
@@ -126,13 +123,13 @@ namespace DAL.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<int>("EPlayerType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
+
+                    b.Property<int>("PlayerType")
+                        .HasColumnType("int");
 
                     b.HasKey("PlayerId");
 
@@ -168,20 +165,17 @@ namespace DAL.Migrations
                     b.HasOne("Domain.GameOption", "GameOption")
                         .WithMany("Games")
                         .HasForeignKey("GameOptionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Player", "PlayerA")
                         .WithMany()
                         .HasForeignKey("PlayerAId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Player", "PlayerB")
                         .WithMany()
                         .HasForeignKey("PlayerBId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("GameOption");
 

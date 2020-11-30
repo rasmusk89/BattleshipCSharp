@@ -89,7 +89,7 @@ namespace GameBrain
             var playerA = new Player
             {
                 Name = lastGame.PlayerA.Name,
-                PlayerType = lastGame.PlayerA.EPlayerType,
+                PlayerType = lastGame.PlayerA.PlayerType,
                 Ships = playerAShips,
                 GameBoard = gameBoardA
             };
@@ -97,7 +97,7 @@ namespace GameBrain
             var playerB = new Player
             {
                 Name = lastGame.PlayerB.Name,
-                PlayerType = lastGame.PlayerA.EPlayerType,
+                PlayerType = lastGame.PlayerB.PlayerType,
                 Ships = playerBShips,
                 GameBoard = gameBoardB
             };

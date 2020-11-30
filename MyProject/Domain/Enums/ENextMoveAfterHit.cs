@@ -2,7 +2,7 @@
 {
     public enum ENextMoveAfterHit
     {
-        SamePlayer,
-        OtherPlayer
+        OtherPlayer,
+        SamePlayer
     }
 }

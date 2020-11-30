@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using Domain.Enums;
 
 namespace Domain
@@ -9,7 +11,7 @@ namespace Domain
     {
         public int GameOptionId { get; set; }
 
-        [MaxLength(128)] public string Name { get; set; } = null!;
+        [MaxLength(128)] public string Name { get; set; } = DateTime.Now.ToString(CultureInfo.InvariantCulture);
 
         public int BoardWidth { get; set; }
 
@@ -19,8 +21,6 @@ namespace Domain
 
         public ENextMoveAfterHit NextMoveAfterHit { get; set; }
 
-        // public ICollection<GameOptionShip> GameOptionShips { get; set; } = null!;
-
-        public ICollection<Game> Games { get; set; } = null!;
+        public ICollection<Game>? Games { get; set; }
     }
 }

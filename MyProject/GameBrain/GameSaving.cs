@@ -20,35 +20,36 @@ namespace GameBrain
                 Database=raskil_db;
                 MultipleActiveResultSets=true;
                 ").Options;
+                
             return new AppDbContext(dbOptions);
         }
-        
+
         public static void InitialSave(GameState gameState)
         {
+            Console.Write("Saving...");
             using var dbCtx = GetConnection();
             dbCtx.Database.EnsureDeleted();
             dbCtx.Database.Migrate();
-
+            Console.Write("Adding data...");
+            
             var playerOne = gameState.PlayerAState;
             var playerTwo = gameState.PlayerBState;
-            
+
             var playerA = new Domain.Player
             {
                 Name = playerOne.GetName(),
-                EPlayerType = playerOne.GetPlayerType(),
+                PlayerType = playerOne.GetPlayerType(),
                 GameShips = new List<GameShip>(),
                 PlayerBoardStates = new List<PlayerBoardState>(),
             };
             var playerB = new Domain.Player
             {
                 Name = playerTwo.GetName(),
-                EPlayerType = playerTwo.GetPlayerType(),
+                PlayerType = playerTwo.GetPlayerType(),
                 GameShips = new List<GameShip>(),
                 PlayerBoardStates = new List<PlayerBoardState>(),
             };
 
-            var ships = gameState.ShipsState;
-            
             var playerAShips = playerOne.GetShips()
                 .Select(ship => new GameShip()
                 {
@@ -78,19 +79,19 @@ namespace GameBrain
                 GameBoardState = playerOne.GetSerializedGameBoardState(),
                 Player = playerA
             };
-            
+
             var playerBBoardState = new PlayerBoardState
             {
                 CreatedAt = DateTime.Now,
                 GameBoardState = playerTwo.GetSerializedGameBoardState(),
                 Player = playerB
             };
-            
+
             playerA.GameShips = playerAShips;
             playerA.PlayerBoardStates.Add(playerABoardState);
             playerB.GameShips = playerBShips;
             playerB.PlayerBoardStates.Add(playerBBoardState);
-            
+
             var gameOptions = new GameOption
             {
                 Name = DateTime.Now.ToString(CultureInfo.CurrentCulture),
@@ -104,13 +105,80 @@ namespace GameBrain
             {
                 Description = $"{playerA.Name}_{playerB.Name}_{DateTime.Now}",
                 GameOption = gameOptions,
-                NextMoveByPlayerA = gameState.NextMoveByPlayerAState,
+                // NextMoveByPlayerA = gameState.NextMoveByPlayerAState,
                 PlayerA = playerA,
                 PlayerB = playerB
             };
-            
             dbCtx.Games.Add(newGame);
             dbCtx.SaveChanges();
+        }
+
+        public static void SaveGameState(GameState gameState)
+        {
+            using var dbCtx = GetConnection();
+
+            var lastGame = dbCtx.Games
+                .OrderByDescending(g => g.GameId)
+                .First();
+            
+            var playerA = dbCtx.Players
+                .Where(id => id.PlayerId == lastGame.PlayerAId)
+                .Include(s => s.GameShips)
+                .Include(b => b.PlayerBoardStates)
+                .First();
+            
+            var playerB = dbCtx.Players
+                .Where(id => id.PlayerId == lastGame.PlayerBId)
+                .Include(s => s.GameShips)
+                .Include(b => b.PlayerBoardStates)
+                .First();
+
+            // var lastGame = dbCtx.Games
+            //     .OrderByDescending(id => id.GameId)
+            //     .Include(p => p.PlayerA)
+            //     .ThenInclude(b => b.PlayerBoardStates)
+            //     .Include(s => s.PlayerA.GameShips)
+            //     .Include(p => p.PlayerB)
+            //     .ThenInclude(b => b.PlayerBoardStates)
+            //     .Include(s => s.PlayerB.GameShips)
+            //     .First();
+
+
+            foreach (var ship in gameState.PlayerAState.GetShips())
+            {
+                dbCtx.GameShips.Add(new GameShip
+                {
+                    ECellState = ship.CellState,
+                    Hits = ship.Hits,
+                    Name = ship.Name,
+                    Width = ship.Width,
+                    Player = playerA
+                });
+            }
+            foreach (var ship in gameState.PlayerBState.GetShips())
+            {
+                lastGame.PlayerB.GameShips!.Add(new GameShip
+                {
+                    ECellState = ship.CellState,
+                    Hits = ship.Hits,
+                    Name = ship.Name,
+                    Width = ship.Width,
+                    Player = playerB
+                });
+            }
+            
+            playerA.PlayerBoardStates!.Add(new PlayerBoardState
+            {
+                GameBoardState = gameState.PlayerAState.GetSerializedGameBoardState()
+            });
+            
+            playerB.PlayerBoardStates!.Add(new PlayerBoardState
+            {
+                GameBoardState =gameState.PlayerBState.GetSerializedGameBoardState()
+            });
+            dbCtx.SaveChanges();
+            Console.Write("Save state!");
+            // Console.ReadLine();
         }
     }
 }

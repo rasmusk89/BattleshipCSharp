@@ -6,7 +6,7 @@ namespace DAL
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<Game> Games { get; set; } = null!;
+        public DbSet<Game> Games { get; set; } = default!;
         public DbSet<GameOption> GameOptions { get; set; } = null!;
         public DbSet<Player> Players { get; set; } = null!;
         public DbSet<GameShip> GameShips { get; set; } = null!;
@@ -14,12 +14,13 @@ namespace DAL
 
         // public DbSet<GameOptionShip> GameOptionShips { get; set; } = null!;
         // public DbSet<Ship> Ships { get; set; } = null!;
-
-
+        
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-
+        
+        
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
