@@ -25,12 +25,14 @@ namespace GameBrain
             Ships = options.GetShips();
             PlayerA = new Player()
             {
-                Name = "Player 1"
+                Name = "Player 1",
+                ShipsCanTouch = options.ShipsCanTouch
             };
             PlayerA.SetShips(Ships);
             PlayerB = new Player()
             {
-                Name = "Player 2"
+                Name = "Player 2",
+                ShipsCanTouch = options.ShipsCanTouch
             };
             PlayerB.SetShips(Ships);
             PlayerA.SetBoard(_boardWidth, _boardHeight);
@@ -63,8 +65,8 @@ namespace GameBrain
             else
             {
                 Console.Clear();
-                PlaceRandomShips(PlayerA);
-                PlaceRandomShips(PlayerB);
+                // PlaceRandomShips(PlayerA);
+                // PlaceRandomShips(PlayerB);
             }
 
             GameSaving.InitialSave(GetGameState());
@@ -197,29 +199,29 @@ namespace GameBrain
                     orientation = AskOrientation();
                 }
 
-                while (!_validator.ShipCoordinatesAreValid(column, row, _boardWidth, _boardHeight, ship, orientation))
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Out of bounds!");
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    (column, row) = AskCoordinates();
-                    if (ship.Width > 1)
-                    {
-                        orientation = AskOrientation();
-                    }
-                }
-
-                while (!_validator.ShipAreaFree(column, row, player, ship, orientation, _shipsCanTouch))
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Ship already on path!");
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    (column, row) = AskCoordinates();
-                    if (ship.Width > 1)
-                    {
-                        orientation = AskOrientation();
-                    }
-                }
+                // while (!_validator.ShipCoordinatesAreValid(column, row, _boardWidth, _boardHeight, ship, orientation))
+                // {
+                //     Console.ForegroundColor = ConsoleColor.Red;
+                //     Console.WriteLine("Out of bounds!");
+                //     Console.ForegroundColor = ConsoleColor.Cyan;
+                //     (column, row) = AskCoordinates();
+                //     if (ship.Width > 1)
+                //     {
+                //         orientation = AskOrientation();
+                //     }
+                // }
+                //
+                // while (!_validator.ShipAreaFree(column, row, player, ship, orientation, _shipsCanTouch))
+                // {
+                //     Console.ForegroundColor = ConsoleColor.Red;
+                //     Console.WriteLine("Ship already on path!");
+                //     Console.ForegroundColor = ConsoleColor.Cyan;
+                //     (column, row) = AskCoordinates();
+                //     if (ship.Width > 1)
+                //     {
+                //         orientation = AskOrientation();
+                //     }
+                // }
 
                 player.PlaceShip(column, row, ship, orientation);
 
@@ -304,35 +306,35 @@ namespace GameBrain
             return value;
         }
 
-        private void PlaceRandomShips(Player player)
-        {
-            var random = new Random();
-            for (var i = player.Ships.Count - 1; i >= 0; i--)
-            {
-                var ship = player.GetShips()[i];
-                var x = random.Next(1, _boardWidth);
-                var y = random.Next(1, _boardHeight);
-                var orientation = EOrientation.Vertical;
-                var orientationIndex = random.Next(1, 101) % 2;
-
-                orientation = orientationIndex switch
-                {
-                    0 => EOrientation.Horizontal,
-                    1 => EOrientation.Vertical,
-                    _ => orientation
-                };
-
-                while (!_validator.ShipCoordinatesAreValid(x, y, _boardWidth, _boardHeight, ship, orientation)
-                       || !_validator.ShipAreaFree(x, y, player, ship, orientation, _shipsCanTouch))
-                {
-                    x = random.Next(1, _boardWidth);
-                    y = random.Next(1, _boardHeight);
-                    orientationIndex = random.Next(1, 101) % 2;
-                }
-
-                player.PlaceShip(x, y, ship, orientation);
-            }
-        }
+        // private void PlaceRandomShips(Player player)
+        // {
+        //     var random = new Random();
+        //     for (var i = player.Ships.Count - 1; i >= 0; i--)
+        //     {
+        //         var ship = player.GetShips()[i];
+        //         var x = random.Next(1, _boardWidth);
+        //         var y = random.Next(1, _boardHeight);
+        //         var orientation = EOrientation.Vertical;
+        //         var orientationIndex = random.Next(1, 101) % 2;
+        //
+        //         orientation = orientationIndex switch
+        //         {
+        //             0 => EOrientation.Horizontal,
+        //             1 => EOrientation.Vertical,
+        //             _ => orientation
+        //         };
+        //
+        //         while (!_validator.ShipCoordinatesAreValid(x, y, _boardWidth, _boardHeight, ship, orientation)
+        //                || !_validator.ShipAreaFree(x, y, player, ship, orientation, _shipsCanTouch))
+        //         {
+        //             x = random.Next(1, _boardWidth);
+        //             y = random.Next(1, _boardHeight);
+        //             orientationIndex = random.Next(1, 101) % 2;
+        //         }
+        //
+        //         player.PlaceShip(x, y, ship, orientation);
+        //     }
+        // }
 
         private GameState GetGameState()
         {

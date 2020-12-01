@@ -16,6 +16,10 @@ namespace GameBrain
 
         public GameBoard GameBoard { get; set; } = null!;
 
+        public Validator Validator { get; set; } = new Validator();
+
+        public EShipsCanTouch ShipsCanTouch { get; set; }
+
         public bool HasLost
         {
             get { return Ships.All(x => x.IsSunk); }
@@ -130,6 +134,38 @@ namespace GameBrain
                 }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(orientation), orientation, null);
+            }
+        }
+
+        public void PlaceRandomShips()
+        {
+            var random = new Random();
+            for (var i = Ships.Count - 1; i >= 0; i--)
+            {
+                var ship = Ships[i];
+                var width = GameBoard.Board.GetUpperBound(0) + 1;
+                var height = GameBoard.Board.GetUpperBound(1) + 1;
+                var x = random.Next(1, width);
+                var y = random.Next(1, height);
+                var orientation = EOrientation.Vertical;
+                var orientationIndex = random.Next(1, 101) % 2;
+
+                orientation = orientationIndex switch
+                {
+                    0 => EOrientation.Horizontal,
+                    1 => EOrientation.Vertical,
+                    _ => orientation
+                };
+
+                while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
+                       || !Validator.ShipAreaFree(x, y, GameBoard, ship, orientation, ShipsCanTouch))
+                {
+                    x = random.Next(1, width);
+                    y = random.Next(1, height);
+                    orientationIndex = random.Next(1, 101) % 2;
+                }
+
+                PlaceShip(x, y, ship, orientation);
             }
         }
 

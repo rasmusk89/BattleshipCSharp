@@ -53,7 +53,7 @@ namespace WebApp.Pages
         {
             Console.WriteLine("On load");
             var gameId = int.Parse(Request.Form["GameId"]);
-            return RedirectToPage("./GamePlay/Index", new {id = gameId});
+            return RedirectToPage("./GamePlay/Index", new {id = gameId, newGame = false});
         }
         
         public async Task<IActionResult> OnPostNewGame()
@@ -128,7 +128,7 @@ namespace WebApp.Pages
                 PlayerA = playerA,
                 PlayerB = playerB
             };
-
+            
             if (!ModelState.IsValid)
             {
                 Console.WriteLine("Model not valid!?");
@@ -139,7 +139,7 @@ namespace WebApp.Pages
             await _context.Games.AddAsync(game);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("./GamePlay/Index", new {id = game.GameId});
+            return RedirectToPage("./GamePlay/Index", new {id = game.GameId, newGame = true});
         }
 
         private string GetEmptyBoard()

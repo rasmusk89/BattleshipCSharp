@@ -43,7 +43,7 @@ namespace GameBrain
             return false;
         }
         
-        public bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
+        public static bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
             EOrientation orientation)
         {
             var x = column;
@@ -66,12 +66,12 @@ namespace GameBrain
             return sizeValid && noBomb;
         }
 
-        public bool ShipAreaFree(int column, int row, Player player, Ship ship, EOrientation orientation,
+        public bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
             EShipsCanTouch shipsCanTouch)
         {
-            var board = player.GetPlayerBoard();
-            var boardWidth = board.GetUpperBound(0);
-            var boardHeight = board.GetUpperBound(1);
+            // var board = player.GetPlayerBoard();
+            var boardWidth = board.Board.GetUpperBound(0);
+            var boardHeight = board.Board.GetUpperBound(1);
             var startColumn = column;
             var startRow = row;
             var endColumn = startColumn;
@@ -98,14 +98,14 @@ namespace GameBrain
             {
                 if (ship.Width == 1)
                 {
-                    return board[column, row] == ECellState.Empty;
+                    return board.Board[column, row] == ECellState.Empty;
                 }
 
                 for (var i = startColumn; i <= endColumn; i++)
                 {
                     for (var j = startRow; j <= endRow; j++)
                     {
-                        if (board[i, j] == ECellState.Empty)
+                        if (board.Board[i, j] == ECellState.Empty)
                         {
                             continue;
                         }
@@ -155,7 +155,7 @@ namespace GameBrain
                 {
                     for (var j = startRow - 1; j <= endRow + 1; j++)
                     {
-                        if (board[i, j] == ECellState.Empty)
+                        if (board.Board[i, j] == ECellState.Empty)
                         {
                             continue;
                         }
