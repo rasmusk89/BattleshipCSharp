@@ -13,7 +13,5 @@ namespace Domain
         [Range(1, int.MaxValue)]
         public int Width { get; set; }
 
-        public ICollection<GameOptionShip> GameOptionShips { get; set; } = null!;
-
     }
 }

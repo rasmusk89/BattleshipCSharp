@@ -11,6 +11,8 @@ namespace Domain
         public string Description { get; set; } =
             DateTime.Now.ToShortDateString() + "_" + DateTime.Now.ToShortTimeString();
 
+        public bool NextMoveByPlayerOne { get; set; } = true;
+
         public int? GameOptionId { get; set; }
         public GameOption GameOption { get; set; } = default!;
 

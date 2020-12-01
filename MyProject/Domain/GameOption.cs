@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using Domain.Enums;
 
@@ -21,6 +19,5 @@ namespace Domain
 
         public ENextMoveAfterHit NextMoveAfterHit { get; set; }
 
-        public ICollection<Game>? Games { get; set; }
     }
 }

@@ -59,6 +59,7 @@ namespace DAL.Migrations
                     GameId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    NextMoveByPlayerOne = table.Column<bool>(type: "bit", nullable: false),
                     GameOptionId = table.Column<int>(type: "int", nullable: true),
                     PlayerAId = table.Column<int>(type: "int", nullable: true),
                     PlayerBId = table.Column<int>(type: "int", nullable: true)
@@ -131,43 +132,6 @@ namespace DAL.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "GameOptionShip",
-                columns: table => new
-                {
-                    GameOptionShipId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Amount = table.Column<int>(type: "int", nullable: false),
-                    ShipId = table.Column<int>(type: "int", nullable: false),
-                    GameOptionId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GameOptionShip", x => x.GameOptionShipId);
-                    table.ForeignKey(
-                        name: "FK_GameOptionShip_GameOptions_GameOptionId",
-                        column: x => x.GameOptionId,
-                        principalTable: "GameOptions",
-                        principalColumn: "GameOptionId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_GameOptionShip_Ships_ShipId",
-                        column: x => x.ShipId,
-                        principalTable: "Ships",
-                        principalColumn: "ShipId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GameOptionShip_GameOptionId",
-                table: "GameOptionShip",
-                column: "GameOptionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GameOptionShip_ShipId",
-                table: "GameOptionShip",
-                column: "ShipId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_Games_GameOptionId",
                 table: "Games",
@@ -196,9 +160,6 @@ namespace DAL.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "GameOptionShip");
-
             migrationBuilder.DropTable(
                 name: "Games");
 

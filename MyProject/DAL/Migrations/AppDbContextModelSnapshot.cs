@@ -34,6 +34,9 @@ namespace DAL.Migrations
                     b.Property<int?>("GameOptionId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("NextMoveByPlayerOne")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("PlayerAId")
                         .HasColumnType("int");
 
@@ -78,31 +81,6 @@ namespace DAL.Migrations
                     b.HasKey("GameOptionId");
 
                     b.ToTable("GameOptions");
-                });
-
-            modelBuilder.Entity("Domain.GameOptionShip", b =>
-                {
-                    b.Property<int>("GameOptionShipId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GameOptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShipId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GameOptionShipId");
-
-                    b.HasIndex("GameOptionId");
-
-                    b.HasIndex("ShipId");
-
-                    b.ToTable("GameOptionShip");
                 });
 
             modelBuilder.Entity("Domain.GameShip", b =>
@@ -206,7 +184,7 @@ namespace DAL.Migrations
             modelBuilder.Entity("Domain.Game", b =>
                 {
                     b.HasOne("Domain.GameOption", "GameOption")
-                        .WithMany("Games")
+                        .WithMany()
                         .HasForeignKey("GameOptionId")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -225,25 +203,6 @@ namespace DAL.Migrations
                     b.Navigation("PlayerA");
 
                     b.Navigation("PlayerB");
-                });
-
-            modelBuilder.Entity("Domain.GameOptionShip", b =>
-                {
-                    b.HasOne("Domain.GameOption", "GameOption")
-                        .WithMany()
-                        .HasForeignKey("GameOptionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Ship", "Ship")
-                        .WithMany("GameOptionShips")
-                        .HasForeignKey("ShipId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("GameOption");
-
-                    b.Navigation("Ship");
                 });
 
             modelBuilder.Entity("Domain.GameShip", b =>
@@ -268,21 +227,11 @@ namespace DAL.Migrations
                     b.Navigation("Player");
                 });
 
-            modelBuilder.Entity("Domain.GameOption", b =>
-                {
-                    b.Navigation("Games");
-                });
-
             modelBuilder.Entity("Domain.Player", b =>
                 {
                     b.Navigation("GameShips");
 
                     b.Navigation("PlayerBoardStates");
-                });
-
-            modelBuilder.Entity("Domain.Ship", b =>
-                {
-                    b.Navigation("GameOptionShips");
                 });
 #pragma warning restore 612, 618
         }

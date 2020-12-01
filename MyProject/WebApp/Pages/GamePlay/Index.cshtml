@@ -9,11 +9,12 @@
 
     static string GetCellState(ECellState state)
     {
-       var result = "";
+        var result = "";
         result = state switch
         {
             ECellState.Empty => "",
             ECellState.Bomb => "O",
+            ECellState.Hit => "X",
             ECellState.Patrol => "P",
             ECellState.Cruiser => "C",
             ECellState.Submarine => "S",
@@ -43,11 +44,18 @@
 <div class="row">
     <div class="col border-right text-center">
         <table class="table table-bordered">
-            <h4>Player One Board</h4>
-            @for (var y = 0; y < Model.Game!.GameOption.BoardWidth + 2; y++)
+            @if (Model!.Game!.NextMoveByPlayerOne)
+            {
+                <h4>Player @Model.PLayerA.Name Board</h4>
+            }
+            else
+            {
+                <h4>Player @Model.PLayerB.Name Board</h4>
+            }
+            @for (var y = 0; y < Model.Game!.GameOption.BoardHeight + 2; y++)
             {
                 <tr>
-                    @for (var x = 0; x < Model.Game!.GameOption.BoardHeight + 2; x++)
+                    @for (var x = 0; x < Model.Game!.GameOption.BoardWidth + 2; x++)
                     {
                         <td>
                             @if (y == 0 && x == 0
@@ -72,6 +80,14 @@
                             }
                             else
                             {
+                                @if (Model!.Game!.NextMoveByPlayerOne)
+                                {
+                                    @GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1))
+                                }
+                                else
+                                {
+                                    @GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))
+                                }
                             }
                         </td>
                     }
@@ -82,12 +98,18 @@
     </div>
     <div class="col">
         <table class="table table-bordered text-center">
-
-            <h4>Player Two Board</h4>
-            @for (var y = 0; y < Model.Game!.GameOption.BoardWidth + 2; y++)
+            @if (Model!.Game!.NextMoveByPlayerOne)
+            {
+                <h4>Player @Model.PLayerB.Name Board</h4>
+            }
+            else
+            {
+                <h4>Player @Model.PLayerA.Name Board</h4>
+            }
+            @for (var y = 0; y < Model.Game!.GameOption.BoardHeight + 2; y++)
             {
                 <tr>
-                    @for (var x = 0; x < Model.Game!.GameOption.BoardHeight + 2; x++)
+                    @for (var x = 0; x < Model.Game!.GameOption.BoardWidth + 2; x++)
                     {
                         @if (y == 0 && x == 0
                              || y == Model.Game!.GameOption.BoardHeight + 1 && x == Model.Game!.GameOption.BoardWidth + 1
@@ -118,11 +140,22 @@
                         }
                         else
                         {
-                            <td onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
-                                <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
-                                    @Html.Raw(GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1)))
-                                </a>
-                            </td>
+                            @if (Model!.Game!.NextMoveByPlayerOne)
+                            {
+                                <td onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                    <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
+                                        @Html.Raw(GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1)))
+                                    </a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                    <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
+                                        @Html.Raw(GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1)))
+                                    </a>
+                                </td>
+                            }
                         }
                     }
                 </tr>

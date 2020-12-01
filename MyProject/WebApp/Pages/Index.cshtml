@@ -80,8 +80,6 @@
                         </div>
                     </div>
                 </div>
-
-
                 <div class="form-group">
                     <input type="submit" value="New Game" class="btn btn-primary"/>
                 </div>
@@ -109,3 +107,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

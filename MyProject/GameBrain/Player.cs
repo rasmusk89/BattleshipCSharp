@@ -33,7 +33,11 @@ namespace GameBrain
         
         public ECellState GetCell(int x, int y)
         {
-            return GameBoard.Board[x,y];
+            Console.WriteLine("X:" + x);
+            Console.WriteLine("Y:" + y);
+            Console.WriteLine(GameBoard.Board.GetUpperBound(0));
+            Console.WriteLine(GameBoard.Board.GetUpperBound(1));
+            return GameBoard.Board[x ,y];
         }
 
 
@@ -161,6 +165,21 @@ namespace GameBrain
             };
 
             return JsonSerializer.Serialize(state, jsonOptions);
+        }
+
+        public void SetSerializedBoardState(string board)
+        {
+            var width = GameBoard.Board.GetUpperBound(0) + 1;
+            var height = GameBoard.Board.GetUpperBound(1) + 1;
+            var gameBoardState = JsonSerializer.Deserialize<GameBoardState>(board);
+            GameBoard = new GameBoard(width, height);
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    GameBoard.Board[x, y] = gameBoardState!.Board[x][y];
+                }
+            }
         }
     }
 }

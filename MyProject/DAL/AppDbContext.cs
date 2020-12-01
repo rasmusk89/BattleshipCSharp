@@ -13,13 +13,9 @@ namespace DAL
         public DbSet<PlayerBoardState> PlayerBoardStates { get; set; } = null!;
         public DbSet<Ship> Ships { get; set; } = null!;
 
-        // public DbSet<GameOptionShip> GameOptionShips { get; set; } = null!;
-
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-        
-        
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

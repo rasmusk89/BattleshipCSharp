@@ -13,8 +13,8 @@ namespace Domain
 
         public EPlayerType PlayerType { get; set; }
         
-        public ICollection<GameShip>? GameShips { get; set; } = null!;
+        public ICollection<GameShip>? GameShips { get; set; }
 
-        public ICollection<PlayerBoardState>? PlayerBoardStates { get; set; } = null!;
+        public ICollection<PlayerBoardState>? PlayerBoardStates { get; set; }
     }
 }
