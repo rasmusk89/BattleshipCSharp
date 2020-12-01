@@ -33,10 +33,6 @@ namespace GameBrain
         
         public ECellState GetCell(int x, int y)
         {
-            Console.WriteLine("X:" + x);
-            Console.WriteLine("Y:" + y);
-            Console.WriteLine(GameBoard.Board.GetUpperBound(0));
-            Console.WriteLine(GameBoard.Board.GetUpperBound(1));
             return GameBoard.Board[x ,y];
         }
 

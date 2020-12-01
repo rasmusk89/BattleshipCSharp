@@ -82,7 +82,6 @@ namespace WebApp.Pages.GamePlay
             {
                 for (var j = 0; j < Game.GameOption.BoardHeight; j++)
                 {
-                    Console.WriteLine(playerAGameBoard.Board[i, j] + " " + playerABoardState[i][j]);
                     playerAGameBoard.Board[i, j] = playerABoardState[i][j];
                 }
             }
@@ -134,7 +133,6 @@ namespace WebApp.Pages.GamePlay
                     _context.Games!
                         .First(i => i.GameId == id)
                         .PlayerB!.PlayerBoardStates!.Add(playerBoardState);
-                    Console.WriteLine(PLayerB.GameBoard.Board[x.Value, y.Value]);
                     Game.NextMoveByPlayerOne = false;
                     await _context.SaveChangesAsync();
                 }
@@ -155,7 +153,6 @@ namespace WebApp.Pages.GamePlay
                     await _context.SaveChangesAsync();
                 }
             }
-
             return Page();
         }
     }

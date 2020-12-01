@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
@@ -10,6 +11,7 @@ using Domain.Enums;
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Game = Domain.Game;
 using Player = Domain.Player;
@@ -36,6 +38,10 @@ namespace WebApp.Pages
         [BindProperty] public GameOption? GameOption { get; set; }
 
         public List<Game>? Games { get; set; }
+        
+        // [BindProperty]
+        [Required(ErrorMessage = "Please select a game to load!")]
+        public int? Id { get; set; } = null;
 
         public IActionResult OnGet()
         {
@@ -43,8 +49,16 @@ namespace WebApp.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public RedirectToPageResult OnPostLoadGame()
         {
+            Console.WriteLine("On load");
+            var gameId = int.Parse(Request.Form["GameId"]);
+            return RedirectToPage("./GamePlay/Index", new {id = gameId});
+        }
+        
+        public async Task<IActionResult> OnPostNewGame()
+        {
+            Console.WriteLine("On new");
             var ships = new List<Ship>
             {
                 new(1),
@@ -117,6 +131,8 @@ namespace WebApp.Pages
 
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("Model not valid!?");
+                Console.ReadLine();
                 return Page();
             }
 
@@ -124,11 +140,6 @@ namespace WebApp.Pages
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./GamePlay/Index", new {id = game.GameId});
-        }
-
-        public string GetGameBoardState()
-        {
-            return "";
         }
 
         private string GetEmptyBoard()

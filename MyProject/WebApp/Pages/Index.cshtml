@@ -1,6 +1,5 @@
 ﻿@page
 @using Domain.Enums
-@using Microsoft.EntityFrameworkCore
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -13,7 +12,7 @@
 <div class="container text-center">
     <div class="row">
         <div class="col pr-5 border-right">
-            <form method="post">
+            <form asp-page-handler="NewGame" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="row">
                     <div class="col-8">
@@ -51,7 +50,7 @@
                     <div class="col">
                         <div class="form-group">
                             <label asp-for="GameOption!.BoardWidth" class="control-label"></label>
-                            <input asp-for="GameOption!.BoardWidth" class="form-control"/>
+                            <input asp-for="GameOption!.BoardWidth" class="form-control" value="10"/>
                             <span asp-validation-for="GameOption!.BoardWidth" class="text-danger"></span>
                         </div>
                     </div>
@@ -59,7 +58,7 @@
 
                         <div class="form-group">
                             <label asp-for="GameOption!.BoardHeight" class="control-label"></label>
-                            <input asp-for="GameOption!.BoardHeight" class="form-control"/>
+                            <input asp-for="GameOption!.BoardHeight" class="form-control" value="10"/>
                             <span asp-validation-for="GameOption!.BoardHeight" class="text-danger"></span>
                         </div>
                     </div>
@@ -85,23 +84,46 @@
                 </div>
             </form>
         </div>
+
         <div class="col">
             <div class="row">
                 <div class="col">
-                    @foreach (var x in Model.Games!)
-                    {
-                        <div class="row">
-                            <div class="col">
-                                <div class="text-center">
-                                    <p>@x.Description</p>
-                                    <br>
+                    <form asp-page-handler="LoadGame" method="post">
+                        <div class="text-center">
+                            <span asp-validation-for="Id" class="text-danger"></span>
+                            <hr>
+                        </div>
+                        @foreach (var x in Model.Games!)
+                        {
+                            <div class="row">
+                                <div class="col text-right">
+                                    <div class="form-radio">
+                                        <input asp-for="Id" name="GameId" id="@x.GameId" type="radio" class="form-check-input" value="@x.GameId">
+                                    </div>
+                                </div>
+                                <div class="col-10 text-left border-left">
+                                    <div class="form-radio">
+                                        <label asp-for="Id" for="@x.GameId" class="form-check-label">
+                                            <p>@x.Description</p>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col">
+                            <hr>
+                        }
+                        <div class="col">
+                            @if (Model.Games!.Count == 0)
+                            {
+                                <button type="button" class="btn btn-primary" disabled>Load Game</button>
+                            }
+                            else
+                            {
                                 <input type="submit" value="Load Game" class="btn btn-primary"/>
-                            </div>
+                            }
+
                         </div>
-                    }
+                    </form>
+
                 </div>
             </div>
         </div>
@@ -109,5 +131,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
