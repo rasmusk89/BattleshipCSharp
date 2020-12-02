@@ -27,8 +27,9 @@ namespace WebApp
         {
             
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(
+            Configuration.GetConnectionString("DefaultConnection")));
+
             
             services.AddRazorPages();
         }

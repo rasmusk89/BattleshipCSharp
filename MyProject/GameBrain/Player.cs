@@ -41,7 +41,7 @@ namespace GameBrain
         }
 
 
-        public List<Ship> GetShips()
+        public IEnumerable<Ship> GetShips()
         {
             return Ships;
         }
@@ -137,6 +137,106 @@ namespace GameBrain
             }
         }
 
+        public bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
+            EShipsCanTouch shipsCanTouch)
+        {
+            var boardWidth = board.Board.GetUpperBound(0);
+            var boardHeight = board.Board.GetUpperBound(1);
+            var startColumn = column;
+            var startRow = row;
+            var endColumn = startColumn;
+            var endRow = startRow;
+            var occupiedCells = 0;
+
+            if (orientation == EOrientation.Horizontal)
+            {
+                for (var i = 1; i < ship.Width; i++)
+                {
+                    endColumn++;
+                }
+            }
+
+            if (orientation == EOrientation.Vertical)
+            {
+                for (var i = 1; i < ship.Width; i++)
+                {
+                    endRow++;
+                }
+            }
+
+            if (shipsCanTouch == EShipsCanTouch.Yes)
+            {
+                if (ship.Width == 1)
+                {
+                    return board.Board[column, row] == ECellState.Empty;
+                }
+
+                for (var i = startColumn; i <= endColumn; i++)
+                {
+                    for (var j = startRow; j <= endRow; j++)
+                    {
+                        if (board.Board[i, j] == ECellState.Empty)
+                        {
+                            continue;
+                        }
+
+                        occupiedCells++;
+                    }
+                }
+            }
+
+            if (shipsCanTouch == EShipsCanTouch.No)
+            {
+                if (startColumn < 1)
+                {
+                    ++startColumn;
+                    ++endColumn;
+                }
+
+                if (startRow < 1)
+                {
+                    ++startRow;
+                    ++endRow;
+                }
+
+                if (startColumn >= boardWidth)
+                {
+                    --startColumn;
+                    endColumn = startColumn;
+                }
+
+                if (startRow >= boardWidth)
+                {
+                    --endRow;
+                    endRow = startRow;
+                }
+
+                if (endColumn >= boardWidth)
+                {
+                    --endColumn;
+                }
+
+                if (endRow >= boardHeight)
+                {
+                    --endRow;
+                }
+
+                for (var i = startColumn - 1; i <= endColumn + 1; i++)
+                {
+                    for (var j = startRow - 1; j <= endRow + 1; j++)
+                    {
+                        if (board.Board[i, j] == ECellState.Empty)
+                        {
+                            continue;
+                        }
+
+                        occupiedCells++;
+                    }
+                }
+            }
+            return occupiedCells == 0;
+        }
+
         public void PlaceRandomShips()
         {
             var random = new Random();
@@ -156,15 +256,13 @@ namespace GameBrain
                     1 => EOrientation.Vertical,
                     _ => orientation
                 };
-
                 while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
-                       || !Validator.ShipAreaFree(x, y, GameBoard, ship, orientation, ShipsCanTouch))
+                       || !ShipAreaFree(x, y, GameBoard, ship, orientation, ShipsCanTouch))
                 {
                     x = random.Next(1, width);
                     y = random.Next(1, height);
                     orientationIndex = random.Next(1, 101) % 2;
                 }
-
                 PlaceShip(x, y, ship, orientation);
             }
         }

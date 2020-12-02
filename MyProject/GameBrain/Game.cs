@@ -65,11 +65,10 @@ namespace GameBrain
             else
             {
                 Console.Clear();
-                // PlaceRandomShips(PlayerA);
-                // PlaceRandomShips(PlayerB);
+                PlayerA.PlaceRandomShips();
+                PlayerB.PlaceRandomShips();
             }
-
-            GameSaving.InitialSave(GetGameState());
+            // GameSaving.InitialSave(GetGameState());
             PlayRound();
         }
 
@@ -79,17 +78,10 @@ namespace GameBrain
             while (!gameOver)
             {
                 gameOver = PlaceBombs(PlayerA, PlayerB);
-                GameSaving.SaveGameState(GetGameState());
+                // GameSaving.SaveGameState(GetGameState());
             }
 
             Console.WriteLine("GAME OVER!");
-            Console.ReadLine();
-        }
-
-        public void Test()
-        {
-            GameBoardUI.DrawPlayerBoard(PlayerA);
-            GameBoardUI.DrawPlayerBoard(PlayerB);
             Console.ReadLine();
         }
 
@@ -199,29 +191,29 @@ namespace GameBrain
                     orientation = AskOrientation();
                 }
 
-                // while (!_validator.ShipCoordinatesAreValid(column, row, _boardWidth, _boardHeight, ship, orientation))
-                // {
-                //     Console.ForegroundColor = ConsoleColor.Red;
-                //     Console.WriteLine("Out of bounds!");
-                //     Console.ForegroundColor = ConsoleColor.Cyan;
-                //     (column, row) = AskCoordinates();
-                //     if (ship.Width > 1)
-                //     {
-                //         orientation = AskOrientation();
-                //     }
-                // }
-                //
-                // while (!_validator.ShipAreaFree(column, row, player, ship, orientation, _shipsCanTouch))
-                // {
-                //     Console.ForegroundColor = ConsoleColor.Red;
-                //     Console.WriteLine("Ship already on path!");
-                //     Console.ForegroundColor = ConsoleColor.Cyan;
-                //     (column, row) = AskCoordinates();
-                //     if (ship.Width > 1)
-                //     {
-                //         orientation = AskOrientation();
-                //     }
-                // }
+                while (!Validator.ShipCoordinatesAreValid(column, row, _boardWidth, _boardHeight, ship, orientation))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Out of bounds!");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    (column, row) = AskCoordinates();
+                    if (ship.Width > 1)
+                    {
+                        orientation = AskOrientation();
+                    }
+                }
+                
+                while (!player.ShipAreaFree(column, row, player.GameBoard, ship, orientation, _shipsCanTouch))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Ship already on path!");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    (column, row) = AskCoordinates();
+                    if (ship.Width > 1)
+                    {
+                        orientation = AskOrientation();
+                    }
+                }
 
                 player.PlaceShip(column, row, ship, orientation);
 

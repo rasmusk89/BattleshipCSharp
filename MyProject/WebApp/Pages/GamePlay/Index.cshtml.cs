@@ -30,11 +30,15 @@ namespace WebApp.Pages.GamePlay
 
         public Game? Game { get; set; }
 
-        public Player PLayerA { get; set; } = new ();
-        public Player PLayerB { get; set; } = new ();
+        public Player PLayerA { get; set; } = new();
+        public Player PLayerB { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int id, int? x, int? y, bool newGame)
         {
+// ------------------------------------------------------------------------------------------------------------------ // 
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+// ------------------------------------------------------------------------------------------------------------------ // 
+
             Game = await _context.Games.Where(i => i.GameId == id)
                 .Include(o => o.GameOption)
                 .Include(a => a.PlayerA)
@@ -45,10 +49,18 @@ namespace WebApp.Pages.GamePlay
                 .Include(s => s.PlayerB.GameShips)
                 .FirstOrDefaultAsync();
 
+
             if (Game == null)
             {
                 return RedirectToPage("/Index");
             }
+
+// ------------------------------------------------------------------------------------------------------------------ // 
+            watch.Stop();
+            var time = watch.ElapsedMilliseconds;
+            Console.WriteLine("Connecting to DataBase: " + Convert.ToDouble(time) / 1000 + "sec");
+
+// ------------------------------------------------------------------------------------------------------------------ // 
 
             PLayerA.Name = Game!.PlayerA.Name;
             PLayerA.PlayerType = Game.PlayerA.PlayerType;
@@ -57,7 +69,6 @@ namespace WebApp.Pages.GamePlay
             PLayerB.Name = Game.PlayerB.Name;
             PLayerB.PlayerType = Game.PlayerB.PlayerType;
             PLayerB.GameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
-
 
             var playerAShips = Game!.PlayerA!.GameShips!
                 .Where(s => s.PlayerId == Game.PlayerA.PlayerId).ToList();
@@ -101,48 +112,53 @@ namespace WebApp.Pages.GamePlay
                 });
             }
 
-            if (Game != null && Game.PlayerB!.PlayerBoardStates!.Count > 0)
+
+            var board = Game.PlayerB.PlayerBoardStates!.Last().GameBoardState;
+
+            var playerBBoardState = JsonSerializer.Deserialize<GameBoardState>(board)!.Board;
+            var playerBGameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
+            for (var i = 0; i < Game.GameOption.BoardWidth; i++)
             {
-                var board = Game.PlayerB.PlayerBoardStates.Last().GameBoardState;
-
-                var playerBBoardState = JsonSerializer.Deserialize<GameBoardState>(board)!.Board;
-                var playerBGameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
-                for (var i = 0; i < Game.GameOption.BoardWidth; i++)
+                for (var j = 0; j < Game.GameOption.BoardHeight; j++)
                 {
-                    for (var j = 0; j < Game.GameOption.BoardHeight; j++)
-                    {
-                        playerBGameBoard.Board[i, j] = playerBBoardState[i][j];
-                    }
-                }
-
-                PLayerB.GameBoard = playerBGameBoard;
-                if (newGame)
-                {
-                    PLayerA.PlaceRandomShips();
-                    var boardA = new PlayerBoardState
-                    {
-                        CreatedAt = DateTime.Now,
-                        GameBoardState = PLayerA.GetSerializedGameBoardState(),
-                    };
-                    PLayerB.PlaceRandomShips();
-                    var boardB = new PlayerBoardState
-                    {
-                        CreatedAt = DateTime.Now,
-                        GameBoardState = PLayerB.GetSerializedGameBoardState(),
-                    };
-                    
-                    // Game.PlayerA.PlayerBoardStates.Add(boardA);
-                    _context.Games!
-                    .First(i => i.GameId == id)
-                    .PlayerA!.PlayerBoardStates!.Add(boardA);
-                    
-                    // Game.PlayerB.PlayerBoardStates.Add(boardB);
-                    _context.Games!
-                    .First(i => i.GameId == id)
-                    .PlayerB!.PlayerBoardStates!.Add(boardB);
-                    // await _context.SaveChangesAsync();
+                    playerBGameBoard.Board[i, j] = playerBBoardState[i][j];
                 }
             }
+
+            PLayerB.GameBoard = playerBGameBoard;
+
+// ------------------------------------------------------------------------------------------------------------------ // 
+
+// ------------------------------------------------------------------------------------------------------------------ // 
+
+            if (newGame)
+            {
+                PLayerA.PlaceRandomShips();
+                var boardA = new PlayerBoardState
+                {
+                    CreatedAt = DateTime.Now,
+                    GameBoardState = PLayerA.GetSerializedGameBoardState(),
+                };
+                PLayerB.PlaceRandomShips();
+                var boardB = new PlayerBoardState
+                {
+                    CreatedAt = DateTime.Now,
+                    GameBoardState = PLayerB.GetSerializedGameBoardState(),
+                };
+
+                Game.PlayerA.PlayerBoardStates.Add(boardA);
+                // _context.Games!
+                // .First(i => i.GameId == id)
+                // .PlayerA!.PlayerBoardStates!.Add(boardA);
+
+                Game.PlayerB.PlayerBoardStates.Add(boardB);
+                // _context.Games!
+                // .First(i => i.GameId == id)
+                // .PlayerB!.PlayerBoardStates!.Add(boardB);
+            }
+// ------------------------------------------------------------------------------------------------------------------ // 
+
+// ------------------------------------------------------------------------------------------------------------------ // 
 
             if (x == null || y == null) return Page();
             {
@@ -157,31 +173,24 @@ namespace WebApp.Pages.GamePlay
                     };
 
                     Game!.PlayerB.PlayerBoardStates!.Add(playerBoardState);
-                    // _context.Games!
-                        // .First(i => i.GameId == id)
-                        // .PlayerB!.PlayerBoardStates!.Add(playerBoardState);
-                    
+
                     foreach (var ship in PLayerB.Ships)
                     {
-                        Game.PlayerB.GameShips.Add( new GameShip()
+                        Game.PlayerB.GameShips.Add(new GameShip()
                         {
                             ECellState = ship.CellState,
                             Hits = ship.Hits,
                             Name = ship.Name,
                             Width = ship.Width
                         });
-                        // _context.Games!
-                            // .First(i => i.GameId == id)
-                            // .PlayerB!.GameShips!.Add(new GameShip()
-                        // {
-                            // ECellState = ship.CellState,
-                            // Hits = ship.Hits,
-                            // Name = ship.Name,
-                            // Width = ship.Width
-                        // });
                     }
+
                     Game.NextMoveByPlayerOne = false;
-                    // await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+
+// ------------------------------------------------------------------------------------------------------------------ // 
+
+// ------------------------------------------------------------------------------------------------------------------ // 
                 }
                 else
                 {
@@ -194,33 +203,31 @@ namespace WebApp.Pages.GamePlay
                     };
 
                     Game.PlayerA.PlayerBoardStates.Add(playerBoardState);
-                    // _context.Games!
-                        // .First(i => i.GameId == id)
-                        // .PlayerA!.PlayerBoardStates!.Add(playerBoardState);
-                    
+
                     foreach (var ship in PLayerA.Ships)
                     {
-                        Game.PlayerA.GameShips.Add( new GameShip()
+                        Game.PlayerA.GameShips.Add(new GameShip()
                         {
                             ECellState = ship.CellState,
                             Hits = ship.Hits,
                             Name = ship.Name,
                             Width = ship.Width
                         });
-                        // _context.Games!
-                            // .First(i => i.GameId == id)
-                            // .PlayerA!.GameShips!.Add(new GameShip()
-                        // {
-                            // ECellState = ship.CellState,
-                            // Hits = ship.Hits,
-                            // Name = ship.Name,
-                            // Width = ship.Width
-                        // });
                     }
+
                     Game.NextMoveByPlayerOne = true;
+                    await _context.SaveChangesAsync();
+
+// ------------------------------------------------------------------------------------------------------------------ // 
+
+// ------------------------------------------------------------------------------------------------------------------ // 
                 }
             }
-            await _context.SaveChangesAsync();
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> // 
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< // 
+
             return Page();
         }
     }
