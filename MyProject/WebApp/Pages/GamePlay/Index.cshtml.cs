@@ -42,13 +42,14 @@ namespace WebApp.Pages.GamePlay
             Game = await _context.Games.Where(i => i.GameId == id)
                 .Include(o => o.GameOption)
                 .Include(a => a.PlayerA)
-                .ThenInclude(s => s.PlayerBoardStates)
-                .Include(s => s.PlayerA.GameShips)
+                .ThenInclude(s => s.PlayerBoardStates!.OrderByDescending(i => i.PlayerBoardStateId).Take(1))
+                .Include(s => s.PlayerA.GameShips!.OrderByDescending(i => i.GameShipId).Take(5))
                 .Include(b => b.PlayerB)
-                .ThenInclude(s => s.PlayerBoardStates)
-                .Include(s => s.PlayerB.GameShips)
+                .ThenInclude(s => s.PlayerBoardStates!.OrderByDescending(i => i.PlayerBoardStateId).Take(1))
+                .Include(s => s.PlayerB.GameShips!.OrderByDescending(i => i.GameShipId).Take(5))
                 .FirstOrDefaultAsync();
 
+            Console.WriteLine(Game.PlayerA.PlayerBoardStates);
 
             if (Game == null)
             {

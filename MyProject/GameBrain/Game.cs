@@ -14,6 +14,7 @@ namespace GameBrain
         public Player PlayerB { get; set; }
         private List<Ship> Ships { get; set; }
         private readonly EShipsCanTouch _shipsCanTouch;
+        private readonly ENextMoveAfterHit _nextMoveAfterHit;
         private bool _nextMoveByPlayerA = true;
         private readonly GameOptions _gameOptions;
         private readonly Validator _validator = new();
@@ -39,6 +40,7 @@ namespace GameBrain
             PlayerB.SetBoard(_boardWidth, _boardHeight);
             _shipsCanTouch = options.GetShipsCanTouch();
             _gameOptions = options;
+            _nextMoveAfterHit = options.NextMoveAfterHit;
         }
 
         public void StartGame()
@@ -53,9 +55,9 @@ namespace GameBrain
             var (playerAName, playerBName) = GetPlayerNames();
             PlayerA.SetName(playerAName);
             PlayerB.SetName(playerBName);
-            Console.Write("Press ENTER to random ships or type \"R\" to place ships: ");
+            Console.Write("Press ENTER to random ships or type \"A\" to place ships: ");
             string input = Console.ReadLine() ?? "";
-            if (input.ToLower() == "r")
+            if (input.ToLower() == "a")
             {
                 Console.Clear();
                 PlaceShips(PlayerA);
@@ -68,7 +70,8 @@ namespace GameBrain
                 PlayerA.PlaceRandomShips();
                 PlayerB.PlaceRandomShips();
             }
-            // GameSaving.InitialSave(GetGameState());
+
+            GameSaving.InitialSave(GetGameState());
             PlayRound();
         }
 
@@ -78,40 +81,43 @@ namespace GameBrain
             while (!gameOver)
             {
                 gameOver = PlaceBombs(PlayerA, PlayerB);
-                // GameSaving.SaveGameState(GetGameState());
+                GameSaving.SaveGameState(GetGameState());
             }
 
             Console.WriteLine("GAME OVER!");
+            if (PlayerA.HasLost)
+            {
+                Console.WriteLine(PlayerB.Name + " WON!");
+            }
+
+            if (PlayerB.HasLost)
+            {
+                Console.WriteLine(PlayerA.Name + " WON!");
+            }
+
             Console.ReadLine();
         }
 
         private static (string playerAName, string playerBName) GetPlayerNames()
         {
-            string playerAName;
             Console.Write("Player ONE, please enter your name: ");
-            if (Console.ReadLine() == "")
+            string playerAName = Console.ReadLine() ?? "";
+            if (playerAName == "")
             {
                 playerAName = "Player One";
             }
-            else
-            {
-                playerAName = Console.ReadLine() ?? "";
-            }
 
-            string playerBName;
             Console.Write("Player TWO, please enter your name: ");
-            if (Console.ReadLine() == "")
+            string playerBName = Console.ReadLine() ?? "";
+            if (playerBName == "")
             {
                 playerBName = "Player Two";
-            }
-            else
-            {
-                playerBName = Console.ReadLine() ?? "";
             }
 
             return (playerAName, playerBName);
         }
 
+        // Return true (game over) if one of the player has lost, else false.
         private bool PlaceBombs(Player playerA, Player playerB)
         {
             Console.Clear();
@@ -128,20 +134,63 @@ namespace GameBrain
                 while (!_validator.BombCoordinatesAreValid(column, row, _boardWidth, _boardHeight, playerB))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Ship already placed there!");
+                    Console.WriteLine("Bomb already placed there!");
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     (column, row) = AskCoordinates();
                 }
 
                 var isHit = playerB.GetPlayerBoard()[column, row] != ECellState.Empty;
                 playerA.PlaceBomb(column, row, playerB);
-                Console.Clear();
-                GameBoardUI.DrawBoards(playerA, playerB);
-                Console.WriteLine();
-                Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
-                Console.ReadLine();
-                _nextMoveByPlayerA = !_nextMoveByPlayerA;
-                Console.Clear();
+                if (_nextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
+                {
+                    while (isHit)
+                    {
+                        Console.Clear();
+                        GameBoardUI.DrawBoards(playerA, playerB);
+                        if (playerB.HasLost)
+                        {
+                            Console.WriteLine("HIT");
+                            break;
+                        }
+
+                        Console.WriteLine(isHit ? "HIT! Move again" : "MISS! Press enter to continue..");
+                        Console.WriteLine($"{playerA.Name}, place bomb!");
+                        (column, row) = AskCoordinates();
+                        while (!_validator.BombCoordinatesAreValid(column, row, _boardWidth, _boardHeight, playerB))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Bomb already placed there!");
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            (column, row) = AskCoordinates();
+                        }
+
+                        isHit = playerB.GetPlayerBoard()[column, row] != ECellState.Empty;
+                        playerA.PlaceBomb(column, row, playerB);
+                    }
+
+                    if (playerB.HasLost)
+                    {
+                        return true;
+                    }
+
+                    Console.Clear();
+                    GameBoardUI.DrawBoards(playerA, playerB);
+                    Console.WriteLine();
+                    Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
+                    Console.ReadLine();
+                    _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.Clear();
+                    GameBoardUI.DrawBoards(playerA, playerB);
+                    Console.WriteLine();
+                    Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
+                    Console.ReadLine();
+                    _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                    Console.Clear();
+                }
             }
             else
             {
@@ -155,20 +204,63 @@ namespace GameBrain
                 while (!_validator.BombCoordinatesAreValid(column, row, _boardWidth, _boardHeight, playerA))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Ship already placed there!");
+                    Console.WriteLine("Bomb already placed there!");
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     (column, row) = AskCoordinates();
                 }
 
                 var isHit = playerA.GetPlayerBoard()[column, row] != ECellState.Empty;
                 playerB.PlaceBomb(column, row, playerA);
-                Console.Clear();
-                GameBoardUI.DrawBoards(playerB, playerA);
-                Console.WriteLine();
-                Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
-                Console.ReadLine();
-                _nextMoveByPlayerA = true;
-                Console.Clear();
+                if (_nextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
+                {
+                    while (isHit)
+                    {
+                        Console.Clear();
+                        GameBoardUI.DrawBoards(playerB, playerA);
+                        if (playerA.HasLost)
+                        {
+                            Console.WriteLine("HIT");
+                            break;
+                        }
+
+                        Console.WriteLine(isHit ? "HIT! Move again" : "MISS! Press enter to continue..");
+                        Console.WriteLine($"{playerB.Name}, place bomb!");
+                        (column, row) = AskCoordinates();
+                        while (!_validator.BombCoordinatesAreValid(column, row, _boardWidth, _boardHeight, playerA))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Bomb already placed there!");
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            (column, row) = AskCoordinates();
+                        }
+
+                        isHit = playerA.GetPlayerBoard()[column, row] != ECellState.Empty;
+                        playerB.PlaceBomb(column, row, playerA);
+                    }
+
+                    if (playerA.HasLost)
+                    {
+                        return true;
+                    }
+
+                    Console.Clear();
+                    GameBoardUI.DrawBoards(playerB, playerA);
+                    Console.WriteLine();
+                    Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
+                    Console.ReadLine();
+                    _nextMoveByPlayerA = true;
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.Clear();
+                    GameBoardUI.DrawBoards(playerB, playerA);
+                    Console.WriteLine();
+                    Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
+                    Console.ReadLine();
+                    _nextMoveByPlayerA = true;
+                    Console.Clear();
+                }
             }
 
             return playerA.HasLost || playerB.HasLost;
@@ -202,7 +294,7 @@ namespace GameBrain
                         orientation = AskOrientation();
                     }
                 }
-                
+
                 while (!player.ShipAreaFree(column, row, player.GameBoard, ship, orientation, _shipsCanTouch))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -298,36 +390,6 @@ namespace GameBrain
             return value;
         }
 
-        // private void PlaceRandomShips(Player player)
-        // {
-        //     var random = new Random();
-        //     for (var i = player.Ships.Count - 1; i >= 0; i--)
-        //     {
-        //         var ship = player.GetShips()[i];
-        //         var x = random.Next(1, _boardWidth);
-        //         var y = random.Next(1, _boardHeight);
-        //         var orientation = EOrientation.Vertical;
-        //         var orientationIndex = random.Next(1, 101) % 2;
-        //
-        //         orientation = orientationIndex switch
-        //         {
-        //             0 => EOrientation.Horizontal,
-        //             1 => EOrientation.Vertical,
-        //             _ => orientation
-        //         };
-        //
-        //         while (!_validator.ShipCoordinatesAreValid(x, y, _boardWidth, _boardHeight, ship, orientation)
-        //                || !_validator.ShipAreaFree(x, y, player, ship, orientation, _shipsCanTouch))
-        //         {
-        //             x = random.Next(1, _boardWidth);
-        //             y = random.Next(1, _boardHeight);
-        //             orientationIndex = random.Next(1, 101) % 2;
-        //         }
-        //
-        //         player.PlaceShip(x, y, ship, orientation);
-        //     }
-        // }
-
         private GameState GetGameState()
         {
             var state = new GameState()
@@ -373,19 +435,6 @@ namespace GameBrain
             }
 
             return state;
-        }
-
-        private static AppDbContext GetConnection()
-        {
-            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
-                @"
-                Server=barrel.itcollege.ee,1533;
-                User Id=student;
-                Password=Student.Bad.password.0;
-                Database=raskil_db;
-                MultipleActiveResultSets=true;
-                ").Options;
-            return new AppDbContext(dbOptions);
         }
     }
 }

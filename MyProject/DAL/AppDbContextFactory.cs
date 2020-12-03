@@ -17,6 +17,7 @@ namespace DAL
                 MultipleActiveResultSets=true;
                 ");
             
+            
             return new AppDbContext(optionsBuilder.Options);
         }
     }

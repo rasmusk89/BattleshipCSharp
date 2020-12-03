@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using Axoom.Extensions.Logging.Console;
 using Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace DAL
 {
@@ -13,14 +15,19 @@ namespace DAL
         public DbSet<PlayerBoardState> PlayerBoardStates { get; set; } = null!;
         public DbSet<Ship> Ships { get; set; } = null!;
 
+        
+        
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
+            
         }
-        
+
+       
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             foreach (var relationship in modelBuilder.Model
                 .GetEntityTypes()
                 .Where(e => !e.IsOwned())

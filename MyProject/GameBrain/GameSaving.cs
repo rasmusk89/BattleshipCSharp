@@ -116,32 +116,16 @@ namespace GameBrain
         public static void SaveGameState(GameState gameState)
         {
             using var dbCtx = GetConnection();
-
+            
             var lastGame = dbCtx.Games
-                .OrderByDescending(g => g.GameId)
+                .OrderByDescending(id => id.GameId)
+                .Include(p => p.PlayerA)
+                .ThenInclude(b => b.PlayerBoardStates!.OrderByDescending(x => x.PlayerBoardStateId).Take(1))
+                .Include(s => s.PlayerA.GameShips!.OrderByDescending(x => x.GameShipId).Take(5))
+                .Include(p => p.PlayerB)
+                .ThenInclude(b => b.PlayerBoardStates!.OrderByDescending(x => x.PlayerBoardStateId).Take(1))
+                .Include(s => s.PlayerB.GameShips!.OrderByDescending(x => x.GameShipId).Take(5))
                 .First();
-            
-            var playerA = dbCtx.Players
-                .Where(id => id.PlayerId == lastGame.PlayerAId)
-                .Include(s => s.GameShips)
-                .Include(b => b.PlayerBoardStates)
-                .First();
-            
-            var playerB = dbCtx.Players
-                .Where(id => id.PlayerId == lastGame.PlayerBId)
-                .Include(s => s.GameShips)
-                .Include(b => b.PlayerBoardStates)
-                .First();
-
-            // var lastGame = dbCtx.Games
-            //     .OrderByDescending(id => id.GameId)
-            //     .Include(p => p.PlayerA)
-            //     .ThenInclude(b => b.PlayerBoardStates)
-            //     .Include(s => s.PlayerA.GameShips)
-            //     .Include(p => p.PlayerB)
-            //     .ThenInclude(b => b.PlayerBoardStates)
-            //     .Include(s => s.PlayerB.GameShips)
-            //     .First();
 
 
             foreach (var ship in gameState.PlayerAState.GetShips())
@@ -152,7 +136,7 @@ namespace GameBrain
                     Hits = ship.Hits,
                     Name = ship.Name,
                     Width = ship.Width,
-                    Player = playerA
+                    Player = lastGame.PlayerA
                 });
             }
             foreach (var ship in gameState.PlayerBState.GetShips())
@@ -163,22 +147,20 @@ namespace GameBrain
                     Hits = ship.Hits,
                     Name = ship.Name,
                     Width = ship.Width,
-                    Player = playerB
+                    Player = lastGame.PlayerB
                 });
             }
             
-            playerA.PlayerBoardStates!.Add(new PlayerBoardState
+            lastGame.PlayerA.PlayerBoardStates!.Add(new PlayerBoardState
             {
                 GameBoardState = gameState.PlayerAState.GetSerializedGameBoardState()
             });
             
-            playerB.PlayerBoardStates!.Add(new PlayerBoardState
+            lastGame.PlayerB.PlayerBoardStates!.Add(new PlayerBoardState
             {
                 GameBoardState =gameState.PlayerBState.GetSerializedGameBoardState()
             });
             dbCtx.SaveChanges();
-            Console.Write("Save state!");
-            // Console.ReadLine();
         }
     }
 }

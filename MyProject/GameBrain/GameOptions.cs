@@ -9,24 +9,26 @@ namespace GameBrain
         public int BoardHeight { get; set; }
         public EShipsCanTouch ShipsCanTouch { get; set; }
         public ENextMoveAfterHit NextMoveAfterHit { get; set; }
-        public List<Ship> Ships { get; set; } = new()
+
+        private List<Ship> Ships { get; set; } = new()
         {
             new Ship(1),
-            new Ship(2),
-            new Ship(3),
-            new Ship(4),
-            new Ship(5)
+            // new Ship(2),
+            // new Ship(3),
+            // new Ship(4),
+            // new Ship(5)
         };
 
         public GameOptions()
         {
             BoardWidth = 10;
             BoardHeight = 10;
-            ShipsCanTouch = EShipsCanTouch.Yes;
-            NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
+            ShipsCanTouch = EShipsCanTouch.No;
+            NextMoveAfterHit = ENextMoveAfterHit.SamePlayer;
         }
 
-        public GameOptions(int boardWidth, int boardHeight, EShipsCanTouch shipsCanTouch, ENextMoveAfterHit nextMoveAfterHit, List<Ship> ships)
+        public GameOptions(int boardWidth, int boardHeight, EShipsCanTouch shipsCanTouch,
+            ENextMoveAfterHit nextMoveAfterHit, List<Ship> ships)
         {
             BoardWidth = boardWidth;
             BoardHeight = boardHeight;
@@ -34,7 +36,7 @@ namespace GameBrain
             NextMoveAfterHit = nextMoveAfterHit;
             Ships = ships;
         }
-        
+
         public List<Ship> GetShips()
         {
             return Ships;
