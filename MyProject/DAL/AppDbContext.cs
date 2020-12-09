@@ -14,20 +14,17 @@ namespace DAL
         public DbSet<GameShip> GameShips { get; set; } = null!;
         public DbSet<PlayerBoardState> PlayerBoardStates { get; set; } = null!;
         public DbSet<Ship> Ships { get; set; } = null!;
-
-        
         
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            
         }
-
-       
-
+            
+        /* Use this to disable all cascade delete.
+         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+        
             foreach (var relationship in modelBuilder.Model
                 .GetEntityTypes()
                 .Where(e => !e.IsOwned())
@@ -36,5 +33,6 @@ namespace DAL
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
         }
+        */
     }
 }

@@ -11,7 +11,6 @@ using Domain.Enums;
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Game = Domain.Game;
 using Player = Domain.Player;
@@ -38,7 +37,7 @@ namespace WebApp.Pages
         [BindProperty] public GameOption? GameOption { get; set; }
 
         public List<Game>? Games { get; set; }
-        
+
         // [BindProperty]
         [Required(ErrorMessage = "Please select a game to load!")]
         public int? Id { get; set; } = null;
@@ -51,14 +50,12 @@ namespace WebApp.Pages
 
         public RedirectToPageResult OnPostLoadGame()
         {
-            Console.WriteLine("On load");
             var gameId = int.Parse(Request.Form["GameId"]);
             return RedirectToPage("./GamePlay/Index", new {id = gameId, newGame = false});
         }
-        
+
         public async Task<IActionResult> OnPostNewGame()
         {
-            Console.WriteLine("On new");
             var ships = new List<Ship>
             {
                 new(1),
@@ -128,7 +125,7 @@ namespace WebApp.Pages
                 PlayerA = playerA,
                 PlayerB = playerB
             };
-            
+
             if (!ModelState.IsValid)
             {
                 Console.WriteLine("Model not valid!?");

@@ -10,7 +10,7 @@ namespace GameBrain
         public EShipsCanTouch ShipsCanTouch { get; set; }
         public ENextMoveAfterHit NextMoveAfterHit { get; set; }
 
-        private List<Ship> Ships { get; set; } = new()
+        public List<Ship> Ships { get; set; } = new()
         {
             new Ship(1),
             // new Ship(2),

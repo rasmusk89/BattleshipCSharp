@@ -12,15 +12,15 @@
         var result = "";
         result = state switch
         {
-            ECellState.Empty => "",
-            ECellState.Bomb => "O",
-            ECellState.Hit => "X",
-            ECellState.Patrol => "P",
-            ECellState.Cruiser => "C",
-            ECellState.Submarine => "S",
-            ECellState.Battleship => "B",
-            ECellState.Carrier => "A",
-            ECellState.Custom => "C",
+            ECellState.Empty => "#77E0FF",
+            ECellState.Bomb => "#000000",
+            ECellState.Hit => "#FF0000",
+            ECellState.Patrol => "#633974",
+            ECellState.Cruiser => "#1A5276",
+            ECellState.Submarine => "#117864",
+            ECellState.Battleship => "#196F3D",
+            ECellState.Carrier => "#9A7D0A",
+            ECellState.Custom => "#A04000",
             _ => result
             };
         return result;
@@ -57,39 +57,44 @@
                 <tr>
                     @for (var x = 0; x < Model.Game!.GameOption.BoardWidth + 2; x++)
                     {
-                        <td>
-                            @if (y == 0 && x == 0
-                                 || y == Model.Game!.GameOption.BoardHeight + 1 && x == Model.Game!.GameOption.BoardWidth + 1
-                                 || y == 0 && x == Model.Game!.GameOption.BoardWidth + 1
-                                 || y == Model.Game!.GameOption.BoardHeight + 1 && x == 0)
-                            {
-                            }
-                            else if (y == 0 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1
-                                     || y == Model.Game!.GameOption.BoardHeight + 1 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1)
-                            {
+                        @if (y == 0 && x == 0
+                             || y == Model.Game!.GameOption.BoardHeight + 1 && x == Model.Game!.GameOption.BoardWidth + 1
+                             || y == 0 && x == Model.Game!.GameOption.BoardWidth + 1
+                             || y == Model.Game!.GameOption.BoardHeight + 1 && x == 0)
+                        {
+                            <td></td>
+                        }
+                        else if (y == 0 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1
+                                 || y == Model.Game!.GameOption.BoardHeight + 1 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1)
+                        {
+                            <td>
                                 <p style="color: red">
                                     <strong>@IntToAlphabeticValue(x - 1)</strong>
                                 </p>
-                            }
-                            else if (x == 0 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1
-                                     || x == Model.Game!.GameOption.BoardWidth + 1 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1)
-                            {
+                            </td>
+                        }
+                        else if (x == 0 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1
+                                 || x == Model.Game!.GameOption.BoardWidth + 1 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1)
+                        {
+                            <td>
                                 <p style="color: red">
                                     <strong>@y</strong>
                                 </p>
+                            </td>
+                        }
+                        else
+                        {
+                            @if (Model!.Game!.NextMoveByPlayerOne)
+                            {
+                                <td bgcolor="@GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1))">
+                                </td>
                             }
                             else
                             {
-                                @if (Model!.Game!.NextMoveByPlayerOne)
-                                {
-                                    @GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1))
-                                }
-                                else
-                                {
-                                    @GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))
-                                }
+                                <td bgcolor="@GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))">
+                                </td>
                             }
-                        </td>
+                        }
                     }
 
                 </tr>
@@ -116,9 +121,7 @@
                              || y == 0 && x == Model.Game!.GameOption.BoardWidth + 1
                              || y == Model.Game!.GameOption.BoardHeight + 1 && x == 0)
                         {
-                            <td>
-
-                            </td>
+                            <td></td>
                         }
                         else if (y == 0 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1
                                  || y == Model.Game!.GameOption.BoardHeight + 1 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1)
@@ -142,17 +145,15 @@
                         {
                             @if (Model!.Game!.NextMoveByPlayerOne)
                             {
-                                <td onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                <td bgcolor="#77E0FF" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
                                     <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
-                                        @Html.Raw(GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1)))
                                     </a>
                                 </td>
                             }
                             else
                             {
-                                <td onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                <td bgcolor="#77E0FF" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
                                     <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
-                                        @Html.Raw(GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1)))
                                     </a>
                                 </td>
                             }

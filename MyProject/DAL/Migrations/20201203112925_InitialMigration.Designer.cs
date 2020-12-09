@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201202103741_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20201203112925_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -187,18 +187,15 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Domain.GameOption", "GameOption")
                         .WithMany()
-                        .HasForeignKey("GameOptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("GameOptionId");
 
                     b.HasOne("Domain.Player", "PlayerA")
                         .WithMany()
-                        .HasForeignKey("PlayerAId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("PlayerAId");
 
                     b.HasOne("Domain.Player", "PlayerB")
                         .WithMany()
-                        .HasForeignKey("PlayerBId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("PlayerBId");
 
                     b.Navigation("GameOption");
 
@@ -212,7 +209,7 @@ namespace DAL.Migrations
                     b.HasOne("Domain.Player", "Player")
                         .WithMany("GameShips")
                         .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Player");
@@ -223,7 +220,7 @@ namespace DAL.Migrations
                     b.HasOne("Domain.Player", "Player")
                         .WithMany("PlayerBoardStates")
                         .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Player");

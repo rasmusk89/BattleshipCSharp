@@ -13,8 +13,6 @@ namespace MenuSystem
         private static string _inputWarning = "";
         
         
-
-
         private Dictionary<string, MenuItem> MenuItems { get; set; } = new Dictionary<string, MenuItem>();
 
         public Menu(MenuLevel level)
@@ -59,16 +57,22 @@ namespace MenuSystem
                 switch (_menuLevel)
                 {
                     case MenuLevel.Level0:
-                        Console.WriteLine($"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
+                        Console.WriteLine(
+                            $"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
                         break;
                     case MenuLevel.Level1:
-                        Console.WriteLine($"{FixedMenuChoices.MainUserChoice.ToUpper()}) {FixedMenuChoices.MainLabel}");
-                        Console.WriteLine($"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
+                        Console.WriteLine(
+                            $"{FixedMenuChoices.MainUserChoice.ToUpper()}) {FixedMenuChoices.MainLabel}");
+                        Console.WriteLine(
+                            $"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
                         break;
                     case MenuLevel.Level2Plus:
-                        Console.WriteLine($"{FixedMenuChoices.PreviousUserChoice.ToUpper()}) {FixedMenuChoices.PreviousLabel}");
-                        Console.WriteLine($"{FixedMenuChoices.MainUserChoice.ToUpper()}) {FixedMenuChoices.MainLabel}");
-                        Console.WriteLine($"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
+                        Console.WriteLine(
+                            $"{FixedMenuChoices.PreviousUserChoice.ToUpper()}) {FixedMenuChoices.PreviousLabel}");
+                        Console.WriteLine(
+                            $"{FixedMenuChoices.MainUserChoice.ToUpper()}) {FixedMenuChoices.MainLabel}");
+                        Console.WriteLine(
+                            $"{FixedMenuChoices.ExitUserChoice.ToUpper()}) {FixedMenuChoices.ExitLabel}");
                         break;
                     default:
                         throw new Exception("Unknown menu depth!");

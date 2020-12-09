@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Domain.Enums;
 using GameBrain;
 using MenuSystem;
 
@@ -19,7 +21,17 @@ namespace ConsoleApp
                 "Player VS Player",
                 "1",
                 Battleship));
-
+            
+            playerType.AddMenuItem(new MenuItem(
+                "Player vs AI",
+                "2",
+                BattleshipPlayerAI));
+            
+            playerType.AddMenuItem(new MenuItem(
+                "AI vs AI",
+                "3",
+                BattleshipAIAI));
+            
             var gameType = new Menu(MenuLevel.Level1);
             gameType.AddMenuItem(new MenuItem(
                 "Start Basic Game",
@@ -38,17 +50,10 @@ namespace ConsoleApp
                 "L",
                 LoadGame
             ));
-            
-            // gameType.AddMenuItem(new MenuItem(
-            //     "Load Game from DB",
-            //     "D",
-            //     LoadGameDb
-            // ));
-
 
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Battleship", "B", gameType.RunMenu));
-            menu.AddMenuItem(new MenuItem("Default", "D", DefaultMenuAction));
+            menu.AddMenuItem(new MenuItem("QUICK TEST GAME", "D", DefaultMenuAction));
             menu.RunMenu();
         }
 
@@ -56,6 +61,26 @@ namespace ConsoleApp
         {
             var options = new GameOptions();
             var game = new Game(options);
+            game.StartGame();
+            return "";
+        }
+        
+        private static string BattleshipPlayerAI()
+        {
+            var options = new GameOptions();
+            var game = new Game(options) {PlayerB = {PlayerType = EPlayerType.Ai}};
+            game.StartGame();
+            return "";
+        }
+
+        private static string BattleshipAIAI()
+        {
+            var options = new GameOptions();
+            var game = new Game(options)
+            {
+                PlayerA = {PlayerType = EPlayerType.Ai},
+                PlayerB = {PlayerType = EPlayerType.Ai}
+            };
             game.StartGame();
             return "";
         }
@@ -85,5 +110,6 @@ namespace ConsoleApp
 
             return "";
         }
+        
     }
 }

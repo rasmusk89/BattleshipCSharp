@@ -35,10 +35,6 @@ namespace WebApp.Pages.GamePlay
 
         public async Task<IActionResult> OnGetAsync(int id, int? x, int? y, bool newGame)
         {
-// ------------------------------------------------------------------------------------------------------------------ // 
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-// ------------------------------------------------------------------------------------------------------------------ // 
-
             Game = await _context.Games.Where(i => i.GameId == id)
                 .Include(o => o.GameOption)
                 .Include(a => a.PlayerA)
@@ -49,19 +45,10 @@ namespace WebApp.Pages.GamePlay
                 .Include(s => s.PlayerB.GameShips!.OrderByDescending(i => i.GameShipId).Take(5))
                 .FirstOrDefaultAsync();
 
-            Console.WriteLine(Game.PlayerA.PlayerBoardStates);
-
             if (Game == null)
             {
                 return RedirectToPage("/Index");
             }
-
-// ------------------------------------------------------------------------------------------------------------------ // 
-            watch.Stop();
-            var time = watch.ElapsedMilliseconds;
-            Console.WriteLine("Connecting to DataBase: " + Convert.ToDouble(time) / 1000 + "sec");
-
-// ------------------------------------------------------------------------------------------------------------------ // 
 
             PLayerA.Name = Game!.PlayerA.Name;
             PLayerA.PlayerType = Game.PlayerA.PlayerType;
@@ -114,9 +101,8 @@ namespace WebApp.Pages.GamePlay
             }
 
 
-            var board = Game.PlayerB.PlayerBoardStates!.Last().GameBoardState;
-
-            var playerBBoardState = JsonSerializer.Deserialize<GameBoardState>(board)!.Board;
+            var playerBBoardString = Game.PlayerB.PlayerBoardStates!.Last().GameBoardState;
+            var playerBBoardState = JsonSerializer.Deserialize<GameBoardState>(playerBBoardString)!.Board;
             var playerBGameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
             for (var i = 0; i < Game.GameOption.BoardWidth; i++)
             {
@@ -128,12 +114,10 @@ namespace WebApp.Pages.GamePlay
 
             PLayerB.GameBoard = playerBGameBoard;
 
-// ------------------------------------------------------------------------------------------------------------------ // 
-
-// ------------------------------------------------------------------------------------------------------------------ // 
 
             if (newGame)
             {
+                Console.WriteLine("New Game, placing ships");
                 PLayerA.PlaceRandomShips();
                 var boardA = new PlayerBoardState
                 {
@@ -146,20 +130,12 @@ namespace WebApp.Pages.GamePlay
                     CreatedAt = DateTime.Now,
                     GameBoardState = PLayerB.GetSerializedGameBoardState(),
                 };
-
+                Console.WriteLine("Ships placed");
                 Game.PlayerA.PlayerBoardStates.Add(boardA);
-                // _context.Games!
-                // .First(i => i.GameId == id)
-                // .PlayerA!.PlayerBoardStates!.Add(boardA);
 
                 Game.PlayerB.PlayerBoardStates.Add(boardB);
-                // _context.Games!
-                // .First(i => i.GameId == id)
-                // .PlayerB!.PlayerBoardStates!.Add(boardB);
+                await _context.SaveChangesAsync();
             }
-// ------------------------------------------------------------------------------------------------------------------ // 
-
-// ------------------------------------------------------------------------------------------------------------------ // 
 
             if (x == null || y == null) return Page();
             {
@@ -187,11 +163,6 @@ namespace WebApp.Pages.GamePlay
                     }
 
                     Game.NextMoveByPlayerOne = false;
-                    await _context.SaveChangesAsync();
-
-// ------------------------------------------------------------------------------------------------------------------ // 
-
-// ------------------------------------------------------------------------------------------------------------------ // 
                 }
                 else
                 {
@@ -217,17 +188,9 @@ namespace WebApp.Pages.GamePlay
                     }
 
                     Game.NextMoveByPlayerOne = true;
-                    await _context.SaveChangesAsync();
-
-// ------------------------------------------------------------------------------------------------------------------ // 
-
-// ------------------------------------------------------------------------------------------------------------------ // 
                 }
             }
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> // 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< // 
+            await _context.SaveChangesAsync();
 
             return Page();
         }

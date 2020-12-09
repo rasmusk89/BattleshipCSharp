@@ -16,8 +16,6 @@ namespace GameBrain
 
         public GameBoard GameBoard { get; set; } = null!;
 
-        public Validator Validator { get; set; } = new Validator();
-
         public EShipsCanTouch ShipsCanTouch { get; set; }
 
         public bool HasLost
@@ -34,10 +32,10 @@ namespace GameBrain
         {
             return GameBoard.Board;
         }
-        
+
         public ECellState GetCell(int x, int y)
         {
-            return GameBoard.Board[x ,y];
+            return GameBoard.Board[x, y];
         }
 
 
@@ -77,7 +75,8 @@ namespace GameBrain
 
         private static bool IsHit(int column, int row, Player opponent)
         {
-            return opponent.GetPlayerBoard()[column, row] != ECellState.Empty;
+            var playerCell = opponent.GetPlayerBoard()[column, row];
+            return playerCell != ECellState.Empty && playerCell != ECellState.Bomb && playerCell != ECellState.Hit;
         }
 
         private static void RegisterHit(int column, int row, Player opponent)
@@ -105,6 +104,29 @@ namespace GameBrain
             {
                 opponent.GetPlayerBoard()[column, row] = ECellState.Bomb;
             }
+        }
+
+        // Return true if is hit.
+        public bool PlaceRandomBomb(Player opponent)
+        {
+            Random rand = new(Guid.NewGuid().GetHashCode());
+            var column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0));
+            var row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1));
+
+            while (opponent.GetPlayerBoard()[column, row] == ECellState.Bomb || opponent.GetPlayerBoard()[column, row] == ECellState.Hit)
+            {
+                column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0));
+                row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1));
+            }
+            if (IsHit(column, row, opponent))
+            {
+                RegisterHit(column, row, opponent);
+                opponent.GetPlayerBoard()[column, row] = ECellState.Hit;
+                return true;
+            }
+
+            opponent.GetPlayerBoard()[column, row] = ECellState.Bomb;
+            return false;
         }
 
         public void PlaceShip(int column, int row, Ship ship, EOrientation orientation)
@@ -148,101 +170,116 @@ namespace GameBrain
             var endRow = startRow;
             var occupiedCells = 0;
 
-            if (orientation == EOrientation.Horizontal)
+            switch (orientation)
             {
-                for (var i = 1; i < ship.Width; i++)
+                case EOrientation.Horizontal:
                 {
-                    endColumn++;
+                    for (var i = 1; i < ship.Width; i++)
+                    {
+                        endColumn++;
+                    }
+
+                    break;
                 }
+                case EOrientation.Vertical:
+                {
+                    for (var i = 1; i < ship.Width; i++)
+                    {
+                        endRow++;
+                    }
+
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(orientation), orientation, null);
             }
 
-            if (orientation == EOrientation.Vertical)
+            switch (shipsCanTouch)
             {
-                for (var i = 1; i < ship.Width; i++)
-                {
-                    endRow++;
-                }
-            }
-
-            if (shipsCanTouch == EShipsCanTouch.Yes)
-            {
-                if (ship.Width == 1)
-                {
+                case EShipsCanTouch.Yes when ship.Width == 1:
                     return board.Board[column, row] == ECellState.Empty;
-                }
-
-                for (var i = startColumn; i <= endColumn; i++)
+                case EShipsCanTouch.Yes:
                 {
-                    for (var j = startRow; j <= endRow; j++)
+                    for (var i = startColumn; i <= endColumn; i++)
                     {
-                        if (board.Board[i, j] == ECellState.Empty)
+                        for (var j = startRow; j <= endRow; j++)
                         {
-                            continue;
-                        }
+                            if (board.Board[i, j] == ECellState.Empty)
+                            {
+                                continue;
+                            }
 
-                        occupiedCells++;
+                            occupiedCells++;
+                        }
                     }
+
+                    break;
                 }
+                case EShipsCanTouch.No:
+                {
+                    if (startColumn < 1)
+                    {
+                        ++startColumn;
+                        ++endColumn;
+                    }
+
+                    if (startRow < 1)
+                    {
+                        ++startRow;
+                        ++endRow;
+                    }
+
+                    if (startColumn >= boardWidth)
+                    {
+                        --startColumn;
+                        endColumn = startColumn;
+                    }
+
+                    if (startRow >= boardWidth)
+                    {
+                        --endRow;
+                        endRow = startRow;
+                    }
+
+                    if (endColumn >= boardWidth)
+                    {
+                        --endColumn;
+                    }
+
+                    if (endRow >= boardHeight)
+                    {
+                        --endRow;
+                    }
+
+                    for (var i = startColumn - 1; i <= endColumn + 1; i++)
+                    {
+                        for (var j = startRow - 1; j <= endRow + 1; j++)
+                        {
+                            if (board.Board[i, j] == ECellState.Empty)
+                            {
+                                continue;
+                            }
+
+                            occupiedCells++;
+                        }
+                    }
+
+                    break;
+                }
+                case EShipsCanTouch.Corner:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(shipsCanTouch), shipsCanTouch, null);
             }
 
-            if (shipsCanTouch == EShipsCanTouch.No)
-            {
-                if (startColumn < 1)
-                {
-                    ++startColumn;
-                    ++endColumn;
-                }
-
-                if (startRow < 1)
-                {
-                    ++startRow;
-                    ++endRow;
-                }
-
-                if (startColumn >= boardWidth)
-                {
-                    --startColumn;
-                    endColumn = startColumn;
-                }
-
-                if (startRow >= boardWidth)
-                {
-                    --endRow;
-                    endRow = startRow;
-                }
-
-                if (endColumn >= boardWidth)
-                {
-                    --endColumn;
-                }
-
-                if (endRow >= boardHeight)
-                {
-                    --endRow;
-                }
-
-                for (var i = startColumn - 1; i <= endColumn + 1; i++)
-                {
-                    for (var j = startRow - 1; j <= endRow + 1; j++)
-                    {
-                        if (board.Board[i, j] == ECellState.Empty)
-                        {
-                            continue;
-                        }
-
-                        occupiedCells++;
-                    }
-                }
-            }
             return occupiedCells == 0;
         }
 
         public void PlaceRandomShips()
         {
             var random = new Random();
-            for (var i = Ships.Count - 1; i >= 0; i--)
+            foreach (var ship in Ships)
             {
-                var ship = Ships[i];
                 var width = GameBoard.Board.GetUpperBound(0) + 1;
                 var height = GameBoard.Board.GetUpperBound(1) + 1;
                 var x = random.Next(1, width);
@@ -263,6 +300,7 @@ namespace GameBrain
                     y = random.Next(1, height);
                     orientationIndex = random.Next(1, 101) % 2;
                 }
+
                 PlaceShip(x, y, ship, orientation);
             }
         }
@@ -295,21 +333,6 @@ namespace GameBrain
             };
 
             return JsonSerializer.Serialize(state, jsonOptions);
-        }
-
-        public void SetSerializedBoardState(string board)
-        {
-            var width = GameBoard.Board.GetUpperBound(0) + 1;
-            var height = GameBoard.Board.GetUpperBound(1) + 1;
-            var gameBoardState = JsonSerializer.Deserialize<GameBoardState>(board);
-            GameBoard = new GameBoard(width, height);
-            for (var x = 0; x < width; x++)
-            {
-                for (var y = 0; y < height; y++)
-                {
-                    GameBoard.Board[x, y] = gameBoardState!.Board[x][y];
-                }
-            }
         }
     }
 }
