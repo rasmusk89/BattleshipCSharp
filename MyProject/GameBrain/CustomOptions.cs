@@ -30,7 +30,6 @@ namespace GameBrain
                 heightInput = Console.ReadLine();
                 Console.ForegroundColor = ConsoleColor.Cyan;
             }
-
             var height = int.Parse(heightInput);
             
             Console.Write("Can ships touch? (Y/N): ");
@@ -41,6 +40,13 @@ namespace GameBrain
             var nextMove = Console.ReadLine();
             var nextMoveAfterHit = nextMove.ToLower() == "y" ? ENextMoveAfterHit.SamePlayer : ENextMoveAfterHit.OtherPlayer;
 
+            Console.Write("Set player one type (\"A\"-AI/\"H\"-Human)");
+            var playerATypeInput = Console.ReadLine()?.ToLower() == "a" ? EPlayerType.Ai : EPlayerType.Human;
+            
+            Console.Write("Set player two type (\"A\"-AI/\"H\"-Human)");
+            var playerBTypeInput = Console.ReadLine()?.ToLower() == "a" ? EPlayerType.Ai : EPlayerType.Human;
+            
+            
             List<Ship> ships = new ();
 
             do
@@ -85,7 +91,7 @@ namespace GameBrain
                 }
             } while (ships.Count == 0);
 
-            return new GameOptions(width, height, canShipsTouch, nextMoveAfterHit, ships);
+            return new GameOptions(width, height, canShipsTouch, nextMoveAfterHit, ships, playerATypeInput, playerBTypeInput);
 
         }
 

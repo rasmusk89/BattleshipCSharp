@@ -3,7 +3,6 @@
     public enum EShipsCanTouch
     {
         No,
-        Corner,
         Yes
     }
 }

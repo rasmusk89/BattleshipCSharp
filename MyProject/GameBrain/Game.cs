@@ -54,8 +54,16 @@ namespace GameBrain
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             PlayerA.SetName(PlayerA.GetPlayerType() == EPlayerType.Ai ? "AI One" : AskPlayerName());
+            if (PlayerA.GetName() == "Player")
+            {
+                PlayerA.Name += " One";
+            }
 
             PlayerB.SetName(PlayerB.GetPlayerType() == EPlayerType.Ai ? "AI Two" : AskPlayerName());
+            if (PlayerB.GetName() == "Player")
+            {
+                PlayerB.Name += " Two";
+            }
 
             if (PlayerA.GetPlayerType() == EPlayerType.Ai)
             {
@@ -64,18 +72,22 @@ namespace GameBrain
 
             if (PlayerA.GetPlayerType() == EPlayerType.Human)
             {
-                Console.Write("Press ENTER to random ships or type \"A\" to place ships: ");
-                string input = Console.ReadLine() ?? "";
-
-                if (input.ToLower() == "a")
+                Console.Write(
+                    $"{PlayerA.GetName()}, press ENTER to random ships, type A to place ships or Q to quit: ");
+                var input = Console.ReadKey();
+                switch (input.Key)
                 {
-                    Console.Clear();
-                    PlaceShips(PlayerA);
-                    Console.Clear();
-                }
-                else
-                {
-                    PlayerA.PlaceRandomShips();
+                    case ConsoleKey.Q:
+                        Console.Clear();
+                        return;
+                    case ConsoleKey.A:
+                        Console.Clear();
+                        PlaceShips(PlayerA);
+                        Console.Clear();
+                        break;
+                    default:
+                        PlayerA.PlaceRandomShips();
+                        break;
                 }
             }
 
@@ -87,18 +99,22 @@ namespace GameBrain
 
             if (PlayerB.GetPlayerType() == EPlayerType.Human)
             {
-                Console.Write("Press ENTER to random ships or type \"A\" to place ships: ");
-                string input = Console.ReadLine() ?? "";
-
-                if (input.ToLower() == "a")
+                Console.Write(
+                    $"{PlayerB.GetName()}, press ENTER to random ships, type A to place ships or Q to quit: ");
+                var input = Console.ReadKey();
+                switch (input.Key)
                 {
-                    Console.Clear();
-                    PlaceShips(PlayerB);
-                    Console.Clear();
-                }
-                else
-                {
-                    PlayerB.PlaceRandomShips();
+                    case ConsoleKey.Q:
+                        Console.Clear();
+                        return;
+                    case ConsoleKey.A:
+                        Console.Clear();
+                        PlaceShips(PlayerB);
+                        Console.Clear();
+                        break;
+                    default:
+                        PlayerB.PlaceRandomShips();
+                        break;
                 }
             }
 
@@ -106,25 +122,23 @@ namespace GameBrain
             PlayRound();
         }
 
-
         public void PlayRound()
         {
             var gameOver = false;
             while (!gameOver)
             {
                 gameOver = PlaceBombs(PlayerA, PlayerB);
-                GameSaving.SaveGameState(GetGameState());
             }
 
-            Console.WriteLine();
-            Console.WriteLine("GAME OVER!");
             if (PlayerA.HasLost)
             {
+                Console.WriteLine("GAME OVER");
                 Console.WriteLine(PlayerB.Name + " WON!");
             }
 
-            if (PlayerB.HasLost)
+            else if (PlayerB.HasLost)
             {
+                Console.WriteLine("GAME OVER");
                 Console.WriteLine(PlayerA.Name + " WON!");
             }
         }
@@ -155,48 +169,72 @@ namespace GameBrain
                     {
                         case ENextMoveAfterHit.SamePlayer:
                         {
-                            while (PlayerA.PlaceRandomBomb(PlayerB))
+                            var playerHit = PlayerA.PlaceRandomBomb(PlayerB);
+                            GameSaving.SaveGameState(GetGameState());
+
+
+                            while (playerHit)
                             {
                                 Console.WriteLine();
                                 Console.WriteLine("AI A HIT");
                                 Console.WriteLine();
                                 GameBoardUI.DrawBoards(PlayerA, PlayerB);
                                 Console.WriteLine();
-                                Console.Write("Continue..");
-                                Console.ReadLine();
+                                Console.Write("Press ENTER to continue or Q to quit: ");
+                                if (Console.ReadKey().Key == ConsoleKey.Q)
+                                {
+                                    Console.Clear();
+                                    return true;
+                                }
+
                                 Console.Clear();
+                                playerHit = PlayerA.PlaceRandomBomb(PlayerB);
+                                GameSaving.SaveGameState(GetGameState());
                             }
+
 
                             Console.WriteLine();
                             Console.WriteLine("AI A MISSED!");
                             Console.WriteLine();
                             GameBoardUI.DrawBoards(PlayerA, PlayerB);
                             Console.WriteLine();
-                            Console.Write("Continue..");
-                            Console.ReadLine();
+                            Console.Write("Press ENTER to continue or Q to quit: ");
+                            if (Console.ReadKey().Key == ConsoleKey.Q)
+                            {
+                                Console.Clear();
+                                return true;
+                            }
+
                             Console.Clear();
+
                             break;
                         }
                         case ENextMoveAfterHit.OtherPlayer:
                             Console.WriteLine(PlayerA.PlaceRandomBomb(PlayerB) ? "AI HIT!" : "AI MISSED!");
+                            GameSaving.SaveGameState(GetGameState());
                             Console.WriteLine();
                             GameBoardUI.DrawPlayerBoard(PlayerA);
                             Console.WriteLine();
-                            Console.Write("Continue..");
-                            Console.ReadLine();
+                            Console.Write("Press ENTER to continue or Q to quit: ");
+                            if (Console.ReadKey().Key == ConsoleKey.Q)
+                            {
+                                Console.Clear();
+                                return true;
+                            }
+
                             Console.Clear();
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-
                     _nextMoveByPlayerA = !_nextMoveByPlayerA;
                 }
                 else
                 {
-                    Console.Write($"{playerA.Name}, press ENTER to place bombs!");
-                    if (Console.ReadKey().Key == ConsoleKey.Escape)
+                    Console.Write($"{playerA.Name}, press ENTER to place bombs or Q to quit: ");
+                    if (Console.ReadKey().Key == ConsoleKey.Q)
                     {
+                        Console.Clear();
                         return true;
                     }
 
@@ -215,6 +253,7 @@ namespace GameBrain
 
                     var isHit = playerB.GetPlayerBoard()[column, row] != ECellState.Empty;
                     playerA.PlaceBomb(column, row, playerB);
+                    GameSaving.SaveGameState(GetGameState());
                     if (_nextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
                     {
                         while (isHit)
@@ -240,6 +279,7 @@ namespace GameBrain
 
                             isHit = playerB.GetPlayerBoard()[column, row] != ECellState.Empty;
                             playerA.PlaceBomb(column, row, playerB);
+                            GameSaving.SaveGameState(GetGameState());
                         }
 
                         if (playerB.HasLost)
@@ -250,9 +290,12 @@ namespace GameBrain
                         Console.Clear();
                         GameBoardUI.DrawBoards(playerA, playerB);
                         Console.WriteLine();
-                        Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
-                        if (Console.ReadKey().Key == ConsoleKey.Escape)
+                        Console.Write(isHit
+                            ? "HIT! Press enter to continue or Q to quit: "
+                            : "MISS! Press enter to continue or Q to quit: ");
+                        if (Console.ReadKey().Key == ConsoleKey.Q)
                         {
+                            Console.Clear();
                             return true;
                         }
 
@@ -264,9 +307,12 @@ namespace GameBrain
                         Console.Clear();
                         GameBoardUI.DrawBoards(playerA, playerB);
                         Console.WriteLine();
-                        Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
-                        if (Console.ReadKey().Key == ConsoleKey.Escape)
+                        Console.Write(isHit
+                            ? "HIT! Press enter to continue or Q to quit: "
+                            : "MISS! Press enter to continue or Q to quit: ");
+                        if (Console.ReadKey().Key == ConsoleKey.Q)
                         {
+                            Console.Clear();
                             return true;
                         }
 
@@ -283,16 +329,25 @@ namespace GameBrain
                     {
                         case ENextMoveAfterHit.SamePlayer:
                         {
-                            while (PlayerB.PlaceRandomBomb(PlayerA))
+                            var playerHit = PlayerB.PlaceRandomBomb(PlayerA);
+                            GameSaving.SaveGameState(GetGameState());
+                            while (playerHit)
                             {
                                 Console.WriteLine();
                                 Console.WriteLine("AI B HIT");
                                 Console.WriteLine();
                                 GameBoardUI.DrawBoards(PlayerB, PlayerA);
                                 Console.WriteLine();
-                                Console.Write("Continue..");
-                                Console.ReadLine();
+                                Console.Write("Press ENTER to continue or Q to quit: ");
+                                if (Console.ReadKey().Key == ConsoleKey.Q)
+                                {
+                                    Console.Clear();
+                                    return true;
+                                }
+
                                 Console.Clear();
+                                playerHit = PlayerB.PlaceRandomBomb(PlayerA);
+                                GameSaving.SaveGameState(GetGameState());
                             }
 
                             Console.WriteLine();
@@ -300,18 +355,28 @@ namespace GameBrain
                             Console.WriteLine();
                             GameBoardUI.DrawBoards(PlayerB, PlayerA);
                             Console.WriteLine();
-                            Console.Write("Continue..");
-                            Console.ReadLine();
+                            Console.Write("Press ENTER to continue or Q to quit: ");
+                            if (Console.ReadKey().Key == ConsoleKey.Q)
+                            {
+                                Console.Clear();
+                                return true;
+                            }
                             Console.Clear();
                             break;
                         }
                         case ENextMoveAfterHit.OtherPlayer:
                             Console.WriteLine(PlayerB.PlaceRandomBomb(PlayerA) ? "AI B HIT!" : "AI B MISSED!");
+                            GameSaving.SaveGameState(GetGameState());
                             Console.WriteLine();
                             GameBoardUI.DrawPlayerBoard(PlayerB);
                             Console.WriteLine();
-                            Console.Write("Continue..");
-                            Console.ReadLine();
+                            Console.Write("Press ENTER to continue or Q to quit: ");
+                            if (Console.ReadKey().Key == ConsoleKey.Q)
+                            {
+                                Console.Clear();
+                                return true;
+                            }
+
                             Console.Clear();
                             break;
                         default:
@@ -322,9 +387,10 @@ namespace GameBrain
                 }
                 else
                 {
-                    Console.Write($"{playerB.Name}, press ENTER to place bombs!");
-                    if (Console.ReadKey().Key == ConsoleKey.Escape)
+                    Console.Write($"{playerB.Name}, press ENTER to place bombs or Q to quit: ");
+                    if (Console.ReadKey().Key == ConsoleKey.Q)
                     {
+                        Console.Clear();
                         return true;
                     }
 
@@ -343,6 +409,7 @@ namespace GameBrain
 
                     var isHit = playerA.GetPlayerBoard()[column, row] != ECellState.Empty;
                     playerB.PlaceBomb(column, row, playerA);
+                    GameSaving.SaveGameState(GetGameState());
                     if (_nextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
                     {
                         while (isHit)
@@ -368,6 +435,7 @@ namespace GameBrain
 
                             isHit = playerA.GetPlayerBoard()[column, row] != ECellState.Empty;
                             playerB.PlaceBomb(column, row, playerA);
+                            GameSaving.SaveGameState(GetGameState());
                         }
 
                         if (playerA.HasLost)
@@ -378,9 +446,12 @@ namespace GameBrain
                         Console.Clear();
                         GameBoardUI.DrawBoards(playerB, playerA);
                         Console.WriteLine();
-                        Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
-                        if (Console.ReadKey().Key == ConsoleKey.Escape)
+                        Console.Write(isHit
+                            ? "HIT! Press enter to continue or Q to quit: "
+                            : "MISS! Press enter to continue or Q to quit: ");
+                        if (Console.ReadKey().Key == ConsoleKey.Q)
                         {
+                            Console.Clear();
                             return true;
                         }
 
@@ -392,9 +463,12 @@ namespace GameBrain
                         Console.Clear();
                         GameBoardUI.DrawBoards(playerB, playerA);
                         Console.WriteLine();
-                        Console.Write(isHit ? "HIT! Press enter to continue.." : "MISS! Press enter to continue..");
-                        if (Console.ReadKey().Key == ConsoleKey.Escape)
+                        Console.Write(isHit
+                            ? "HIT! Press enter to continue or Q to quit: "
+                            : "MISS! Press enter to continue or Q to quit: ");
+                        if (Console.ReadKey().Key == ConsoleKey.Q)
                         {
+                            Console.Clear();
                             return true;
                         }
 
@@ -403,8 +477,6 @@ namespace GameBrain
                     }
                 }
             }
-
-
             return playerA.HasLost || playerB.HasLost;
         }
 
@@ -577,36 +649,6 @@ namespace GameBrain
             }
 
             return state;
-        }
-
-        private bool PlaceBombsKeyboard(Player playerA, Player playerB)
-        {
-            Console.Clear();
-            Console.WriteLine();
-            if (_nextMoveByPlayerA)
-            {
-                var x = 0;
-                var y = 0;
-
-                Console.Write("Enter any Key: ");
-                var name = Console.ReadKey();
-                if (name.Key == ConsoleKey.Escape)
-                {
-                    return true;
-                }
-
-                Console.WriteLine($"You pressed {name.KeyChar}");
-
-
-                GameBoardUI.DrawBoards(playerA, playerB);
-            }
-            else
-            {
-                GameBoardUI.DrawBoards(playerB, playerA);
-            }
-
-
-            return false;
         }
     }
 }

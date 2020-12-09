@@ -113,11 +113,13 @@ namespace GameBrain
             var column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0));
             var row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1));
 
-            while (opponent.GetPlayerBoard()[column, row] == ECellState.Bomb || opponent.GetPlayerBoard()[column, row] == ECellState.Hit)
+            while (opponent.GetPlayerBoard()[column, row] == ECellState.Bomb ||
+                   opponent.GetPlayerBoard()[column, row] == ECellState.Hit)
             {
-                column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0));
-                row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1));
+                column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0) + 1);
+                row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1) + 1);
             }
+
             if (IsHit(column, row, opponent))
             {
                 RegisterHit(column, row, opponent);
@@ -266,8 +268,6 @@ namespace GameBrain
 
                     break;
                 }
-                case EShipsCanTouch.Corner:
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(shipsCanTouch), shipsCanTouch, null);
             }
@@ -278,6 +278,7 @@ namespace GameBrain
         public void PlaceRandomShips()
         {
             var random = new Random();
+            var counter = 0;
             foreach (var ship in Ships)
             {
                 var width = GameBoard.Board.GetUpperBound(0) + 1;
@@ -293,16 +294,26 @@ namespace GameBrain
                     1 => EOrientation.Vertical,
                     _ => orientation
                 };
+
                 while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
                        || !ShipAreaFree(x, y, GameBoard, ship, orientation, ShipsCanTouch))
                 {
+                    if (counter > 10000)
+                    {
+                        // Need to figure out the max ships for board size and what to do if can't place ships.
+                        throw new Exception("Could not place the ships!");
+                    }
                     x = random.Next(1, width);
                     y = random.Next(1, height);
                     orientationIndex = random.Next(1, 101) % 2;
+                    counter++;
                 }
+
 
                 PlaceShip(x, y, ship, orientation);
             }
+
+            // return true;
         }
 
         public string GetSerializedGameBoardState()
