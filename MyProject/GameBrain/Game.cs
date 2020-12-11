@@ -39,6 +39,8 @@ namespace GameBrain
             PlayerB.SetShips(Ships.OrderByDescending(x => x.Width));
             PlayerA.SetBoard(_boardWidth, _boardHeight);
             PlayerB.SetBoard(_boardWidth, _boardHeight);
+            PlayerA.PlayerType = options.PlayerAType;
+            PlayerB.PlayerType = options.PlayerBType;
             _shipsCanTouch = options.GetShipsCanTouch();
             _gameOptions = options;
             _nextMoveAfterHit = options.NextMoveAfterHit;
@@ -130,17 +132,19 @@ namespace GameBrain
             var gameOver = false;
             while (!gameOver)
             {
-                gameOver = PlaceBombs(PlayerA, PlayerB);
+                gameOver = PlaceBombs();
             }
 
             if (PlayerA.HasLost)
             {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("GAME OVER");
                 Console.WriteLine(PlayerB.Name + " WON!");
             }
 
             else if (PlayerB.HasLost)
             {
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("GAME OVER");
                 Console.WriteLine(PlayerA.Name + " WON!");
             }
@@ -159,89 +163,113 @@ namespace GameBrain
         }
 
         // Return true (game over) if one of the player has lost, else false.
-        private bool PlaceBombs(Player playerA, Player playerB)
+        private bool PlaceBombs()
         {
             Console.Clear();
             Console.WriteLine();
 
-            // Player A Move
-            if (_nextMoveByPlayerA)
+            if (PlayerA.GetPlayerType() == EPlayerType.Human && PlayerB.GetPlayerType() == EPlayerType.Ai)
             {
-                if (PlayerA.GetPlayerType() == EPlayerType.Ai)
+                bool exit;
+                if (_nextMoveByPlayerA)
                 {
-                    bool exit;
-                    switch (_nextMoveAfterHit)
+                    exit = HumanMakeAMove(PlayerA, PlayerB);
+                    if (exit)
                     {
-                        case ENextMoveAfterHit.SamePlayer:
-                        {
-                            exit = AiSamePLayerPlaceBomb(PlayerA, PlayerB);
-                            if (exit)
-                            {
-                                return true;
-                            }
-
-                            break;
-                        }
-                        case ENextMoveAfterHit.OtherPlayer:
-                            exit = AiOtherPlayerPlaceBomb(PlayerA, PlayerB);
-                            if (exit)
-                            {
-                                return true;
-                            }
-
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        return true;
                     }
-
-                    _nextMoveByPlayerA = !_nextMoveByPlayerA;
                 }
-
                 else
                 {
-                    if (HumanMakeAMove(PlayerA, PlayerB)) return true;
-                }
-            }
-
-            // Player B Move
-            else
-            {
-                if (PlayerB.GetPlayerType() == EPlayerType.Ai)
-                {
-                    bool exit;
-                    switch (_nextMoveAfterHit)
+                    exit = AiVsHumanPlaceBomb(PlayerB, PlayerA);
+                    if (exit)
                     {
-                        case ENextMoveAfterHit.SamePlayer:
-                        {
-                            exit = AiSamePLayerPlaceBomb(PlayerB, PlayerA);
-                            if (exit)
-                            {
-                                return true;
-                            }
-
-                            break;
-                        }
-                        case ENextMoveAfterHit.OtherPlayer:
-                            exit = AiOtherPlayerPlaceBomb(PlayerB, PlayerA);
-                            if (exit)
-                            {
-                                return true;
-                            }
-
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        return true;
                     }
 
                     _nextMoveByPlayerA = true;
                 }
+            }
+            else
+            {
+                // Player A Move
+                bool exit;
+                if (_nextMoveByPlayerA)
+                {
+                    if (PlayerA.GetPlayerType() == EPlayerType.Ai)
+                    {
+                        switch (_nextMoveAfterHit)
+                        {
+                            case ENextMoveAfterHit.SamePlayer:
+                            {
+                                exit = AiSamePLayerPlaceBomb(PlayerA, PlayerB);
+                                if (exit)
+                                {
+                                    return true;
+                                }
+
+                                break;
+                            }
+                            case ENextMoveAfterHit.OtherPlayer:
+                                exit = AiOtherPlayerPlaceBomb(PlayerA, PlayerB);
+                                if (exit)
+                                {
+                                    return true;
+                                }
+
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
+                        _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                    }
+
+                    else
+                    {
+                        if (HumanMakeAMove(PlayerA, PlayerB)) return true;
+                    }
+                }
+                // Player B Move
                 else
                 {
-                    if (HumanMakeAMove(PlayerB, PlayerA)) return true;
+                    if (PlayerB.GetPlayerType() == EPlayerType.Ai)
+                    {
+                        // bool exit;
+                        switch (_nextMoveAfterHit)
+                        {
+                            case ENextMoveAfterHit.SamePlayer:
+                            {
+                                exit = AiSamePLayerPlaceBomb(PlayerB, PlayerA);
+                                if (exit)
+                                {
+                                    return true;
+                                }
+
+                                break;
+                            }
+                            case ENextMoveAfterHit.OtherPlayer:
+                                exit = AiOtherPlayerPlaceBomb(PlayerB, PlayerA);
+                                if (exit)
+                                {
+                                    return true;
+                                }
+
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
+                        _nextMoveByPlayerA = true;
+                    }
+                    else
+                    {
+                        if (HumanMakeAMove(PlayerB, PlayerA)) return true;
+                    }
                 }
             }
 
-            return playerA.HasLost || playerB.HasLost;
+            return PlayerA.HasLost || PlayerB.HasLost;
         }
 
         private bool HumanMakeAMove(Player player, Player opponent)
@@ -524,7 +552,7 @@ namespace GameBrain
             if (Console.ReadKey().Key == ConsoleKey.Q)
             {
                 Console.Clear();
-                return false;
+                return true;
             }
 
             Console.Clear();
@@ -570,9 +598,27 @@ namespace GameBrain
             return false;
         }
 
-        private static bool HumanSamePlayerPlaceBomb()
+        private bool AiVsHumanPlaceBomb(Player ai, Player player)
         {
-            return false;
+            var isHit = ai.PlaceRandomBomb(player);
+            if (_nextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
+            {
+                while (isHit)
+                {
+                    isHit = ai.PlaceRandomBomb(player);
+                }
+            }
+
+            Console.WriteLine(ai.PlaceRandomBomb(player) ? "AI HIT!" : "AI MISSED!");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine();
+            GameBoardUI.DrawPlayerBoard(player);
+            Console.WriteLine();
+            Console.Write("Press ENTER to continue or Q to quit: ");
+            if (Console.ReadKey().Key != ConsoleKey.Q) return false;
+            Console.Clear();
+            return true;
+
         }
     }
 }

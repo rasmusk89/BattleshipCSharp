@@ -30,7 +30,7 @@ namespace ConsoleApp
             playerType.AddMenuItem(new MenuItem(
                 "AI vs AI",
                 "3",
-                BattleshipAIAI));
+                BattleshipAiAi));
             
             var gameType = new Menu(MenuLevel.Level1);
             gameType.AddMenuItem(new MenuItem(
@@ -73,7 +73,7 @@ namespace ConsoleApp
             return "";
         }
 
-        private static string BattleshipAIAI()
+        private static string BattleshipAiAi()
         {
             var options = new GameOptions();
             var game = new Game(options)

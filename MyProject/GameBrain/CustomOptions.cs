@@ -41,10 +41,10 @@ namespace GameBrain
             var nextMoveAfterHit = nextMove.ToLower() == "y" ? ENextMoveAfterHit.SamePlayer : ENextMoveAfterHit.OtherPlayer;
 
             Console.Write("Set player one type (\"A\"-AI/\"H\"-Human)");
-            var playerATypeInput = Console.ReadLine()?.ToLower() == "a" ? EPlayerType.Ai : EPlayerType.Human;
+            var playerAType = Console.ReadLine()?.ToLower() == "a" ? EPlayerType.Ai : EPlayerType.Human;
             
             Console.Write("Set player two type (\"A\"-AI/\"H\"-Human)");
-            var playerBTypeInput = Console.ReadLine()?.ToLower() == "a" ? EPlayerType.Ai : EPlayerType.Human;
+            var playerBType = Console.ReadLine()?.ToLower() == "a" ? EPlayerType.Ai : EPlayerType.Human;
             
             
             List<Ship> ships = new ();
@@ -86,12 +86,12 @@ namespace GameBrain
 
                 if (Console.ReadLine().ToLower() != "n")
                 {
-                    Console.WriteLine($"Select custom ship size {longestShip + 1} - {width}");
+                    Console.WriteLine($"Select custom ship size {longestShip + 1} - {width - 2}");
                     ships.Add(new Ship(int.Parse(Console.ReadLine())));
                 }
             } while (ships.Count == 0);
 
-            return new GameOptions(width, height, canShipsTouch, nextMoveAfterHit, ships, playerATypeInput, playerBTypeInput);
+            return new GameOptions(width, height, canShipsTouch, nextMoveAfterHit, ships, playerAType, playerBType);
 
         }
 

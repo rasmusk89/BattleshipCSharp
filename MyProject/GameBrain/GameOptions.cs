@@ -28,7 +28,7 @@ namespace GameBrain
             BoardWidth = 10;
             BoardHeight = 10;
             ShipsCanTouch = EShipsCanTouch.No;
-            NextMoveAfterHit = ENextMoveAfterHit.SamePlayer;
+            NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
         }
 
         public GameOptions(int boardWidth, int boardHeight, EShipsCanTouch shipsCanTouch,
