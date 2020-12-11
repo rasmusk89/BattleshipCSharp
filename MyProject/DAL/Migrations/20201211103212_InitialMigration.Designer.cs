@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201203112925_InitialMigration")]
+    [Migration("20201211103212_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,9 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(128)");
 
                     b.Property<int>("NextMoveAfterHit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfShips")
                         .HasColumnType("int");
 
                     b.HasKey("GameOptionId");

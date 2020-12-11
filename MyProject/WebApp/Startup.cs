@@ -28,7 +28,8 @@ namespace WebApp
         {
             
             services.AddDbContext<AppDbContext>(options =>
-            options.UseLoggerFactory(LoggerFactory).UseSqlServer(
+            // options.UseLoggerFactory(LoggerFactory).UseSqlServer(
+            options.UseSqlServer(
             Configuration.GetConnectionString("DefaultConnection")));
 
             

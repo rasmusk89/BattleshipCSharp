@@ -17,8 +17,11 @@ namespace WebApp.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public string? Name { get; set; } = "Player";
+
+        public void OnGet(string? name)
         {
+            Name = name;
         }
     }
 }

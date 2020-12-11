@@ -2,8 +2,6 @@
 @using Domain.Enums
 @model WebApp.Pages.GamePlay.Index
 
-<h1>GamePlay</h1>
-
 @functions
 {
 
@@ -26,6 +24,25 @@
         return result;
     }
 
+    static string GetOpponentCellState(ECellState state)
+    {
+        var result = "";
+        result = state switch
+        {
+            ECellState.Empty => "#77E0FF",
+            ECellState.Bomb => "#000000",
+            ECellState.Hit => "#FF0000",
+            ECellState.Patrol => "#77E0FF",
+            ECellState.Cruiser => "#77E0FF",
+            ECellState.Submarine => "#77E0FF",
+            ECellState.Battleship => "#77E0FF",
+            ECellState.Carrier => "#77E0FF",
+            ECellState.Custom => "#77E0FF",
+            _ => result
+            };
+        return result;
+    }
+
     private static string IntToAlphabeticValue(int index)
     {
         const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -40,10 +57,21 @@
         return value;
     }
 }
+<div class="text-center">
+    @if (Model!.Game!.NextMoveByPlayerOne)
+    {
+        <h1 style="color: green">Player @Model.PLayerA.Name Move</h1>
+    }
+    else
+    {
+        <h1 style="color: blue">Player @Model.PLayerB.Name Move</h1>
+    }
+</div>
+<hr>
 
 <div class="row">
     <div class="col border-right text-center">
-        <table class="table table-bordered">
+        <table class="table table-bordered text-center">
             @if (Model!.Game!.NextMoveByPlayerOne)
             {
                 <h4>Player @Model.PLayerA.Name Board</h4>
@@ -101,7 +129,7 @@
             }
         </table>
     </div>
-    <div class="col">
+    <div class="col text-center">
         <table class="table table-bordered text-center">
             @if (Model!.Game!.NextMoveByPlayerOne)
             {
@@ -145,14 +173,14 @@
                         {
                             @if (Model!.Game!.NextMoveByPlayerOne)
                             {
-                                <td bgcolor="#77E0FF" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                <td bgcolor="@GetOpponentCellState(@Model.PLayerB.GetCell(x - 1, y - 1))" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
                                     <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
                                     </a>
                                 </td>
                             }
                             else
                             {
-                                <td bgcolor="#77E0FF" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                <td bgcolor="@GetOpponentCellState(@Model.PLayerA.GetCell(x - 1, y - 1))" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
                                     <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
                                     </a>
                                 </td>

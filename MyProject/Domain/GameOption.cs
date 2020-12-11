@@ -14,6 +14,8 @@ namespace Domain
         public int BoardWidth { get; set; }
 
         public int BoardHeight { get; set; }
+        
+        public int NumberOfShips { get; set; }
 
         public EShipsCanTouch EShipsCanTouch { get; set; }
 

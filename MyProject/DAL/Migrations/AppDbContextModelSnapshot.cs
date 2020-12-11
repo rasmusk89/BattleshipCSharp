@@ -78,6 +78,9 @@ namespace DAL.Migrations
                     b.Property<int>("NextMoveAfterHit")
                         .HasColumnType("int");
 
+                    b.Property<int>("NumberOfShips")
+                        .HasColumnType("int");
+
                     b.HasKey("GameOptionId");
 
                     b.ToTable("GameOptions");

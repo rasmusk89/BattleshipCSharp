@@ -16,6 +16,7 @@ namespace DAL.Migrations
                     Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     BoardWidth = table.Column<int>(type: "int", nullable: false),
                     BoardHeight = table.Column<int>(type: "int", nullable: false),
+                    NumberOfShips = table.Column<int>(type: "int", nullable: false),
                     EShipsCanTouch = table.Column<int>(type: "int", nullable: false),
                     NextMoveAfterHit = table.Column<int>(type: "int", nullable: false)
                 },

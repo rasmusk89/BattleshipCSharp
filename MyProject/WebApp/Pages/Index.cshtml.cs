@@ -40,8 +40,8 @@ namespace WebApp.Pages
 
         // [BindProperty]
         [Required(ErrorMessage = "Please select a game to load!")]
-        public int? Id { get; set; } = null;
-
+        public int? Id { get; set; }
+        
         public IActionResult OnGet()
         {
             Games = _context.Games.OrderByDescending(id => id.GameId).ToList();
@@ -120,7 +120,8 @@ namespace WebApp.Pages
                     BoardWidth = GameOption!.BoardWidth,
                     BoardHeight = GameOption!.BoardHeight,
                     EShipsCanTouch = GameOption!.EShipsCanTouch,
-                    NextMoveAfterHit = GameOption!.NextMoveAfterHit
+                    NextMoveAfterHit = GameOption!.NextMoveAfterHit,
+                    NumberOfShips = ships.Count
                 },
                 PlayerA = playerA,
                 PlayerB = playerB
@@ -132,10 +133,8 @@ namespace WebApp.Pages
                 Console.ReadLine();
                 return Page();
             }
-
             await _context.Games.AddAsync(game);
             await _context.SaveChangesAsync();
-
             return RedirectToPage("./GamePlay/Index", new {id = game.GameId, newGame = true});
         }
 

@@ -93,17 +93,34 @@ namespace GameBrain
             ship.Hits++;
         }
 
-        public void PlaceBomb(int column, int row, Player opponent)
+        // Return true if is hit.
+        public bool PlaceBomb(int column, int row, Player opponent)
         {
             if (IsHit(column, row, opponent))
             {
                 RegisterHit(column, row, opponent);
                 opponent.GetPlayerBoard()[column, row] = ECellState.Hit;
+                return true;
             }
-            else
+
+            opponent.GetPlayerBoard()[column, row] = ECellState.Bomb;
+            return false;
+        }
+
+        public (int x, int y) GetRandomBombCoordinates(Player opponent)
+        {
+            Random rand = new(Guid.NewGuid().GetHashCode());
+            var column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0));
+            var row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1));
+            
+            while (opponent.GetPlayerBoard()[column, row] == ECellState.Bomb ||
+                   opponent.GetPlayerBoard()[column, row] == ECellState.Hit)
             {
-                opponent.GetPlayerBoard()[column, row] = ECellState.Bomb;
+                column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0) + 1);
+                row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1) + 1);
             }
+
+            return (column, row);
         }
 
         // Return true if is hit.
@@ -303,6 +320,7 @@ namespace GameBrain
                         // Need to figure out the max ships for board size and what to do if can't place ships.
                         throw new Exception("Could not place the ships!");
                     }
+
                     x = random.Next(1, width);
                     y = random.Next(1, height);
                     orientationIndex = random.Next(1, 101) % 2;

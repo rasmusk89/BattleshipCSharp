@@ -23,4 +23,8 @@
       <_ContentIncludedByDefault Remove="Pages\PlaceShips\Index.cshtml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Pages\PlaceShips\Index.cshtml" />
+    </ItemGroup>
+
 </Project>
