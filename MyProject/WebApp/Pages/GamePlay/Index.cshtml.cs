@@ -253,6 +253,7 @@ namespace WebApp.Pages.GamePlay
                                 await _context.SaveChangesAsync();
                             }
                         }
+
                         await _context.SaveChangesAsync();
                         return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                     }

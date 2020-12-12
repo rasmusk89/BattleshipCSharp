@@ -11,7 +11,10 @@ namespace Domain
 
         [MaxLength(128)] public string Name { get; set; } = DateTime.Now.ToString(CultureInfo.InvariantCulture);
 
+        [Range(2, 60)]
         public int BoardWidth { get; set; }
+
+        [Range(2, 60)]
 
         public int BoardHeight { get; set; }
         

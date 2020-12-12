@@ -54,15 +54,15 @@ namespace WebApp.Pages
 
         public async Task<IActionResult> OnPostNewGame()
         {
-            var ships = new List<Ship>
-            {
-                new(1),
-                new(2),
-                new(3),
-                new(4),
-                new(5),
-            };
+            var ships = new List<Ship>();
 
+            var numberOfShips = GameOption!.BoardWidth / 2;
+            
+            for (var i = 1; i <= numberOfShips; i++)
+            {
+                ships.Add(new Ship(i));
+            }
+            
             var playerA = new Player
             {
                 Name = PlayerA!.Name,

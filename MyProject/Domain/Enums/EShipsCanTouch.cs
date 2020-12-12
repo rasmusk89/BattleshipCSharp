@@ -2,7 +2,7 @@
 {
     public enum EShipsCanTouch
     {
-        No,
-        Yes
+        Yes,
+        No
     }
 }
