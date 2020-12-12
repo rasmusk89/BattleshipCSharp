@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Razor;
 using Game = Domain.Game;
 using GameBoard = GameBrain.GameBoard;
 using Player = GameBrain.Player;
@@ -41,6 +40,7 @@ namespace WebApp.Pages.GamePlay
             {
                 return RedirectToPage("/Index");
             }
+
             var numberOfShips = _context.GameOptions.OrderByDescending(i => i.GameOptionId).First().NumberOfShips;
             Game = await _context.Games.Where(i => i.GameId == id)
                 .Include(o => o.GameOption)
@@ -59,6 +59,8 @@ namespace WebApp.Pages.GamePlay
                     .OrderByDescending(i => i.GameShipId)
                     .Take(numberOfShips))
                 .FirstOrDefaultAsync();
+
+            var shipsCanTouch = Game.GameOption.EShipsCanTouch;
 
             if (Game == null)
             {
@@ -128,9 +130,21 @@ namespace WebApp.Pages.GamePlay
 
             PLayerB.GameBoard = playerBGameBoard;
 
+            if (PLayerA.HasLost)
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToPage("/Privacy", new {name = PLayerB.Name});
+            }
+
+            if (PLayerB.HasLost)
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToPage("/Privacy", new {name = PLayerA.Name});
+            }
+
             if (newGame)
             {
-                PLayerA.PlaceRandomShips();
+                PLayerA.PlaceRandomShips(shipsCanTouch);
                 var boardA = new PlayerBoardState
                 {
                     CreatedAt = DateTime.Now,
@@ -138,15 +152,13 @@ namespace WebApp.Pages.GamePlay
                 };
                 Game.PlayerA.PlayerBoardStates.Add(boardA);
 
-                PLayerB.PlaceRandomShips();
+                PLayerB.PlaceRandomShips(shipsCanTouch);
                 var boardB = new PlayerBoardState
                 {
                     CreatedAt = DateTime.Now,
                     GameBoardState = PLayerB.GetSerializedGameBoardState(),
                 };
                 Game.PlayerB.PlayerBoardStates.Add(boardB);
-
-
                 await _context.SaveChangesAsync();
                 return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
             }
@@ -157,13 +169,12 @@ namespace WebApp.Pages.GamePlay
                 {
                     var isAvailable = PLayerB.GameBoard.Board[x.Value, y.Value] != ECellState.Bomb &&
                                       PLayerB.GameBoard.Board[x.Value, y.Value] != ECellState.Hit;
-
                     if (!isAvailable)
                     {
                         return Page();
                     }
 
-                    PLayerA.PlaceBomb(x.Value, y.Value, PLayerB);
+                    var isHit = PLayerA.PlaceBomb(x.Value, y.Value, PLayerB);
 
                     var playerBoardState = new PlayerBoardState
                     {
@@ -184,19 +195,31 @@ namespace WebApp.Pages.GamePlay
                         });
                     }
 
-                    Game.NextMoveByPlayerOne = false;
                     if (PLayerA.HasLost)
                     {
-                        return RedirectToPage("/Privacy", new {name = PLayerA.Name});
-                    }
-                    if (PLayerB.HasLost)
-                    {
+                        await _context.SaveChangesAsync();
                         return RedirectToPage("/Privacy", new {name = PLayerB.Name});
                     }
+
+                    if (PLayerB.HasLost)
+                    {
+                        await _context.SaveChangesAsync();
+                        return RedirectToPage("/Privacy", new {name = PLayerA.Name});
+                    }
+
+                    if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
+                    {
+                        if (isHit)
+                        {
+                            await _context.SaveChangesAsync();
+                            return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
+                        }
+                    }
+
                     if (PLayerB.GetPlayerType() == EPlayerType.Ai)
                     {
                         var (column, row) = PLayerB.GetRandomBombCoordinates(PLayerA);
-                        PLayerB.PlaceBomb(column, row, PLayerA);
+                        var isHitAi = PLayerB.PlaceBomb(column, row, PLayerA);
                         var playerABoard = new PlayerBoardState
                         {
                             CreatedAt = DateTime.Now,
@@ -205,65 +228,100 @@ namespace WebApp.Pages.GamePlay
                         Game!.PlayerA.PlayerBoardStates!.Add(playerABoard);
                         if (PLayerA.HasLost)
                         {
-                            return RedirectToPage("/Privacy", new {name = PLayerA.Name});
-                        }
-                        if (PLayerB.HasLost)
-                        {
+                            await _context.SaveChangesAsync();
                             return RedirectToPage("/Privacy", new {name = PLayerB.Name});
                         }
-                        Game.NextMoveByPlayerOne = true;
+
+                        if (PLayerB.HasLost)
+                        {
+                            await _context.SaveChangesAsync();
+                            return RedirectToPage("/Privacy", new {name = PLayerA.Name});
+                        }
+
+                        if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
+                        {
+                            while (isHitAi)
+                            {
+                                (column, row) = PLayerB.GetRandomBombCoordinates(PLayerA);
+                                isHitAi = PLayerB.PlaceBomb(column, row, PLayerA);
+                                playerABoard = new PlayerBoardState
+                                {
+                                    CreatedAt = DateTime.Now,
+                                    GameBoardState = PLayerA.GetSerializedGameBoardState(),
+                                };
+                                Game!.PlayerA.PlayerBoardStates!.Add(playerABoard);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
                         await _context.SaveChangesAsync();
-                        return RedirectToPage("/GamePlay/Index", new {id = Game.GameId,}); 
+                        return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                     }
+
+                    Game.NextMoveByPlayerOne = false;
                 }
                 else
                 {
-                    if (PLayerB.PlayerType != EPlayerType.Ai)
+                    var isAvailable = PLayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Bomb &&
+                                      PLayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Hit;
+
+                    if (!isAvailable)
                     {
-                        var isAvailable = PLayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Bomb &&
-                                         PLayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Hit;
+                        Console.WriteLine("Bomb already placed there!");
+                        return Page();
+                    }
 
-                        if (!isAvailable)
+                    var isHit = PLayerB.PlaceBomb(x.Value, y.Value, PLayerA);
+
+                    var playerBoardState = new PlayerBoardState
+                    {
+                        CreatedAt = DateTime.Now,
+                        GameBoardState = PLayerA.GetSerializedGameBoardState(),
+                    };
+
+                    Game.PlayerA.PlayerBoardStates.Add(playerBoardState);
+
+                    foreach (var ship in PLayerA.Ships)
+                    {
+                        Game.PlayerA.GameShips.Add(new GameShip()
                         {
-                            Console.WriteLine("Bomb already placed there!");
-                            return Page();
+                            ECellState = ship.CellState,
+                            Hits = ship.Hits,
+                            Name = ship.Name,
+                            Width = ship.Width
+                        });
+                    }
+
+                    if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
+                    {
+                        if (isHit)
+                        {
+                            Game.NextMoveByPlayerOne = false;
                         }
-
-                        var isHit = PLayerB.PlaceBomb(x.Value, y.Value, PLayerA);
-
-                        var playerBoardState = new PlayerBoardState
+                        else
                         {
-                            CreatedAt = DateTime.Now,
-                            GameBoardState = PLayerA.GetSerializedGameBoardState(),
-                        };
-
-                        Game.PlayerA.PlayerBoardStates.Add(playerBoardState);
-
-                        foreach (var ship in PLayerA.Ships)
-                        {
-                            Game.PlayerA.GameShips.Add(new GameShip()
-                            {
-                                ECellState = ship.CellState,
-                                Hits = ship.Hits,
-                                Name = ship.Name,
-                                Width = ship.Width
-                            });
+                            Game.NextMoveByPlayerOne = true;
                         }
                     }
-                   
-                    Game.NextMoveByPlayerOne = true;
+                    else
+                    {
+                        Game.NextMoveByPlayerOne = true;
+                    }
                 }
             }
-            
+
             await _context.SaveChangesAsync();
             if (PLayerA.HasLost)
             {
-                return RedirectToPage("/Privacy", new {name = PLayerA.Name});
-            }
-            if (PLayerB.HasLost)
-            {
+                await _context.SaveChangesAsync();
                 return RedirectToPage("/Privacy", new {name = PLayerB.Name});
             }
+
+            if (PLayerB.HasLost)
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToPage("/Privacy", new {name = PLayerA.Name});
+            }
+
             return Page();
         }
     }

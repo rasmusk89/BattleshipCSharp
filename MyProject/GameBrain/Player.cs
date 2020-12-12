@@ -292,7 +292,7 @@ namespace GameBrain
             return occupiedCells == 0;
         }
 
-        public void PlaceRandomShips()
+        public void PlaceRandomShips(EShipsCanTouch shipsCanTouch)
         {
             var random = new Random();
             var counter = 0;
@@ -313,7 +313,7 @@ namespace GameBrain
                 };
 
                 while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
-                       || !ShipAreaFree(x, y, GameBoard, ship, orientation, ShipsCanTouch))
+                       || !ShipAreaFree(x, y, GameBoard, ship, orientation, shipsCanTouch))
                 {
                     if (counter > 10000)
                     {

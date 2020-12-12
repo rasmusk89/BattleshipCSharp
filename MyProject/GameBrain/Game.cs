@@ -69,7 +69,7 @@ namespace GameBrain
 
             if (PlayerA.GetPlayerType() == EPlayerType.Ai)
             {
-                PlayerA.PlaceRandomShips();
+                PlayerA.PlaceRandomShips(_shipsCanTouch);
             }
 
             if (PlayerA.GetPlayerType() == EPlayerType.Human)
@@ -90,14 +90,14 @@ namespace GameBrain
                         Console.Clear();
                         break;
                     default:
-                        PlayerA.PlaceRandomShips();
+                        PlayerA.PlaceRandomShips(_shipsCanTouch);
                         break;
                 }
             }
 
             if (PlayerB.GetPlayerType() == EPlayerType.Ai)
             {
-                PlayerB.PlaceRandomShips();
+                PlayerB.PlaceRandomShips(_shipsCanTouch);
             }
 
             if (PlayerB.GetPlayerType() == EPlayerType.Human)
@@ -118,7 +118,7 @@ namespace GameBrain
                         Console.Clear();
                         break;
                     default:
-                        PlayerB.PlaceRandomShips();
+                        PlayerB.PlaceRandomShips(_shipsCanTouch);
                         break;
                 }
             }

@@ -25,6 +25,8 @@
 
     <ItemGroup>
       <UpToDateCheckInput Remove="Pages\PlaceShips\Index.cshtml" />
+      <UpToDateCheckInput Remove="Pages\PlaceShips\Index.cshtml" />
+      <UpToDateCheckInput Remove="Pages\PlaceShips\Index.cshtml" />
     </ItemGroup>
 
 </Project>

@@ -37,9 +37,7 @@ namespace WebApp.Pages
         [BindProperty] public GameOption? GameOption { get; set; }
 
         public List<Game>? Games { get; set; }
-
-        // [BindProperty]
-        [Required(ErrorMessage = "Please select a game to load!")]
+        
         public int? Id { get; set; }
         
         public IActionResult OnGet()
@@ -129,13 +127,12 @@ namespace WebApp.Pages
 
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("Model not valid!?");
-                Console.ReadLine();
                 return Page();
             }
             await _context.Games.AddAsync(game);
             await _context.SaveChangesAsync();
-            return RedirectToPage("./GamePlay/Index", new {id = game.GameId, newGame = true});
+            var random = Request.Form["random"].ToString() == "yes";
+            return RedirectToPage("./GamePlay/Index", new {id = game.GameId, newGame = true, randomShips = random});
         }
 
         private string GetEmptyBoard()
