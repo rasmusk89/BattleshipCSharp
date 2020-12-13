@@ -292,46 +292,67 @@ namespace GameBrain
             return occupiedCells == 0;
         }
 
-        public void PlaceRandomShips(EShipsCanTouch shipsCanTouch)
+        public bool PlaceRandomShips(EShipsCanTouch shipsCanTouch)
         {
             var random = new Random();
-            var counter = 0;
-            foreach (var ship in Ships)
+            var width = GameBoard.Board.GetUpperBound(0) + 1;
+            var height = GameBoard.Board.GetUpperBound(1) + 1;
+            var shipsPlaced = false;
+            while (!shipsPlaced)
             {
-                var width = GameBoard.Board.GetUpperBound(0) + 1;
-                var height = GameBoard.Board.GetUpperBound(1) + 1;
-                var x = random.Next(1, width);
-                var y = random.Next(1, height);
-                var orientation = EOrientation.Vertical;
-                var orientationIndex = random.Next(1, 101) % 2;
-
-                orientation = orientationIndex switch
+                foreach (var ship in Ships)
                 {
-                    0 => EOrientation.Horizontal,
-                    1 => EOrientation.Vertical,
-                    _ => orientation
-                };
-
-                while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
-                       || !ShipAreaFree(x, y, GameBoard, ship, orientation, shipsCanTouch))
-                {
-                    if (counter > 10000)
+                    var x = random.Next(1, width);
+                    var y = random.Next(1, height);
+                    var orientation = EOrientation.Vertical;
+                    var orientationIndex = random.Next(1, 101) % 2;
+                    var counter = 0;
+                    orientation = orientationIndex switch
                     {
-                        // Need to figure out the max ships for board size and what to do if can't place ships.
-                        throw new Exception("Could not place the ships!");
+                        0 => EOrientation.Horizontal,
+                        1 => EOrientation.Vertical,
+                        _ => orientation
+                    };
+                    while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
+                           || !ShipAreaFree(x, y, GameBoard, ship, orientation, shipsCanTouch))
+                    {
+                        if (counter > 100)
+                        {
+                            RemoveAllShipsFromPlayerGameBoard();
+                            break;
+                        }
+                        x = random.Next(1, width);
+                        y = random.Next(1, height);
+                        orientationIndex = random.Next(1, 101) % 2;
+                        orientation = orientationIndex switch
+                        {
+                            0 => EOrientation.Horizontal,
+                            1 => EOrientation.Vertical,
+                            _ => orientation
+                        };
+                        counter++;
                     }
-
-                    x = random.Next(1, width);
-                    y = random.Next(1, height);
-                    orientationIndex = random.Next(1, 101) % 2;
-                    counter++;
+                    PlaceShip(x, y, ship, orientation);
                 }
 
-
-                PlaceShip(x, y, ship, orientation);
+                shipsPlaced = true;
             }
+            
+            return true;
+        }
 
-            // return true;
+        private void RemoveAllShipsFromPlayerGameBoard()
+        {
+            var width = GameBoard.Board.GetUpperBound(0);
+            var height = GameBoard.Board.GetUpperBound(1);
+
+            for (var i = 0; i < height; i++)
+            {
+                for (var j = 0; j < width; j++)
+                {
+                    GameBoard.Board[i, j] = ECellState.Empty;
+                }
+            }
         }
 
         public string GetSerializedGameBoardState()

@@ -6,7 +6,7 @@
 
         public bool  NextMoveByPlayerA { get; set; }
 
-        // public GameBoard PlayerABoard { get; set; } = new ();
+        // public GameBoard PlayerABoard { get; set; } = new();
 
         // public GameBoard PlayerBBoard { get; set; } = new();
 
