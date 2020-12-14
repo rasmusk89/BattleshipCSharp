@@ -187,7 +187,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("PlayerBoardStates");
+                    b.ToTable("PlayerBoardState");
                 });
 
             modelBuilder.Entity("Domain.Game", b =>

@@ -29,7 +29,7 @@ namespace GameBrain
             Console.Clear();
             Console.Write("Saving...");
             using var dbCtx = GetConnection();
-            // dbCtx.Database.EnsureDeleted();
+            dbCtx.Database.EnsureDeleted();
             dbCtx.Database.Migrate();
             Console.Write("Adding data...");
 
@@ -41,16 +41,16 @@ namespace GameBrain
                 Name = playerOne.GetName(),
                 PlayerType = playerOne.GetPlayerType(),
                 GameShips = new List<GameShip>(),
-                PlayerBoardStates = new List<PlayerBoardState>(),
+                // PlayerBoardStates = new List<PlayerBoardState>(),
             };
             var playerB = new Domain.Player
             {
                 Name = playerTwo.GetName(),
                 PlayerType = playerTwo.GetPlayerType(),
                 GameShips = new List<GameShip>(),
-                PlayerBoardStates = new List<PlayerBoardState>(),
+                // PlayerBoardStates = new List<PlayerBoardState>(),
             };
-
+            
             var playerAShips = playerOne.GetShips()
                 .Select(ship => new GameShip()
                 {
@@ -74,24 +74,24 @@ namespace GameBrain
                 })
                 .ToList();
 
-            var playerABoardState = new PlayerBoardState
-            {
-                CreatedAt = DateTime.Now,
-                GameBoardState = playerOne.GetSerializedGameBoardState(),
-                Player = playerA
-            };
-
-            var playerBBoardState = new PlayerBoardState
-            {
-                CreatedAt = DateTime.Now,
-                GameBoardState = playerTwo.GetSerializedGameBoardState(),
-                Player = playerB
-            };
+            // var playerABoardState = new PlayerBoardState
+            // {
+            //     CreatedAt = DateTime.Now,
+            //     GameBoardState = playerOne.GetSerializedGameBoardState(),
+            //     Player = playerA
+            // };
+            //
+            // var playerBBoardState = new PlayerBoardState
+            // {
+            //     CreatedAt = DateTime.Now,
+            //     GameBoardState = playerTwo.GetSerializedGameBoardState(),
+            //     Player = playerB
+            // };
 
             playerA.GameShips = playerAShips;
-            playerA.PlayerBoardStates.Add(playerABoardState);
+            // playerA.PlayerBoardStates.Add(playerABoardState);
             playerB.GameShips = playerBShips;
-            playerB.PlayerBoardStates.Add(playerBBoardState);
+            // playerB.PlayerBoardStates.Add(playerBBoardState);
 
             var gameOptions = new GameOption
             {
@@ -105,15 +105,14 @@ namespace GameBrain
             
             var newGame = new Domain.Game
             {
-                Description = $"{playerA.Name}_{playerB.Name}_{DateTime.Now}",
+                Description = $"{playerA.Name}&{playerB.Name}@{DateTime.Now}".Replace(" ", "_"),
                 GameOption = gameOptions,
                 PlayerA = playerA,
                 PlayerB = playerB,
                 GameStates = new List<Domain.GameState>()
             };
             
-            
-            var state = new Domain.GameState()
+            var state = new Domain.GameState
             {
                 PlayerABoardState = playerOne.GetSerializedGameBoardState(),
                 PlayerBBoardState = playerTwo.GetSerializedGameBoardState(),
@@ -151,6 +150,23 @@ namespace GameBrain
                     .Take(numberOfShips))
                 .First();
             
+            // Console.WriteLine();
+            // Console.WriteLine("FROM DATABASE");
+            // Console.WriteLine("PLayer One: ");
+            // foreach (var ship in lastGame.PlayerA.GameShips!)
+            // {
+            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
+            // }
+            //
+            // Console.WriteLine("Player Two");
+            // foreach (var ship in lastGame.PlayerB.GameShips!)
+            // {
+            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
+            // }
+            //
+            // Console.ReadLine();
+            
+            
             foreach (var ship in gameState.PlayerAState.GetShips())
             {
                 dbCtx.GameShips.Add(new GameShip
@@ -159,7 +175,8 @@ namespace GameBrain
                     Hits = ship.Hits,
                     Name = ship.Name,
                     Width = ship.Width,
-                    Player = lastGame.PlayerA
+                    Player = lastGame.PlayerA,
+                    IsSunk = ship.IsSunk
                 });
             }
 
@@ -171,19 +188,25 @@ namespace GameBrain
                     Hits = ship.Hits,
                     Name = ship.Name,
                     Width = ship.Width,
-                    Player = lastGame.PlayerB
+                    Player = lastGame.PlayerB,
+                    IsSunk = ship.IsSunk
                 });
             }
-
-            lastGame.PlayerA.PlayerBoardStates!.Add(new PlayerBoardState
-            {
-                GameBoardState = gameState.PlayerAState.GetSerializedGameBoardState()
-            });
-
-            lastGame.PlayerB.PlayerBoardStates!.Add(new PlayerBoardState
-            {
-                GameBoardState = gameState.PlayerBState.GetSerializedGameBoardState()
-            });
+            // Console.WriteLine();
+            // Console.WriteLine("From STATE");
+            // Console.WriteLine("PLayer One: ");
+            // foreach (var ship in gameState.PlayerAState.GetShips())
+            // {
+            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
+            // }
+            //
+            // Console.WriteLine("Player Two");
+            // foreach (var ship in gameState.PlayerBState.GetShips())
+            // {
+            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
+            // }
+            //
+            // Console.ReadLine();
             
             lastGame.GameStates!.Add(new Domain.GameState()
             {

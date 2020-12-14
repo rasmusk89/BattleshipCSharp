@@ -14,7 +14,7 @@ namespace GameBrain
         private List<Ship> Ships { get; set; }
         private readonly EShipsCanTouch _shipsCanTouch;
         private readonly ENextMoveAfterHit _nextMoveAfterHit;
-        public bool _nextMoveByPlayerA = true;
+        public bool NextMoveByPlayerA = true;
         private readonly GameOptions _gameOptions;
         private readonly Validator _validator = new();
 
@@ -97,6 +97,7 @@ namespace GameBrain
                         {
                             return;
                         }
+
                         break;
                 }
             }
@@ -107,7 +108,6 @@ namespace GameBrain
                 {
                     return;
                 }
-               
             }
 
             if (PlayerB.GetPlayerType() == EPlayerType.Human)
@@ -132,6 +132,7 @@ namespace GameBrain
                         {
                             return;
                         }
+
                         break;
                 }
             }
@@ -184,7 +185,7 @@ namespace GameBrain
             if (PlayerA.GetPlayerType() == EPlayerType.Human && PlayerB.GetPlayerType() == EPlayerType.Ai)
             {
                 bool exit;
-                if (_nextMoveByPlayerA)
+                if (NextMoveByPlayerA)
                 {
                     exit = HumanMakeAMove(PlayerA, PlayerB);
                     if (exit)
@@ -200,7 +201,7 @@ namespace GameBrain
                         return true;
                     }
 
-                    _nextMoveByPlayerA = true;
+                    NextMoveByPlayerA = true;
                     GameSaving.SaveGameState(GetGameState());
                 }
             }
@@ -208,7 +209,7 @@ namespace GameBrain
             {
                 // Player A Move
                 bool exit;
-                if (_nextMoveByPlayerA)
+                if (NextMoveByPlayerA)
                 {
                     if (PlayerA.GetPlayerType() == EPlayerType.Ai)
                     {
@@ -236,7 +237,7 @@ namespace GameBrain
                                 throw new ArgumentOutOfRangeException();
                         }
 
-                        _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                        NextMoveByPlayerA = !NextMoveByPlayerA;
                         GameSaving.SaveGameState(GetGameState());
                     }
 
@@ -275,7 +276,7 @@ namespace GameBrain
                                 throw new ArgumentOutOfRangeException();
                         }
 
-                        _nextMoveByPlayerA = true;
+                        NextMoveByPlayerA = true;
                         GameSaving.SaveGameState(GetGameState());
                     }
                     else
@@ -358,7 +359,7 @@ namespace GameBrain
                     return true;
                 }
 
-                _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                NextMoveByPlayerA = !NextMoveByPlayerA;
                 GameSaving.SaveGameState(GetGameState());
                 Console.Clear();
             }
@@ -376,7 +377,7 @@ namespace GameBrain
                     return true;
                 }
 
-                _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                NextMoveByPlayerA = !NextMoveByPlayerA;
                 GameSaving.SaveGameState(GetGameState());
                 Console.Clear();
             }
@@ -515,7 +516,7 @@ namespace GameBrain
             {
                 BoardHeightState = _boardHeight,
                 BoardWidthState = _boardWidth,
-                NextMoveByPlayerAState = _nextMoveByPlayerA,
+                NextMoveByPlayerAState = NextMoveByPlayerA,
                 PlayerAState = PlayerA,
                 PlayerBState = PlayerB,
                 ShipsState = Ships,
@@ -556,7 +557,6 @@ namespace GameBrain
             return state;
         }
 
-
         private bool AiOtherPlayerPlaceBomb(Player player, Player opponent)
         {
             Console.WriteLine(player.PlaceRandomBomb(opponent)
@@ -572,6 +572,7 @@ namespace GameBrain
                 Console.Clear();
                 return true;
             }
+
             Console.Clear();
             return false;
         }
@@ -635,7 +636,6 @@ namespace GameBrain
             if (Console.ReadKey().Key != ConsoleKey.Q) return false;
             Console.Clear();
             return true;
-
         }
     }
 }

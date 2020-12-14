@@ -99,7 +99,7 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerBoardStates",
+                name: "PlayerBoardState",
                 columns: table => new
                 {
                     PlayerBoardStateId = table.Column<int>(type: "int", nullable: false)
@@ -110,9 +110,9 @@ namespace DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlayerBoardStates", x => x.PlayerBoardStateId);
+                    table.PrimaryKey("PK_PlayerBoardState", x => x.PlayerBoardStateId);
                     table.ForeignKey(
-                        name: "FK_PlayerBoardStates_Players_PlayerId",
+                        name: "FK_PlayerBoardState_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
                         principalColumn: "PlayerId",
@@ -167,8 +167,8 @@ namespace DAL.Migrations
                 column: "GameId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlayerBoardStates_PlayerId",
-                table: "PlayerBoardStates",
+                name: "IX_PlayerBoardState_PlayerId",
+                table: "PlayerBoardState",
                 column: "PlayerId");
         }
 
@@ -181,7 +181,7 @@ namespace DAL.Migrations
                 name: "GameStates");
 
             migrationBuilder.DropTable(
-                name: "PlayerBoardStates");
+                name: "PlayerBoardState");
 
             migrationBuilder.DropTable(
                 name: "Games");

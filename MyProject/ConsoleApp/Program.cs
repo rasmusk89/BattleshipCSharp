@@ -25,12 +25,13 @@ namespace ConsoleApp
             playerType.AddMenuItem(new MenuItem(
                 "Player vs AI",
                 "2",
-                BattleshipPlayerAI));
+                BattleshipPlayerAi));
             
             playerType.AddMenuItem(new MenuItem(
                 "AI vs AI",
                 "3",
                 BattleshipAiAi));
+            
             
             var gameType = new Menu(MenuLevel.Level1);
             gameType.AddMenuItem(new MenuItem(
@@ -56,24 +57,21 @@ namespace ConsoleApp
                 "O",
                 () =>
                 {
-                    var allGames = new Menu(MenuLevel.Level2Plus);
-                    var listOfAllGames = new GameLoading().GetListOfAllGames();
-                    var label = 1;
-                    foreach (var (id, desc) in listOfAllGames)
+                    var allGamesMenu = new Menu(MenuLevel.Level2Plus);
+                    foreach (var (id, desc) in new GameLoading().GetListOfAllGames())
                     {
-                        allGames.AddMenuItem(new MenuItem(
+                        allGamesMenu.AddMenuItem(new MenuItem(
                             desc,
-                            label.ToString(),
+                            id.ToString(),
                             () => LoadGameById(id)
                         ));
-                        label++;
                     }
 
-                    allGames.RunMenu();
-                    return "";
+                    return allGamesMenu.RunMenu();
                 }
             ));
             
+           
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Battleship", "B", gameType.RunMenu));
             menu.RunMenu();
@@ -87,7 +85,7 @@ namespace ConsoleApp
             return "";
         }
         
-        private static string BattleshipPlayerAI()
+        private static string BattleshipPlayerAi()
         {
             var options = new GameOptions();
             var game = new Game(options) {PlayerB = {PlayerType = EPlayerType.Ai}};

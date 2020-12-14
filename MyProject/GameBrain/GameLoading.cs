@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using DAL;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,8 +29,10 @@ namespace GameBrain
             var state = dbCtx.GameStates.OrderByDescending(x => x.GameStateId)
                 .First(i => i.GameId == gameById.GameId);
 
+            var numberOfShips = gameById.GameOption.NumberOfShips;
+
             var playerAShips = dbCtx.GameShips
-                .Where(i => i.PlayerId == gameById.PlayerAId)
+                .Where(i => i.PlayerId == gameById.PlayerAId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
                 .Select(gameShip => new Ship()
                 {
@@ -43,7 +44,7 @@ namespace GameBrain
                 .ToList();
 
             var playerBShips = dbCtx.GameShips
-                .Where(i => i.PlayerId == gameById.PlayerBId)
+                .Where(i => i.PlayerId == gameById.PlayerBId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
                 .Select(gameShip => new Ship()
                 {
@@ -55,7 +56,7 @@ namespace GameBrain
                 .ToList();
 
             var boardA = state.PlayerABoardState;
-            var boardB = state.PlayerABoardState;
+            var boardB = state.PlayerBBoardState;
 
             var playerA = new Player
             {
@@ -87,13 +88,13 @@ namespace GameBrain
             {
                 PlayerA = playerA,
                 PlayerB = playerB,
-                _nextMoveByPlayerA = state.NextMoveByPlayerA
+                NextMoveByPlayerA = state.NextMoveByPlayerA
             };
 
             return game;
         }
 
-        public List<(int id, string desc)> GetListOfAllGames()
+        public IEnumerable<(int id, string desc)> GetListOfAllGames()
         {
             var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
                 @"
@@ -136,11 +137,13 @@ namespace GameBrain
                 .Include(player => player.PlayerB)
                 .First();
 
+            var numberOfShips = lastGame.GameOption.NumberOfShips;
+
             var state = dbCtx.GameStates.OrderByDescending(x => x.GameStateId)
                 .First(id => id.GameId == lastGame.GameId);
 
             var playerAShips = dbCtx.GameShips
-                .Where(id => id.PlayerId == lastGame.PlayerAId)
+                .Where(id => id.PlayerId == lastGame.PlayerAId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
                 .Select(gameShip => new Ship()
                 {
@@ -152,19 +155,19 @@ namespace GameBrain
                 .ToList();
 
             var playerBShips = dbCtx.GameShips
-                .Where(id => id.PlayerId == lastGame.PlayerBId)
+                .Where(id => id.PlayerId == lastGame.PlayerBId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
                 .Select(gameShip => new Ship()
                 {
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    Width = gameShip.Width
+                    Width = gameShip.Width,
                 })
                 .ToList();
 
             var boardA = state.PlayerABoardState;
-            var boardB = state.PlayerABoardState;
+            var boardB = state.PlayerBBoardState;
 
             var playerA = new Player
             {
@@ -196,7 +199,7 @@ namespace GameBrain
             {
                 PlayerA = playerA,
                 PlayerB = playerB,
-                _nextMoveByPlayerA = state.NextMoveByPlayerA
+                NextMoveByPlayerA = state.NextMoveByPlayerA
             };
 
             return game;

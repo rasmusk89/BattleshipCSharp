@@ -1,8 +1,5 @@
-﻿using System.Linq;
-using Axoom.Extensions.Logging.Console;
-using Domain;
+﻿using Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace DAL
 {
@@ -12,7 +9,7 @@ namespace DAL
         public DbSet<GameOption> GameOptions { get; set; } = null!;
         public DbSet<Player> Players { get; set; } = null!;
         public DbSet<GameShip> GameShips { get; set; } = null!;
-        public DbSet<PlayerBoardState> PlayerBoardStates { get; set; } = null!;
+        // public DbSet<PlayerBoardState> PlayerBoardStates { get; set; } = null!;
         public DbSet<GameState> GameStates { get; set; } = null!;
         
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
