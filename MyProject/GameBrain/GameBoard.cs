@@ -4,8 +4,8 @@ namespace GameBrain
 {
     public class GameBoard
     {
-        private int Width { get; set; }
-        private int Height { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
 
         public ECellState[,] Board { get; set; }
 

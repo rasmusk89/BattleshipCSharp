@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -24,6 +23,6 @@ namespace Domain
         public int? PlayerBId { get; set; }
         public Player PlayerB { get; set; } = default!;
 
-        // public ICollection<GameState>? GameStates { get; set; }
+        public ICollection<GameState>? GameStates { get; set; }
     }
 }

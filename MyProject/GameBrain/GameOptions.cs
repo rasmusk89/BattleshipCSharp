@@ -24,10 +24,10 @@ namespace GameBrain
         public GameOptions()
         {
             PlayerAType = EPlayerType.Human;
-            PlayerBType = EPlayerType.Ai;
+            PlayerBType = EPlayerType.Human;
             BoardWidth = 10;
             BoardHeight = 10;
-            ShipsCanTouch = EShipsCanTouch.No;
+            ShipsCanTouch = EShipsCanTouch.Yes;
             NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
         }
 

@@ -12,7 +12,7 @@ namespace ConsoleApp
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("+---------------------------+\n" +
-                              "|        RASMUS GAME        |\n" +
+                              "|         MAIN MENU         |\n" +
                               "+---------------------------+");
             Console.ForegroundColor = ConsoleColor.Cyan;
 
@@ -50,10 +50,32 @@ namespace ConsoleApp
                 "L",
                 LoadGame
             ));
+            
+            gameType.AddMenuItem(new MenuItem(
+                "Load All Games",
+                "O",
+                () =>
+                {
+                    var allGames = new Menu(MenuLevel.Level2Plus);
+                    var listOfAllGames = new GameLoading().GetListOfAllGames();
+                    var label = 1;
+                    foreach (var (id, desc) in listOfAllGames)
+                    {
+                        allGames.AddMenuItem(new MenuItem(
+                            desc,
+                            label.ToString(),
+                            () => LoadGameById(id)
+                        ));
+                        label++;
+                    }
 
+                    allGames.RunMenu();
+                    return "";
+                }
+            ));
+            
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Battleship", "B", gameType.RunMenu));
-            menu.AddMenuItem(new MenuItem("QUICK TEST GAME", "D", DefaultMenuAction));
             menu.RunMenu();
         }
 
@@ -99,6 +121,13 @@ namespace ConsoleApp
         {
             var gameLoading = new GameLoading();
             gameLoading.LoadLastGame().PlayRound();
+            return "";
+        }
+
+        private static string LoadGameById(int id)
+        {
+            var gameLoading = new GameLoading();
+            gameLoading.LoadGameById(id).PlayRound();
             return "";
         }
 

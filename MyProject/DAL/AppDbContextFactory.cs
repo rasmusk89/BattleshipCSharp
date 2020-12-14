@@ -13,7 +13,7 @@ namespace DAL
                 Server=barrel.itcollege.ee,1533;
                 User Id=student;
                 Password=Student.Bad.password.0;
-                Database=raskil_webAppDb;
+                Database=raskil_BsDb;
                 MultipleActiveResultSets=true;
                 ");
             

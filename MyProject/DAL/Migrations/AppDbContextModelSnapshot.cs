@@ -120,6 +120,32 @@ namespace DAL.Migrations
                     b.ToTable("GameShips");
                 });
 
+            modelBuilder.Entity("Domain.GameState", b =>
+                {
+                    b.Property<int>("GameStateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<int?>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("NextMoveByPlayerA")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PlayerABoardState")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlayerBBoardState")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("GameStateId");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("GameStates");
+                });
+
             modelBuilder.Entity("Domain.Player", b =>
                 {
                     b.Property<int>("PlayerId")
@@ -164,26 +190,6 @@ namespace DAL.Migrations
                     b.ToTable("PlayerBoardStates");
                 });
 
-            modelBuilder.Entity("Domain.Ship", b =>
-                {
-                    b.Property<int>("ShipId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("int");
-
-                    b.HasKey("ShipId");
-
-                    b.ToTable("Ships");
-                });
-
             modelBuilder.Entity("Domain.Game", b =>
                 {
                     b.HasOne("Domain.GameOption", "GameOption")
@@ -216,6 +222,15 @@ namespace DAL.Migrations
                     b.Navigation("Player");
                 });
 
+            modelBuilder.Entity("Domain.GameState", b =>
+                {
+                    b.HasOne("Domain.Game", "Game")
+                        .WithMany("GameStates")
+                        .HasForeignKey("GameId");
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("Domain.PlayerBoardState", b =>
                 {
                     b.HasOne("Domain.Player", "Player")
@@ -225,6 +240,11 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("Domain.Game", b =>
+                {
+                    b.Navigation("GameStates");
                 });
 
             modelBuilder.Entity("Domain.Player", b =>

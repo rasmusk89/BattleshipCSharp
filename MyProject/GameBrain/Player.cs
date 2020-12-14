@@ -384,5 +384,25 @@ namespace GameBrain
 
             return JsonSerializer.Serialize(state, jsonOptions);
         }
+
+        public void SetGameBoardStateFromJsonString(string json)
+        {
+            var width = GameBoard.Width;
+            var height = GameBoard.Height;
+            Console.WriteLine(width);
+            Console.WriteLine(height);
+            
+            var tempA = JsonSerializer.Deserialize<GameBoardState>(json)!.Board;
+            var gameBoard = new GameBoard(width,height);
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    gameBoard.Board[x, y] = tempA[x][y];
+                }
+            }
+
+            GameBoard = gameBoard;
+        }
     }
 }

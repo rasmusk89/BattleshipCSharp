@@ -1,16 +1,18 @@
-﻿namespace Domain
+﻿using Domain.Enums;
+
+namespace Domain
 {
     public class GameState
     {
         public int GameStateId { get; set; }
 
-        public bool  NextMoveByPlayerA { get; set; }
+        public bool NextMoveByPlayerA { get; set; }
 
-        // public GameBoard PlayerABoard { get; set; } = new();
+        public string? PlayerABoardState { get; set; }
 
-        // public GameBoard PlayerBBoard { get; set; } = new();
+        public string? PlayerBBoardState { get; set; }
 
-        // public int GameId { get; set; }
-        // public Game Game { get; set; } = null!;
+        public int? GameId { get; set; }
+        public Game Game { get; set; } = default!;
     }
 }

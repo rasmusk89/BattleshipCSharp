@@ -14,7 +14,7 @@ namespace GameBrain
         private List<Ship> Ships { get; set; }
         private readonly EShipsCanTouch _shipsCanTouch;
         private readonly ENextMoveAfterHit _nextMoveAfterHit;
-        private bool _nextMoveByPlayerA = true;
+        public bool _nextMoveByPlayerA = true;
         private readonly GameOptions _gameOptions;
         private readonly Validator _validator = new();
 
@@ -136,7 +136,7 @@ namespace GameBrain
                 }
             }
 
-            // GameSaving.InitialSave(GetGameState());
+            GameSaving.InitialSave(GetGameState());
             PlayRound();
         }
 
@@ -201,6 +201,7 @@ namespace GameBrain
                     }
 
                     _nextMoveByPlayerA = true;
+                    GameSaving.SaveGameState(GetGameState());
                 }
             }
             else
@@ -236,6 +237,7 @@ namespace GameBrain
                         }
 
                         _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                        GameSaving.SaveGameState(GetGameState());
                     }
 
                     else
@@ -274,6 +276,7 @@ namespace GameBrain
                         }
 
                         _nextMoveByPlayerA = true;
+                        GameSaving.SaveGameState(GetGameState());
                     }
                     else
                     {
@@ -336,7 +339,6 @@ namespace GameBrain
 
                     isHit = opponent.GetPlayerBoard()[column, row] != ECellState.Empty;
                     player.PlaceBomb(column, row, opponent);
-                    // GameSaving.SaveGameState(GetGameState());
                 }
 
                 if (opponent.HasLost)
@@ -357,6 +359,7 @@ namespace GameBrain
                 }
 
                 _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                GameSaving.SaveGameState(GetGameState());
                 Console.Clear();
             }
             else
@@ -374,6 +377,7 @@ namespace GameBrain
                 }
 
                 _nextMoveByPlayerA = !_nextMoveByPlayerA;
+                GameSaving.SaveGameState(GetGameState());
                 Console.Clear();
             }
 
@@ -429,6 +433,7 @@ namespace GameBrain
 
             Console.Write("Press ENTER to continue...");
             Console.ReadLine();
+            GameSaving.SaveGameState(GetGameState());
         }
 
         private EOrientation AskOrientation()
@@ -552,12 +557,12 @@ namespace GameBrain
         }
 
 
-        private static bool AiOtherPlayerPlaceBomb(Player player, Player opponent)
+        private bool AiOtherPlayerPlaceBomb(Player player, Player opponent)
         {
             Console.WriteLine(player.PlaceRandomBomb(opponent)
                 ? $"{player.GetName()} HIT!"
                 : $"{player.GetName()} MISSED!");
-            // GameSaving.SaveGameState(GetGameState());
+            GameSaving.SaveGameState(GetGameState());
             Console.WriteLine();
             GameBoardUI.DrawBoards(player, opponent);
             Console.WriteLine();
@@ -567,15 +572,14 @@ namespace GameBrain
                 Console.Clear();
                 return true;
             }
-
             Console.Clear();
             return false;
         }
 
-        private static bool AiSamePLayerPlaceBomb(Player player, Player opponent)
+        private bool AiSamePLayerPlaceBomb(Player player, Player opponent)
         {
             var playerHit = player.PlaceRandomBomb(opponent);
-            // GameSaving.SaveGameState(GetGameState());
+            GameSaving.SaveGameState(GetGameState());
             while (playerHit)
             {
                 Console.WriteLine();
@@ -592,7 +596,7 @@ namespace GameBrain
 
                 Console.Clear();
                 playerHit = player.PlaceRandomBomb(opponent);
-                // GameSaving.SaveGameState(GetGameState());
+                GameSaving.SaveGameState(GetGameState());
             }
 
             Console.WriteLine();
