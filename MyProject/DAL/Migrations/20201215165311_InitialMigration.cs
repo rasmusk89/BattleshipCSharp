@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Migrations
 {
@@ -46,7 +45,6 @@ namespace DAL.Migrations
                     GameId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Description = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
-                    NextMoveByPlayerOne = table.Column<bool>(type: "bit", nullable: false),
                     GameOptionId = table.Column<int>(type: "int", nullable: true),
                     PlayerAId = table.Column<int>(type: "int", nullable: true),
                     PlayerBId = table.Column<int>(type: "int", nullable: true)
@@ -99,27 +97,6 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerBoardState",
-                columns: table => new
-                {
-                    PlayerBoardStateId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PlayerId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GameBoardState = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlayerBoardState", x => x.PlayerBoardStateId);
-                    table.ForeignKey(
-                        name: "FK_PlayerBoardState_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
-                        principalColumn: "PlayerId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "GameStates",
                 columns: table => new
                 {
@@ -165,11 +142,6 @@ namespace DAL.Migrations
                 name: "IX_GameStates_GameId",
                 table: "GameStates",
                 column: "GameId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PlayerBoardState_PlayerId",
-                table: "PlayerBoardState",
-                column: "PlayerId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -179,9 +151,6 @@ namespace DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "GameStates");
-
-            migrationBuilder.DropTable(
-                name: "PlayerBoardState");
 
             migrationBuilder.DropTable(
                 name: "Games");

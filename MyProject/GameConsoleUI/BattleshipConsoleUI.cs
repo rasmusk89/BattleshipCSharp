@@ -53,7 +53,7 @@ namespace GameConsoleUI
             {
                 ECellState.Empty => "~",
                 ECellState.Bomb => "X",
-                ECellState.Boat => "B",
+                // ECellState.Boat => "B",
                 _ => "-"
             };
         }

@@ -10,20 +10,6 @@ namespace GameBrain
 {
     public static class GameSaving
     {
-        private static AppDbContext GetConnection()
-        {
-            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
-                @"
-                Server=barrel.itcollege.ee,1533;
-                User Id=student;
-                Password=Student.Bad.password.0;
-                Database=raskil_db;
-                MultipleActiveResultSets=true;
-                ").Options;
-
-            return new AppDbContext(dbOptions);
-        }
-
         public static void InitialSave(GameState gameState)
         {
             Console.Clear();
@@ -41,16 +27,14 @@ namespace GameBrain
                 Name = playerOne.GetName(),
                 PlayerType = playerOne.GetPlayerType(),
                 GameShips = new List<GameShip>(),
-                // PlayerBoardStates = new List<PlayerBoardState>(),
             };
             var playerB = new Domain.Player
             {
                 Name = playerTwo.GetName(),
                 PlayerType = playerTwo.GetPlayerType(),
                 GameShips = new List<GameShip>(),
-                // PlayerBoardStates = new List<PlayerBoardState>(),
             };
-            
+
             var playerAShips = playerOne.GetShips()
                 .Select(ship => new GameShip()
                 {
@@ -74,24 +58,8 @@ namespace GameBrain
                 })
                 .ToList();
 
-            // var playerABoardState = new PlayerBoardState
-            // {
-            //     CreatedAt = DateTime.Now,
-            //     GameBoardState = playerOne.GetSerializedGameBoardState(),
-            //     Player = playerA
-            // };
-            //
-            // var playerBBoardState = new PlayerBoardState
-            // {
-            //     CreatedAt = DateTime.Now,
-            //     GameBoardState = playerTwo.GetSerializedGameBoardState(),
-            //     Player = playerB
-            // };
-
             playerA.GameShips = playerAShips;
-            // playerA.PlayerBoardStates.Add(playerABoardState);
             playerB.GameShips = playerBShips;
-            // playerB.PlayerBoardStates.Add(playerBBoardState);
 
             var gameOptions = new GameOption
             {
@@ -102,7 +70,7 @@ namespace GameBrain
                 NextMoveAfterHit = gameState.GameOptions.GetNextMoveAfterHit(),
                 NumberOfShips = playerAShips.Count
             };
-            
+
             var newGame = new Domain.Game
             {
                 Description = $"{playerA.Name}&{playerB.Name}@{DateTime.Now}".Replace(" ", "_"),
@@ -111,14 +79,14 @@ namespace GameBrain
                 PlayerB = playerB,
                 GameStates = new List<Domain.GameState>()
             };
-            
+
             var state = new Domain.GameState
             {
                 PlayerABoardState = playerOne.GetSerializedGameBoardState(),
                 PlayerBBoardState = playerTwo.GetSerializedGameBoardState(),
                 NextMoveByPlayerA = true
             };
-            
+
             newGame.GameStates.Add(state);
             dbCtx.Games.Add(newGame);
             dbCtx.SaveChanges();
@@ -135,38 +103,21 @@ namespace GameBrain
                     .OrderByDescending(i => i.GameStateId)
                     .Take(1))
                 .Include(p => p.PlayerA)
-                .ThenInclude(b => b.PlayerBoardStates!
-                    .OrderByDescending(x => x.PlayerBoardStateId)
-                    .Take(1))
+                // .ThenInclude(b => b.PlayerBoardStates!
+                //     .OrderByDescending(x => x.PlayerBoardStateId)
+                //     .Take(1))
                 .Include(s => s.PlayerA.GameShips!
                     .OrderByDescending(x => x.GameShipId)
                     .Take(numberOfShips))
                 .Include(p => p.PlayerB)
-                .ThenInclude(b => b.PlayerBoardStates!
-                    .OrderByDescending(x => x.PlayerBoardStateId)
-                    .Take(1))
+                // .ThenInclude(b => b.PlayerBoardStates!
+                //     .OrderByDescending(x => x.PlayerBoardStateId)
+                //     .Take(1))
                 .Include(s => s.PlayerB.GameShips!
                     .OrderByDescending(x => x.GameShipId)
                     .Take(numberOfShips))
                 .First();
-            
-            // Console.WriteLine();
-            // Console.WriteLine("FROM DATABASE");
-            // Console.WriteLine("PLayer One: ");
-            // foreach (var ship in lastGame.PlayerA.GameShips!)
-            // {
-            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
-            // }
-            //
-            // Console.WriteLine("Player Two");
-            // foreach (var ship in lastGame.PlayerB.GameShips!)
-            // {
-            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
-            // }
-            //
-            // Console.ReadLine();
-            
-            
+
             foreach (var ship in gameState.PlayerAState.GetShips())
             {
                 dbCtx.GameShips.Add(new GameShip
@@ -192,22 +143,7 @@ namespace GameBrain
                     IsSunk = ship.IsSunk
                 });
             }
-            // Console.WriteLine();
-            // Console.WriteLine("From STATE");
-            // Console.WriteLine("PLayer One: ");
-            // foreach (var ship in gameState.PlayerAState.GetShips())
-            // {
-            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
-            // }
-            //
-            // Console.WriteLine("Player Two");
-            // foreach (var ship in gameState.PlayerBState.GetShips())
-            // {
-            //     Console.WriteLine(ship.Name + ": " + ship.Hits + ", " + ship.IsSunk);
-            // }
-            //
-            // Console.ReadLine();
-            
+
             lastGame.GameStates!.Add(new Domain.GameState()
             {
                 NextMoveByPlayerA = gameState.NextMoveByPlayerAState,
@@ -216,6 +152,20 @@ namespace GameBrain
             });
 
             dbCtx.SaveChanges();
+        }
+
+        private static AppDbContext GetConnection()
+        {
+            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
+                @"
+                Server=barrel.itcollege.ee,1533;
+                User Id=student;
+                Password=Student.Bad.password.0;
+                Database=raskil_db;
+                MultipleActiveResultSets=true;
+                ").Options;
+
+            return new AppDbContext(dbOptions);
         }
     }
 }

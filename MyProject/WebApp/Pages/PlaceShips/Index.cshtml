@@ -1,0 +1,128 @@
+﻿@page
+@using Domain.Enums
+@model WebApp.Pages.PlaceShips.Index
+
+@functions
+{
+    static string GetCellState(ECellState state)
+    {
+        var result = "";
+        result = state switch
+        {
+            ECellState.Empty => "#77E0FF",
+            ECellState.Bomb => "#000000",
+            ECellState.Hit => "#FF0000",
+            ECellState.Patrol => "#633974",
+            ECellState.Cruiser => "#1A5276",
+            ECellState.Submarine => "#117864",
+            ECellState.Battleship => "#196F3D",
+            ECellState.Carrier => "#9A7D0A",
+            ECellState.Custom0 => "#A00000",
+            ECellState.Custom1 => "#A01000",
+            ECellState.Custom2 => "#A02000",
+            ECellState.Custom3 => "#A03000",
+            ECellState.Custom4 => "#A04000",
+            ECellState.Custom5 => "#A05000",
+            ECellState.Custom6 => "#A06000",
+            ECellState.Custom7 => "#A07000",
+            ECellState.Custom8 => "#A08000",
+            ECellState.Custom9 => "#A09000",
+            _ => result
+            };
+        return result;
+    }
+
+    private static string IntToAlphabeticValue(int index)
+    {
+        const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        var value = "";
+
+        if (index >= letters.Length)
+            value += letters[index / letters.Length - 1];
+
+        value += letters[index % letters.Length];
+
+        return value;
+    }
+}
+
+<div class="text-center">
+    <h1>Place Ships</h1>
+    <hr>
+</div>
+
+<div class="text-center">
+    @if (Model.NextMoveByPlayerA)
+    {
+        <h3 style="color: green">Player @Model.PLayerA.Name place your ships</h3>
+    }
+    else
+    {
+        <h3 style="color: green">Player @Model.PLayerB.Name place your ships</h3>
+    }
+    <hr>
+    <div class="row">
+        <div class="col">
+            Current Ship: *****
+        </div>
+        <div class="col border-right">
+            Orientation: *****
+        </div>
+    </div>
+    <br>
+    <table class="table table-bordered">
+
+        @for (var y = 0; y < Model.Game!.GameOption.BoardHeight + 2; y++)
+        {
+            <tr>
+                @for (var x = 0; x < Model.Game!.GameOption.BoardWidth + 2; x++)
+                {
+                    @if (y == 0 && x == 0
+                         || y == Model.Game!.GameOption.BoardHeight + 1 && x == Model.Game!.GameOption.BoardWidth + 1
+                         || y == 0 && x == Model.Game!.GameOption.BoardWidth + 1
+                         || y == Model.Game!.GameOption.BoardHeight + 1 && x == 0)
+                    {
+                        <td></td>
+                    }
+                    else if (y == 0 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1
+                             || y == Model.Game!.GameOption.BoardHeight + 1 && x != 0 && x != Model.Game!.GameOption.BoardWidth + 1)
+                    {
+                        <td>
+                            <p style="color: red">
+                                <strong>@IntToAlphabeticValue(x - 1)</strong>
+                            </p>
+                        </td>
+                    }
+                    else if (x == 0 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1
+                             || x == Model.Game!.GameOption.BoardWidth + 1 && y != 0 && y != Model.Game!.GameOption.BoardHeight + 1)
+                    {
+                        <td>
+                            <p style="color: red">
+                                <strong>@y</strong>
+                            </p>
+                        </td>
+                    }
+                    else
+                    {
+                        @if (Model.NextMoveByPlayerA)
+                        {
+                            <td bgcolor="@GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1))" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td bgcolor="@GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
+                                <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
+                                </a>
+                            </td>
+                        }
+                    }
+                }
+
+            </tr>
+        }
+    </table>
+</div>

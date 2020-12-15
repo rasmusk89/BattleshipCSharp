@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201214110342_InitialMigration")]
+    [Migration("20201215165311_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,9 +35,6 @@ namespace DAL.Migrations
 
                     b.Property<int?>("GameOptionId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("NextMoveByPlayerOne")
-                        .HasColumnType("bit");
 
                     b.Property<int?>("PlayerAId")
                         .HasColumnType("int");
@@ -168,30 +165,6 @@ namespace DAL.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("Domain.PlayerBoardState", b =>
-                {
-                    b.Property<int>("PlayerBoardStateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("GameBoardState")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PlayerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PlayerBoardStateId");
-
-                    b.HasIndex("PlayerId");
-
-                    b.ToTable("PlayerBoardState");
-                });
-
             modelBuilder.Entity("Domain.Game", b =>
                 {
                     b.HasOne("Domain.GameOption", "GameOption")
@@ -233,17 +206,6 @@ namespace DAL.Migrations
                     b.Navigation("Game");
                 });
 
-            modelBuilder.Entity("Domain.PlayerBoardState", b =>
-                {
-                    b.HasOne("Domain.Player", "Player")
-                        .WithMany("PlayerBoardStates")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Player");
-                });
-
             modelBuilder.Entity("Domain.Game", b =>
                 {
                     b.Navigation("GameStates");
@@ -252,8 +214,6 @@ namespace DAL.Migrations
             modelBuilder.Entity("Domain.Player", b =>
                 {
                     b.Navigation("GameShips");
-
-                    b.Navigation("PlayerBoardStates");
                 });
 #pragma warning restore 612, 618
         }

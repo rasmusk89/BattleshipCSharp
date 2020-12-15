@@ -73,7 +73,7 @@ namespace GameBrain
             return PlayerType;
         }
 
-        private static bool IsHit(int column, int row, Player opponent)
+        public bool IsHit(int column, int row, Player opponent)
         {
             var playerCell = opponent.GetPlayerBoard()[column, row];
             return playerCell != ECellState.Empty && playerCell != ECellState.Bomb && playerCell != ECellState.Hit;
@@ -112,7 +112,7 @@ namespace GameBrain
             Random rand = new(Guid.NewGuid().GetHashCode());
             var column = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(0));
             var row = rand.Next(0, opponent.GetPlayerBoard().GetUpperBound(1));
-            
+
             while (opponent.GetPlayerBoard()[column, row] == ECellState.Bomb ||
                    opponent.GetPlayerBoard()[column, row] == ECellState.Hit)
             {
@@ -148,15 +148,40 @@ namespace GameBrain
             return false;
         }
 
-        public void PlaceShip(int column, int row, Ship ship, EOrientation orientation)
+        private static bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
+            EOrientation orientation)
+        {
+            var x = column;
+            var y = row;
+            if (orientation == EOrientation.Horizontal)
+            {
+                return x + ship.Width <= boardWidth;
+            }
+
+            return y + ship.Width <= boardHeight;
+        }
+
+        public bool PlaceShip(int column, int row, Ship ship, EOrientation orientation, EShipsCanTouch shipsCanTouch)
         {
             var shipSize = ship.Width;
             var board = GameBoard.Board;
+            var boardWidth = board.GetUpperBound(0);
+            var boardHeight = board.GetUpperBound(1);
             var state = ship.CellState;
             switch (orientation)
             {
                 case EOrientation.Horizontal:
                 {
+                    if (!ShipCoordinatesAreValid(column, row, boardWidth, boardHeight, ship, EOrientation.Horizontal))
+                    {
+                        return false;
+                    }
+
+                    if (!ShipAreaFree(column, row, GameBoard, ship, EOrientation.Horizontal, shipsCanTouch))
+                    {
+                        return false;
+                    }
+
                     for (var i = 0; i < shipSize; i++)
                     {
                         board[column + i, row] = state;
@@ -166,6 +191,16 @@ namespace GameBrain
                 }
                 case EOrientation.Vertical:
                 {
+                    if (!ShipCoordinatesAreValid(column, row, boardWidth, boardHeight, ship, EOrientation.Vertical))
+                    {
+                        return false;
+                    }
+
+                    if (!ShipAreaFree(column, row, GameBoard, ship, EOrientation.Vertical, shipsCanTouch))
+                    {
+                        return false;
+                    }
+
                     for (var i = 0; i < shipSize; i++)
                     {
                         board[column, row + i] = state;
@@ -176,6 +211,8 @@ namespace GameBrain
                 default:
                     throw new ArgumentOutOfRangeException(nameof(orientation), orientation, null);
             }
+
+            return true;
         }
 
         public bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
@@ -292,53 +329,42 @@ namespace GameBrain
             return occupiedCells == 0;
         }
 
-        public bool PlaceRandomShips(EShipsCanTouch shipsCanTouch)
+        public void PlaceRandomShips(EShipsCanTouch shipsCanTouch)
         {
             var random = new Random();
             var width = GameBoard.Board.GetUpperBound(0) + 1;
             var height = GameBoard.Board.GetUpperBound(1) + 1;
-            var shipsPlaced = false;
-            while (!shipsPlaced)
+            foreach (var ship in Ships)
             {
-                foreach (var ship in Ships)
+                var x = random.Next(1, width);
+                var y = random.Next(1, height);
+                var orientation = EOrientation.Vertical;
+                var orientationIndex = random.Next(1, 101) % 2;
+                orientation = orientationIndex switch
                 {
-                    var x = random.Next(1, width);
-                    var y = random.Next(1, height);
-                    var orientation = EOrientation.Vertical;
-                    var orientationIndex = random.Next(1, 101) % 2;
-                    var counter = 0;
+                    0 => EOrientation.Horizontal,
+                    1 => EOrientation.Vertical,
+                    _ => orientation
+                };
+                // while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
+                //        || !ShipAreaFree(x, y, GameBoard, ship, orientation, shipsCanTouch))
+                var shipPlaced = PlaceShip(x, y, ship, orientation, shipsCanTouch);
+                while (!shipPlaced)
+                {
+                    x = random.Next(1, width);
+                    y = random.Next(1, height);
+                    orientationIndex = random.Next(1, 101) % 2;
                     orientation = orientationIndex switch
                     {
                         0 => EOrientation.Horizontal,
                         1 => EOrientation.Vertical,
                         _ => orientation
                     };
-                    while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
-                           || !ShipAreaFree(x, y, GameBoard, ship, orientation, shipsCanTouch))
-                    {
-                        if (counter > 100)
-                        {
-                            RemoveAllShipsFromPlayerGameBoard();
-                            break;
-                        }
-                        x = random.Next(1, width);
-                        y = random.Next(1, height);
-                        orientationIndex = random.Next(1, 101) % 2;
-                        orientation = orientationIndex switch
-                        {
-                            0 => EOrientation.Horizontal,
-                            1 => EOrientation.Vertical,
-                            _ => orientation
-                        };
-                        counter++;
-                    }
-                    PlaceShip(x, y, ship, orientation);
+                    shipPlaced = PlaceShip(x, y, ship, orientation, shipsCanTouch);
                 }
 
-                shipsPlaced = true;
+                // PlaceShip(x, y, ship, orientation);
             }
-            
-            return true;
         }
 
         private void RemoveAllShipsFromPlayerGameBoard()
@@ -390,7 +416,7 @@ namespace GameBrain
             var width = GameBoard.Width;
             var height = GameBoard.Height;
             var cellState = JsonSerializer.Deserialize<GameBoardState>(json)!.Board;
-            var gameBoard = new GameBoard(width,height);
+            var gameBoard = new GameBoard(width, height);
             for (var x = 0; x < width; x++)
             {
                 for (var y = 0; y < height; y++)

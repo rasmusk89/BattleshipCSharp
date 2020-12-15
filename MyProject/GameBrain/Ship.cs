@@ -34,6 +34,16 @@ namespace GameBrain
                 3 => "Submarine",
                 4 => "Battleship",
                 5 => "Carrier",
+                6 => "Custom0",
+                7 => "Custom1",
+                8 => "Custom2",
+                9 => "Custom3",
+                10 => "Custom4",
+                11 => "Custom5",
+                12 => "Custom6",
+                13 => "Custom7",
+                14 => "Custom8",
+                15 => "Custom9",
                 _ => "Custom"
             };
         }
@@ -47,6 +57,16 @@ namespace GameBrain
                 3 => ECellState.Submarine,
                 4 => ECellState.Battleship,
                 5 => ECellState.Carrier,
+                6 => ECellState.Custom0,
+                7 => ECellState.Custom1,
+                8 => ECellState.Custom2,
+                9 => ECellState.Custom3,
+                10 => ECellState.Custom4,
+                11 => ECellState.Custom5,
+                12 => ECellState.Custom6,
+                13 => ECellState.Custom7,
+                14 => ECellState.Custom8,
+                15 => ECellState.Custom9,
                 _ => ECellState.Custom
             };
         }

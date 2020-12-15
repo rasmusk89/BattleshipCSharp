@@ -5,7 +5,6 @@ namespace GameBrain
 {
     public class GameBoardUI
     {
-        
         public static void DrawPlayerBoard(Player player)
         {
             var board = player.GetPlayerBoard();
@@ -101,7 +100,6 @@ namespace GameBrain
                 Console.Write(i < 9 ? $" {(i + 1).ToString()} " : $"{(i + 1).ToString()} ");
                 for (var j = 0; j < width; j++)
                 {
-
                     if (board[j, i] == ECellState.Bomb)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -153,27 +151,29 @@ namespace GameBrain
             {
                 ECellState.Empty => "~",
                 ECellState.Bomb => "O",
-                ECellState.Boat => "B",
                 ECellState.Hit => "X",
                 ECellState.Patrol => "P",
                 ECellState.Cruiser => "C",
                 ECellState.Submarine => "S",
                 ECellState.Battleship => "B",
                 ECellState.Carrier => "A",
-                ECellState.Custom => "Z",
+                ECellState.Custom0 => "0",
+                ECellState.Custom1 => "1",
+                ECellState.Custom2 => "2",
+                ECellState.Custom3 => "3",
+                ECellState.Custom4 => "4",
+                ECellState.Custom5 => "5",
+                ECellState.Custom6 => "6",
+                ECellState.Custom7 => "7",
+                ECellState.Custom8 => "8",
+                ECellState.Custom9 => "9",
                 _ => "-"
             };
         }
 
         private static bool IsBoat(ECellState state)
         {
-            return state == ECellState.Battleship ||
-                   state == ECellState.Boat ||
-                   state == ECellState.Carrier ||
-                   state == ECellState.Cruiser ||
-                   state == ECellState.Patrol ||
-                   state == ECellState.Submarine ||
-                   state == ECellState.Custom;
+            return state != ECellState.Empty && state != ECellState.Hit && state != ECellState.Bomb;
         }
 
         private static string IntToAlphabeticValue(int index)

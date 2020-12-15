@@ -9,15 +9,8 @@ namespace GameBrain
     {
         public Game LoadGameById(int id)
         {
-            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
-                @"
-                 Server=barrel.itcollege.ee,1533;
-                 User Id=student;
-                 Password=Student.Bad.password.0;
-                 Database=raskil_db;
-                 MultipleActiveResultSets=true;
-                 ").Options;
-            using var dbCtx = new AppDbContext(dbOptions);
+
+            using var dbCtx = GetConnection();
 
             var gameById = dbCtx.Games.Where(i => i.GameId == id)
                 .Include(x => x.GameStates)
@@ -96,15 +89,7 @@ namespace GameBrain
 
         public IEnumerable<(int id, string desc)> GetListOfAllGames()
         {
-            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
-                @"
-                 Server=barrel.itcollege.ee,1533;
-                 User Id=student;
-                 Password=Student.Bad.password.0;
-                 Database=raskil_db;
-                 MultipleActiveResultSets=true;
-                 ").Options;
-            using var dbCtx = new AppDbContext(dbOptions);
+            using var dbCtx = GetConnection();
 
             var games = dbCtx.Games.OrderByDescending(i => i.GameId);
 
@@ -120,15 +105,7 @@ namespace GameBrain
 
         public Game LoadLastGame()
         {
-            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
-                @"
-                 Server=barrel.itcollege.ee,1533;
-                 User Id=student;
-                 Password=Student.Bad.password.0;
-                 Database=raskil_db;
-                 MultipleActiveResultSets=true;
-                 ").Options;
-            using var dbCtx = new AppDbContext(dbOptions);
+            using var dbCtx = GetConnection();
 
             var lastGame = dbCtx.Games.OrderByDescending(x => x.GameId)
                 .Include(x => x.GameStates)
@@ -203,6 +180,19 @@ namespace GameBrain
             };
 
             return game;
+        }
+
+        private static AppDbContext GetConnection()
+        {
+            var dbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(
+                @"
+                 Server=barrel.itcollege.ee,1533;
+                 User Id=student;
+                 Password=Student.Bad.password.0;
+                 Database=raskil_db;
+                 MultipleActiveResultSets=true;
+                 ").Options;
+           return new AppDbContext(dbOptions);
         }
     }
 }

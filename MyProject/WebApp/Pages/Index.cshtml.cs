@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Game = Domain.Game;
+using GameState = Domain.GameState;
 using Player = Domain.Player;
 using Ship = GameBrain.Ship;
 
@@ -37,12 +38,16 @@ namespace WebApp.Pages
         [BindProperty] public GameOption? GameOption { get; set; }
 
         public List<Game>? Games { get; set; }
-        
+
         public int? Id { get; set; }
-        
+
+        [BindProperty]
+        [Display(Name = "Random Ships")]
+        public ERandomShips? RandomShips { get; set; }
+
         public IActionResult OnGet()
         {
-            Games = _context.Games.OrderByDescending(id => id.GameId).ToList();
+            Games = _context.Games.OrderByDescending(id => id.GameId).Take(3).ToList();
             return Page();
         }
 
@@ -57,24 +62,18 @@ namespace WebApp.Pages
             var ships = new List<Ship>();
 
             var numberOfShips = GameOption!.BoardWidth / 2;
-            
+
             for (var i = 1; i <= numberOfShips; i++)
             {
                 ships.Add(new Ship(i));
             }
-            
+
             var playerA = new Player
             {
                 Name = PlayerA!.Name,
                 PlayerType = PlayerA!.PlayerType,
                 GameShips = new List<GameShip>(),
-                PlayerBoardStates = new List<PlayerBoardState>()
             };
-
-            playerA.PlayerBoardStates!.Add(new PlayerBoardState
-            {
-                GameBoardState = GetEmptyBoard()
-            });
 
             foreach (var ship in ships)
             {
@@ -91,13 +90,7 @@ namespace WebApp.Pages
                 Name = PlayerB!.Name,
                 PlayerType = PlayerB!.PlayerType,
                 GameShips = new List<GameShip>(),
-                PlayerBoardStates = new List<PlayerBoardState>()
             };
-
-            playerB.PlayerBoardStates!.Add(new PlayerBoardState
-            {
-                GameBoardState = GetEmptyBoard()
-            });
 
             foreach (var ship in ships)
             {
@@ -111,28 +104,37 @@ namespace WebApp.Pages
 
             var game = new Game
             {
-                Description = PlayerA!.Name + "_" + PlayerB!.Name + "_" + DateTime.Now,
+                Description = $"{PlayerA!.Name}&{PlayerB!.Name}@{DateTime.Now}".Replace(" ", ""),
                 GameOption = new GameOption
                 {
                     Name = DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                    BoardWidth = GameOption!.BoardWidth,
-                    BoardHeight = GameOption!.BoardHeight,
-                    EShipsCanTouch = GameOption!.EShipsCanTouch,
-                    NextMoveAfterHit = GameOption!.NextMoveAfterHit,
+                    BoardWidth = GameOption.BoardWidth,
+                    BoardHeight = GameOption.BoardHeight,
+                    EShipsCanTouch = GameOption.EShipsCanTouch,
+                    NextMoveAfterHit = GameOption.NextMoveAfterHit,
                     NumberOfShips = ships.Count
                 },
                 PlayerA = playerA,
-                PlayerB = playerB
+                PlayerB = playerB,
+                GameStates = new List<GameState>()
             };
 
+            game.GameStates.Add(new GameState
+            {
+                NextMoveByPlayerA = true,
+                PlayerABoardState = GetEmptyBoard(),
+                PlayerBBoardState = GetEmptyBoard()
+            });
+            
             if (!ModelState.IsValid)
             {
                 return Page();
             }
+            
             await _context.Games.AddAsync(game);
             await _context.SaveChangesAsync();
-            var random = Request.Form["random"].ToString() == "yes";
-            return RedirectToPage("./GamePlay/Index", new {id = game.GameId, newGame = true, randomShips = random});
+
+            return RedirectToPage("/PlaceShips/Index", new {id = game.GameId, random = RandomShips});
         }
 
         private string GetEmptyBoard()

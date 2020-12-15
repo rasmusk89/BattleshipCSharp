@@ -69,10 +69,12 @@ namespace GameBrain
 
             if (PlayerA.GetPlayerType() == EPlayerType.Ai)
             {
-                if (!PlayerA.PlaceRandomShips(_shipsCanTouch))
-                {
-                    return;
-                }
+                PlayerA.PlaceRandomShips(_shipsCanTouch);
+                // if (!PlayerA.PlaceRandomShips(_shipsCanTouch))
+                // if (!PlayerA.PlaceRandomShips())
+                // {
+                    // return;
+                // }
             }
 
             if (PlayerA.GetPlayerType() == EPlayerType.Human)
@@ -93,10 +95,12 @@ namespace GameBrain
                         Console.Clear();
                         break;
                     default:
-                        if (!PlayerA.PlaceRandomShips(_shipsCanTouch))
-                        {
-                            return;
-                        }
+                        PlayerA.PlaceRandomShips(_shipsCanTouch);
+                        // if (!PlayerA.PlaceRandomShips(_shipsCanTouch))
+                        // if (!PlayerA.PlaceRandomShips())
+                        // {
+                            // return;
+                        // }
 
                         break;
                 }
@@ -104,10 +108,12 @@ namespace GameBrain
 
             if (PlayerB.GetPlayerType() == EPlayerType.Ai)
             {
-                if (!PlayerB.PlaceRandomShips(_shipsCanTouch))
-                {
-                    return;
-                }
+                PlayerB.PlaceRandomShips(_shipsCanTouch);
+                // if (!PlayerB.PlaceRandomShips(_shipsCanTouch))
+                // if (!PlayerB.PlaceRandomShips())
+                // {
+                    // return;
+                // }
             }
 
             if (PlayerB.GetPlayerType() == EPlayerType.Human)
@@ -128,10 +134,12 @@ namespace GameBrain
                         Console.Clear();
                         break;
                     default:
-                        if (!PlayerB.PlaceRandomShips(_shipsCanTouch))
-                        {
-                            return;
-                        }
+                        PlayerB.PlaceRandomShips(_shipsCanTouch);
+                        // if (!PlayerB.PlaceRandomShips(_shipsCanTouch))
+                        // if (!PlayerB.PlaceRandomShips())
+                        // {
+                            // return;
+                        // }
 
                         break;
                 }
@@ -426,7 +434,7 @@ namespace GameBrain
                     }
                 }
 
-                player.PlaceShip(column, row, ship, orientation);
+                player.PlaceShip(column, row, ship, orientation, _shipsCanTouch);
 
                 Console.Clear();
                 GameBoardUI.DrawPlayerBoard(player);

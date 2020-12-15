@@ -18,7 +18,16 @@
             ECellState.Submarine => "#117864",
             ECellState.Battleship => "#196F3D",
             ECellState.Carrier => "#9A7D0A",
-            ECellState.Custom => "#A04000",
+            ECellState.Custom0 => "#A00000",
+            ECellState.Custom1 => "#A01000",
+            ECellState.Custom2 => "#A02000",
+            ECellState.Custom3 => "#A03000",
+            ECellState.Custom4 => "#A04000",
+            ECellState.Custom5 => "#A05000",
+            ECellState.Custom6 => "#A06000",
+            ECellState.Custom7 => "#A07000",
+            ECellState.Custom8 => "#A08000",
+            ECellState.Custom9 => "#A09000",
             _ => result
             };
         return result;
@@ -26,19 +35,11 @@
 
     static string GetOpponentCellState(ECellState state)
     {
-        var result = "";
-        result = state switch
+        var result = state switch
         {
-            ECellState.Empty => "#77E0FF",
             ECellState.Bomb => "#000000",
             ECellState.Hit => "#FF0000",
-            ECellState.Patrol => "#77E0FF",
-            ECellState.Cruiser => "#77E0FF",
-            ECellState.Submarine => "#77E0FF",
-            ECellState.Battleship => "#77E0FF",
-            ECellState.Carrier => "#77E0FF",
-            ECellState.Custom => "#77E0FF",
-            _ => result
+            _ => "#77E0FF"
             };
         return result;
     }
@@ -56,9 +57,11 @@
 
         return value;
     }
+
 }
+
 <div class="text-center">
-    @if (Model!.Game!.NextMoveByPlayerOne)
+    @if (Model.NextMoveByPlayerA)
     {
         <h1 style="color: green">Player @Model.PLayerA.Name Move</h1>
     }
@@ -72,7 +75,7 @@
 <div class="row">
     <div class="col border-right text-center">
         <table class="table table-bordered text-center">
-            @if (Model!.Game!.NextMoveByPlayerOne)
+            @if (Model.NextMoveByPlayerA)
             {
                 <h4>Player @Model.PLayerA.Name Board</h4>
             }
@@ -112,15 +115,13 @@
                         }
                         else
                         {
-                            @if (Model!.Game!.NextMoveByPlayerOne)
+                            @if (Model.NextMoveByPlayerA)
                             {
-                                <td bgcolor="@GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1))">
-                                </td>
+                                <td bgcolor="@GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1))"></td>
                             }
                             else
                             {
-                                <td bgcolor="@GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))">
-                                </td>
+                                <td bgcolor="@GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))"></td>
                             }
                         }
                     }
@@ -131,7 +132,7 @@
     </div>
     <div class="col text-center">
         <table class="table table-bordered text-center">
-            @if (Model!.Game!.NextMoveByPlayerOne)
+            @if (Model.NextMoveByPlayerA)
             {
                 <h4>Player @Model.PLayerB.Name Board</h4>
             }
@@ -171,18 +172,20 @@
                         }
                         else
                         {
-                            @if (Model!.Game!.NextMoveByPlayerOne)
+                            @if (Model.NextMoveByPlayerA)
                             {
-                                <td bgcolor="@GetOpponentCellState(@Model.PLayerB.GetCell(x - 1, y - 1))" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
-                                    <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
-                                    </a>
+                                <td bgcolor="@GetOpponentCellState(Model.PLayerB.GetCell(x - 1, y - 1))"
+                                    onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" 
+                                    style="cursor: pointer">
+                                    <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId"></a>
                                 </td>
                             }
                             else
                             {
-                                <td bgcolor="@GetOpponentCellState(@Model.PLayerA.GetCell(x - 1, y - 1))" onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" style="cursor: pointer">
-                                    <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId">
-                                    </a>
+                                <td bgcolor="@GetOpponentCellState(Model.PLayerA.GetCell(x - 1, y - 1))"
+                                    onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'"
+                                    style="cursor: pointer">
+                                    <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId"></a>
                                 </td>
                             }
                         }
