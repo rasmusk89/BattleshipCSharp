@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text.Json;
 using Domain.Enums;
 
@@ -74,6 +73,11 @@ namespace GameBrain
             return PlayerType;
         }
 
+        public void SetPlayerType(EPlayerType playerType)
+        {
+            PlayerType = playerType;
+        }
+
         private static bool IsHit(int column, int row, Player opponent)
         {
             var playerCell = opponent.GetPlayerBoard()[column, row];
@@ -95,7 +99,7 @@ namespace GameBrain
         }
 
         // Return true if is hit.
-        public static bool PlaceBomb(int column, int row, Player opponent)
+        public bool PlaceBomb(int column, int row, Player opponent)
         {
             if (IsHit(column, row, opponent))
             {
@@ -149,7 +153,7 @@ namespace GameBrain
             return false;
         }
 
-        private static bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
+        private bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
             EOrientation orientation)
         {
             if (orientation == EOrientation.Horizontal)
@@ -215,7 +219,7 @@ namespace GameBrain
             return true;
         }
 
-        public static bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
+        public bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
             EShipsCanTouch shipsCanTouch)
         {
             var boardWidth = board.Board.GetUpperBound(0);

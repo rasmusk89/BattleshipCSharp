@@ -1,0 +1,8 @@
+﻿@page
+@model WebApp.Pages.Confirmation.Index
+
+<h1>YOU MADE A MOVE!</h1>
+<hr>
+<h2 style="color: red">@Model.PlayerName @Model.Message</h2>
+
+<button onclick="window.location.href = '/GamePlay/Index?id=@Model.Id'">@Model.OpponentName press to make your move</button>

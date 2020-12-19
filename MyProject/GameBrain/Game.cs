@@ -39,8 +39,8 @@ namespace GameBrain
             PlayerB.SetShips(Ships.OrderByDescending(x => x.Width));
             PlayerA.SetBoard(_boardWidth, _boardHeight);
             PlayerB.SetBoard(_boardWidth, _boardHeight);
-            PlayerA.PlayerType = options.PlayerAType;
-            PlayerB.PlayerType = options.PlayerBType;
+            PlayerA.SetPlayerType(options.PlayerAType);
+            PlayerB.SetPlayerType(options.PlayerBType);
             _shipsCanTouch = options.GetShipsCanTouch();
             _gameOptions = options;
             _nextMoveAfterHit = options.NextMoveAfterHit;
@@ -209,7 +209,7 @@ namespace GameBrain
             }
 
             var isHit = opponent.GetPlayerBoard()[column, row] != ECellState.Empty;
-            Player.PlaceBomb(column, row, opponent);
+            player.PlaceBomb(column, row, opponent);
             // GameSaving.SaveGameState(GetGameState());
             if (_nextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
             {
@@ -235,7 +235,7 @@ namespace GameBrain
                     }
 
                     isHit = opponent.GetPlayerBoard()[column, row] != ECellState.Empty;
-                    Player.PlaceBomb(column, row, opponent);
+                    player.PlaceBomb(column, row, opponent);
                 }
 
                 if (opponent.HasLost)
