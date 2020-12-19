@@ -6,12 +6,12 @@ namespace GameBrain
     public class Validator
     {
 
-        public bool OrientationIsValid(string input)
+        public static bool OrientationIsValid(string input)
         {
             return input.ToLower() == "h" || input.ToLower() == "v";
         }
 
-        public bool ColumnInputIsValid(string input, int boardWidth)
+        public static bool ColumnInputIsValid(string input, int boardWidth)
         {
             if (input.Length < 1)
             {
@@ -56,7 +56,7 @@ namespace GameBrain
             return y + ship.Width <= boardHeight;
         }
         
-        public bool BombCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Player opponent)
+        public static bool BombCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Player opponent)
         {
             var sizeValid = column >= 0 && column <= boardWidth && row >= 0 && row <= boardHeight;
             var noBomb = opponent.GetPlayerBoard()[column, row] == ECellState.Empty 

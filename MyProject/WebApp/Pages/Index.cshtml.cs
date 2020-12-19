@@ -54,14 +54,17 @@ namespace WebApp.Pages
         public RedirectToPageResult OnPostLoadGame()
         {
             var gameId = int.Parse(Request.Form["GameId"]);
-            return RedirectToPage("./GamePlay/Index", new {id = gameId, newGame = false});
+            return RedirectToPage("./GamePlay/Index", new {id = gameId});
         }
 
         public async Task<IActionResult> OnPostNewGame()
         {
             var ships = new List<Ship>();
 
-            var numberOfShips = GameOption!.BoardWidth / 2;
+            var numberOfShips = GameOption!.BoardWidth < GameOption.BoardHeight 
+                ? GameOption.BoardWidth / 2 
+                : GameOption.BoardHeight / 2;
+            Console.WriteLine(numberOfShips);
 
             for (var i = 1; i <= numberOfShips; i++)
             {
@@ -133,7 +136,7 @@ namespace WebApp.Pages
             
             await _context.Games.AddAsync(game);
             await _context.SaveChangesAsync();
-
+            
             return RedirectToPage("/PlaceShips/Index", new {id = game.GameId, random = RandomShips});
         }
 

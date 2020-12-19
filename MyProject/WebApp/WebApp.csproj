@@ -21,6 +21,21 @@
       <_ContentIncludedByDefault Remove="Pages\ContinuePage\Index.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\Continue\Index.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\PlaceShips\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Players\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\GameOptions\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\GameOptions\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\GameOptions\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\GameOptions\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\GameOptions\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Games\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Games\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Games\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Games\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Games\Index.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

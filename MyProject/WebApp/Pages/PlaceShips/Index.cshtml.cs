@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DAL;
+using Domain;
 using Domain.Enums;
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Game = Domain.Game;
+using GameBoard = GameBrain.GameBoard;
 using GameState = Domain.GameState;
 using Player = GameBrain.Player;
 
@@ -31,12 +33,13 @@ namespace WebApp.Pages.PlaceShips
         public Player PLayerA { get; set; } = new();
         public Player PLayerB { get; set; } = new();
 
-        public EOrientation? Orientation { get; set; }
-
         public bool NextMoveByPlayerA { get; set; }
 
+        public EOrientation Orientation { get; set; } = EOrientation.Horizontal;
+        
         public async Task<IActionResult> OnGetAsync(int id, int? x, int? y, ERandomShips? random)
         {
+            Console.WriteLine("Placing Ships");
             if (!_context.GameOptions.Any())
             {
                 return RedirectToPage("/Index");
@@ -122,7 +125,9 @@ namespace WebApp.Pages.PlaceShips
                     Name = gameShip.Name
                 });
             }
-
+            
+            // Placing random ships
+            
             if (random == ERandomShips.Yes)
             {
                 PLayerA.PlaceRandomShips(shipsCanTouch);
@@ -135,10 +140,11 @@ namespace WebApp.Pages.PlaceShips
                     PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
                 });
                 await _context.SaveChangesAsync();
+                Console.WriteLine("Ships.Places");
                 return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
             }
 
-            // NOT RANDOM SHIPS --> PLAYER PLACING SHIPS
+            // Player placing ships
 
             if (x == null || y == null) return Page();
 
@@ -146,7 +152,7 @@ namespace WebApp.Pages.PlaceShips
             {
                 foreach (var ship in PLayerA.Ships.Where(ship => !ShipPlaced(PLayerA, ship)))
                 {
-                    PLayerA.PlaceShip(x.Value, y.Value, ship, EOrientation.Horizontal, shipsCanTouch);
+                    PLayerA.PlaceShip(x.Value, y.Value, ship, Orientation, shipsCanTouch);
 
                     Game.GameStates!.Add(new GameState
                     {
@@ -189,7 +195,9 @@ namespace WebApp.Pages.PlaceShips
                 PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
             });
             await _context.SaveChangesAsync();
+            Console.WriteLine("Ships.Places");
             return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
+            
         }
 
 

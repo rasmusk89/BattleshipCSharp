@@ -63,11 +63,11 @@
 <div class="text-center">
     @if (Model.NextMoveByPlayerA)
     {
-        <h1 style="color: green">Player @Model.PLayerA.Name Move</h1>
+        <h1 style="color: green">Player @Model.PlayerA.Name Move</h1>
     }
     else
     {
-        <h1 style="color: blue">Player @Model.PLayerB.Name Move</h1>
+        <h1 style="color: blue">Player @Model.PlayerB.Name Move</h1>
     }
 </div>
 <hr>
@@ -77,11 +77,11 @@
         <table class="table table-bordered text-center">
             @if (Model.NextMoveByPlayerA)
             {
-                <h4>Player @Model.PLayerA.Name Board</h4>
+                <h4>Player @Model.PlayerA.Name Board</h4>
             }
             else
             {
-                <h4>Player @Model.PLayerB.Name Board</h4>
+                <h4>Player @Model.PlayerB.Name Board</h4>
             }
             @for (var y = 0; y < Model.Game!.GameOption.BoardHeight + 2; y++)
             {
@@ -117,11 +117,11 @@
                         {
                             @if (Model.NextMoveByPlayerA)
                             {
-                                <td bgcolor="@GetCellState(Model.PLayerA!.GetCell(x - 1, y - 1))"></td>
+                                <td bgcolor="@GetCellState(Model.PlayerA!.GetCell(x - 1, y - 1))"></td>
                             }
                             else
                             {
-                                <td bgcolor="@GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))"></td>
+                                <td bgcolor="@GetCellState(Model.PlayerB!.GetCell(x - 1, y - 1))"></td>
                             }
                         }
                     }
@@ -134,11 +134,11 @@
         <table class="table table-bordered text-center">
             @if (Model.NextMoveByPlayerA)
             {
-                <h4>Player @Model.PLayerB.Name Board</h4>
+                <h4>Player @Model.PlayerB.Name Board</h4>
             }
             else
             {
-                <h4>Player @Model.PLayerA.Name Board</h4>
+                <h4>Player @Model.PlayerA.Name Board</h4>
             }
             @for (var y = 0; y < Model.Game!.GameOption.BoardHeight + 2; y++)
             {
@@ -174,7 +174,7 @@
                         {
                             @if (Model.NextMoveByPlayerA)
                             {
-                                <td bgcolor="@GetOpponentCellState(Model.PLayerB.GetCell(x - 1, y - 1))"
+                                <td bgcolor="@GetOpponentCellState(Model.PlayerB.GetCell(x - 1, y - 1))"
                                     onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" 
                                     style="cursor: pointer">
                                     <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId"></a>
@@ -182,7 +182,7 @@
                             }
                             else
                             {
-                                <td bgcolor="@GetOpponentCellState(Model.PLayerA.GetCell(x - 1, y - 1))"
+                                <td bgcolor="@GetOpponentCellState(Model.PlayerA.GetCell(x - 1, y - 1))"
                                     onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'"
                                     style="cursor: pointer">
                                     <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId"></a>

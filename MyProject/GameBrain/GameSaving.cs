@@ -13,11 +13,10 @@ namespace GameBrain
         public static void InitialSave(GameState gameState)
         {
             Console.Clear();
-            Console.Write("Saving...");
+            Console.Write("Saving.");
             using var dbCtx = GetConnection();
-            dbCtx.Database.EnsureDeleted();
             dbCtx.Database.Migrate();
-            Console.Write("Adding data...");
+            Console.Write(".");
 
             var playerOne = gameState.PlayerAState;
             var playerTwo = gameState.PlayerBState;
@@ -34,6 +33,7 @@ namespace GameBrain
                 PlayerType = playerTwo.GetPlayerType(),
                 GameShips = new List<GameShip>(),
             };
+            Console.Write(".");
 
             var playerAShips = playerOne.GetShips()
                 .Select(ship => new GameShip()
@@ -60,6 +60,7 @@ namespace GameBrain
 
             playerA.GameShips = playerAShips;
             playerB.GameShips = playerBShips;
+            Console.Write(".");
 
             var gameOptions = new GameOption
             {
@@ -70,7 +71,8 @@ namespace GameBrain
                 NextMoveAfterHit = gameState.GameOptions.GetNextMoveAfterHit(),
                 NumberOfShips = playerAShips.Count
             };
-
+            Console.Write(".");
+            
             var newGame = new Domain.Game
             {
                 Description = $"{playerA.Name}&{playerB.Name}@{DateTime.Now}".Replace(" ", "_"),
@@ -79,6 +81,7 @@ namespace GameBrain
                 PlayerB = playerB,
                 GameStates = new List<Domain.GameState>()
             };
+            Console.Write(".");
 
             var state = new Domain.GameState
             {
@@ -90,6 +93,7 @@ namespace GameBrain
             newGame.GameStates.Add(state);
             dbCtx.Games.Add(newGame);
             dbCtx.SaveChanges();
+            Console.Write(".");
         }
 
         public static void SaveGameState(GameState gameState)
@@ -103,16 +107,10 @@ namespace GameBrain
                     .OrderByDescending(i => i.GameStateId)
                     .Take(1))
                 .Include(p => p.PlayerA)
-                // .ThenInclude(b => b.PlayerBoardStates!
-                //     .OrderByDescending(x => x.PlayerBoardStateId)
-                //     .Take(1))
                 .Include(s => s.PlayerA.GameShips!
                     .OrderByDescending(x => x.GameShipId)
                     .Take(numberOfShips))
                 .Include(p => p.PlayerB)
-                // .ThenInclude(b => b.PlayerBoardStates!
-                //     .OrderByDescending(x => x.PlayerBoardStateId)
-                //     .Take(1))
                 .Include(s => s.PlayerB.GameShips!
                     .OrderByDescending(x => x.GameShipId)
                     .Take(numberOfShips))

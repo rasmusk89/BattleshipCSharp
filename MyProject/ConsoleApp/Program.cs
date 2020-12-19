@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using Domain.Enums;
 using GameBrain;
 using MenuSystem;
@@ -58,7 +58,7 @@ namespace ConsoleApp
                 () =>
                 {
                     var allGamesMenu = new Menu(MenuLevel.Level2Plus);
-                    foreach (var (id, desc) in new GameLoading().GetListOfAllGames())
+                    foreach (var (id, desc) in GameLoading.GetListOfAllGames())
                     {
                         allGamesMenu.AddMenuItem(new MenuItem(
                             desc,
@@ -67,11 +67,14 @@ namespace ConsoleApp
                         ));
                     }
 
+                    if (!GameLoading.GetListOfAllGames().Any())
+                    {
+                        Console.Write("No saved games!");
+                    }
                     return allGamesMenu.RunMenu();
                 }
             ));
-            
-           
+
             var menu = new Menu(MenuLevel.Level0);
             menu.AddMenuItem(new MenuItem("Battleship", "B", gameType.RunMenu));
             menu.RunMenu();
@@ -117,26 +120,16 @@ namespace ConsoleApp
 
         private static string LoadGame()
         {
-            var gameLoading = new GameLoading();
-            gameLoading.LoadLastGame().PlayRound();
+            GameLoading.LoadLastGame().PlayRound();
             return "";
         }
 
         private static string LoadGameById(int id)
         {
-            var gameLoading = new GameLoading();
-            gameLoading.LoadGameById(id).PlayRound();
+            GameLoading.LoadGameById(id).PlayRound();
             return "";
         }
-
-        private static string DefaultMenuAction()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("\nNot implemented yet!");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-
-            return "";
-        }
+        
         
     }
 }

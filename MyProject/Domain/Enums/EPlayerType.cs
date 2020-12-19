@@ -9,6 +9,5 @@ namespace Domain.Enums
      
         [Display(Name="AI")]
         Ai
-
     }
 }

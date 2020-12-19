@@ -17,6 +17,5 @@ namespace Domain
         
         public ICollection<GameShip>? GameShips { get; set; }
 
-        // public ICollection<PlayerBoardState>? PlayerBoardStates { get; set; }
     }
 }

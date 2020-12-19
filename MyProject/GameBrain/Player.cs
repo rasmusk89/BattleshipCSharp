@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json;
 using Domain.Enums;
 
@@ -73,7 +74,7 @@ namespace GameBrain
             return PlayerType;
         }
 
-        public bool IsHit(int column, int row, Player opponent)
+        private static bool IsHit(int column, int row, Player opponent)
         {
             var playerCell = opponent.GetPlayerBoard()[column, row];
             return playerCell != ECellState.Empty && playerCell != ECellState.Bomb && playerCell != ECellState.Hit;
@@ -94,7 +95,7 @@ namespace GameBrain
         }
 
         // Return true if is hit.
-        public bool PlaceBomb(int column, int row, Player opponent)
+        public static bool PlaceBomb(int column, int row, Player opponent)
         {
             if (IsHit(column, row, opponent))
             {
@@ -151,14 +152,12 @@ namespace GameBrain
         private static bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
             EOrientation orientation)
         {
-            var x = column;
-            var y = row;
             if (orientation == EOrientation.Horizontal)
             {
-                return x + ship.Width <= boardWidth;
+                return column + ship.Width <= boardHeight + 1;
             }
 
-            return y + ship.Width <= boardHeight;
+            return row + ship.Width <= boardWidth + 1;
         }
 
         public bool PlaceShip(int column, int row, Ship ship, EOrientation orientation, EShipsCanTouch shipsCanTouch)
@@ -179,6 +178,7 @@ namespace GameBrain
 
                     if (!ShipAreaFree(column, row, GameBoard, ship, EOrientation.Horizontal, shipsCanTouch))
                     {
+                        Console.WriteLine("Ship area not free!");
                         return false;
                     }
 
@@ -215,7 +215,7 @@ namespace GameBrain
             return true;
         }
 
-        public bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
+        public static bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
             EShipsCanTouch shipsCanTouch)
         {
             var boardWidth = board.Board.GetUpperBound(0);
@@ -346,8 +346,6 @@ namespace GameBrain
                     1 => EOrientation.Vertical,
                     _ => orientation
                 };
-                // while (!Validator.ShipCoordinatesAreValid(x, y, width, height, ship, orientation)
-                //        || !ShipAreaFree(x, y, GameBoard, ship, orientation, shipsCanTouch))
                 var shipPlaced = PlaceShip(x, y, ship, orientation, shipsCanTouch);
                 while (!shipPlaced)
                 {
@@ -362,8 +360,6 @@ namespace GameBrain
                     };
                     shipPlaced = PlaceShip(x, y, ship, orientation, shipsCanTouch);
                 }
-
-                // PlaceShip(x, y, ship, orientation);
             }
         }
 

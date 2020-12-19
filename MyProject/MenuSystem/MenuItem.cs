@@ -2,10 +2,9 @@
 
 namespace MenuSystem
 {
-    // public delegate string MenuActionType();  == Func<string>
     public sealed class MenuItem
     {
-        public string Label { get; set; }
+        private string Label { get; set; }
         public string UserChoice { get; set; }
 
         public Func<string>? MethodToExecute { get; set; }

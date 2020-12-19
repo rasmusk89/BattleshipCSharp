@@ -31,8 +31,8 @@ namespace WebApp.Pages.GamePlay
 
         public Game? Game { get; set; }
 
-        public Player PLayerA { get; set; } = new();
-        public Player PLayerB { get; set; } = new();
+        public Player PlayerA { get; set; } = new();
+        public Player PlayerB { get; set; } = new();
 
         public bool NextMoveByPlayerA { get; set; }
 
@@ -71,17 +71,17 @@ namespace WebApp.Pages.GamePlay
                 return RedirectToPage("/Index");
             }
 
-            PLayerA.Name = Game!.PlayerA.Name;
-            PLayerA.PlayerType = Game.PlayerA.PlayerType;
-            PLayerA.GameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
+            PlayerA.Name = Game!.PlayerA.Name;
+            PlayerA.PlayerType = Game.PlayerA.PlayerType;
+            PlayerA.GameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
 
-            PLayerB.Name = Game.PlayerB.Name;
-            PLayerB.PlayerType = Game.PlayerB.PlayerType;
-            PLayerB.GameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
+            PlayerB.Name = Game.PlayerB.Name;
+            PlayerB.PlayerType = Game.PlayerB.PlayerType;
+            PlayerB.GameBoard = new GameBoard(Game.GameOption.BoardWidth, Game.GameOption.BoardHeight);
 
             foreach (var ship in Game.PlayerA.GameShips!)
             {
-                PLayerA.Ships.Add(new Ship
+                PlayerA.Ships.Add(new Ship
                 {
                     Width = ship.Width,
                     CellState = ship.ECellState,
@@ -97,13 +97,13 @@ namespace WebApp.Pages.GamePlay
             {
                 for (var j = 0; j < Game.GameOption.BoardHeight; j++)
                 {
-                    PLayerA.GameBoard.Board[i, j] = playerABoardState[i][j];
+                    PlayerA.GameBoard.Board[i, j] = playerABoardState[i][j];
                 }
             }
 
             foreach (var ship in Game.PlayerB.GameShips!)
             {
-                PLayerB.Ships.Add(new Ship
+                PlayerB.Ships.Add(new Ship
                 {
                     Width = ship.Width,
                     CellState = ship.ECellState,
@@ -119,20 +119,20 @@ namespace WebApp.Pages.GamePlay
             {
                 for (var j = 0; j < Game.GameOption.BoardHeight; j++)
                 {
-                    PLayerB.GameBoard.Board[i, j] = playerBBoardState[i][j];
+                    PlayerB.GameBoard.Board[i, j] = playerBBoardState[i][j];
                 }
             }
 
-            if (PLayerA.HasLost)
+            if (PlayerA.HasLost)
             {
                 await _context.SaveChangesAsync();
-                return RedirectToPage("/Privacy", new {name = PLayerB.Name});
+                return RedirectToPage("/GameOver", new {name = PlayerB.Name});
             }
 
-            if (PLayerB.HasLost)
+            if (PlayerB.HasLost)
             {
                 await _context.SaveChangesAsync();
-                return RedirectToPage("/Privacy", new {name = PLayerA.Name});
+                return RedirectToPage("/GameOver", new {name = PlayerA.Name});
             }
 
             if (x == null || y == null) return Page();
@@ -143,34 +143,34 @@ namespace WebApp.Pages.GamePlay
             
             if (NextMoveByPlayerA)
             {
-                if (PLayerA.GetPlayerType() == EPlayerType.Ai)
+                if (PlayerA.GetPlayerType() == EPlayerType.Ai)
                 {
-                    var (column, row) = PLayerA.GetRandomBombCoordinates(PLayerB);
-                    var isHitAi = PLayerA.PlaceBomb(column, row, PLayerB);
+                    var (column, row) = PlayerA.GetRandomBombCoordinates(PlayerB);
+                    var isHitAi = Player.PlaceBomb(column, row, PlayerB);
 
-                    if (PLayerB.HasLost)
+                    if (PlayerB.HasLost)
                     {
                         await _context.SaveChangesAsync();
-                        return RedirectToPage("/Privacy", new {name = PLayerA.Name});
+                        return RedirectToPage("/GameOver", new {name = PlayerA.Name});
                     }
 
                     if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
                     {
                         while (isHitAi)
                         {
-                            (column, row) = PLayerA.GetRandomBombCoordinates(PLayerB);
-                            isHitAi = PLayerA.PlaceBomb(column, row, PLayerB);
+                            (column, row) = PlayerA.GetRandomBombCoordinates(PlayerB);
+                            isHitAi = Player.PlaceBomb(column, row, PlayerB);
                             await _context.SaveChangesAsync();
                             Game.GameStates!.Add(new Domain.GameState
                             {
                                 NextMoveByPlayerA = true,
-                                PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                                PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                                PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                                PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                             });
                             await _context.SaveChangesAsync();
-                            if (PLayerB.HasLost)
+                            if (PlayerB.HasLost)
                             {
-                                return RedirectToPage("/Privacy", new {name = PLayerA.Name});
+                                return RedirectToPage("/GameOver", new {name = PlayerA.Name});
                             }
                         }
                     }
@@ -178,25 +178,25 @@ namespace WebApp.Pages.GamePlay
                     Game.GameStates!.Add(new Domain.GameState
                     {
                         NextMoveByPlayerA = false,
-                        PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                        PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                        PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                        PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                     });
                     await _context.SaveChangesAsync();
-                    return PLayerB.HasLost
-                        ? RedirectToPage("/Privacy", new {name = PLayerA.Name})
+                    return PlayerB.HasLost
+                        ? RedirectToPage("/GameOVer", new {name = PlayerA.Name})
                         : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                 }
                 
-                var isAvailable = PLayerB.GameBoard.Board[x.Value, y.Value] != ECellState.Bomb &&
-                                  PLayerB.GameBoard.Board[x.Value, y.Value] != ECellState.Hit;
+                var isAvailable = PlayerB.GameBoard.Board[x.Value, y.Value] != ECellState.Bomb &&
+                                  PlayerB.GameBoard.Board[x.Value, y.Value] != ECellState.Hit;
                 if (!isAvailable)
                 {
                     return Page();
                 }
 
-                var isHit = PLayerA.PlaceBomb(x.Value, y.Value, PLayerB);
+                var isHit = Player.PlaceBomb(x.Value, y.Value, PlayerB);
 
-                foreach (var ship in PLayerB.Ships)
+                foreach (var ship in PlayerB.Ships)
                 {
                     Game.PlayerB.GameShips!.Add(new GameShip
                     {
@@ -214,12 +214,12 @@ namespace WebApp.Pages.GamePlay
                         Game.GameStates!.Add(new Domain.GameState
                         {
                             NextMoveByPlayerA = true,
-                            PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                            PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                            PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                            PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                         });
                         await _context.SaveChangesAsync();
-                        return PLayerB.HasLost
-                            ? RedirectToPage("/Privacy", new {name = PLayerA.Name})
+                        return PlayerB.HasLost
+                            ? RedirectToPage("/GameOver", new {name = PlayerA.Name})
                             : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                     }
                 }
@@ -227,45 +227,45 @@ namespace WebApp.Pages.GamePlay
                 Game.GameStates!.Add(new Domain.GameState
                 {
                     NextMoveByPlayerA = false,
-                    PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                    PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                    PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                    PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                 });
                 await _context.SaveChangesAsync();
-                return PLayerB.HasLost
-                    ? RedirectToPage("/Privacy", new {name = PLayerA.Name})
+                return PlayerB.HasLost
+                    ? RedirectToPage("/GameOver", new {name = PlayerA.Name})
                     : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                 
             }
             else
             {
-                if (PLayerB.GetPlayerType() == EPlayerType.Ai)
+                if (PlayerB.GetPlayerType() == EPlayerType.Ai)
                 {
-                    var (column, row) = PLayerB.GetRandomBombCoordinates(PLayerA);
-                    var isHitAi = PLayerB.PlaceBomb(column, row, PLayerA);
+                    var (column, row) = PlayerB.GetRandomBombCoordinates(PlayerA);
+                    var isHitAi = Player.PlaceBomb(column, row, PlayerA);
                 
-                    if (PLayerA.HasLost)
+                    if (PlayerA.HasLost)
                     {
                         await _context.SaveChangesAsync();
-                        return RedirectToPage("/Privacy", new {name = PLayerB.Name});
+                        return RedirectToPage("/GameOver", new {name = PlayerB.Name});
                     }
                 
                     if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
                     {
                         while (isHitAi)
                         {
-                            (column, row) = PLayerB.GetRandomBombCoordinates(PLayerA);
-                            isHitAi = PLayerB.PlaceBomb(column, row, PLayerA);
+                            (column, row) = PlayerB.GetRandomBombCoordinates(PlayerA);
+                            isHitAi = Player.PlaceBomb(column, row, PlayerA);
                             await _context.SaveChangesAsync();
                             Game.GameStates!.Add(new Domain.GameState
                             {
                                 NextMoveByPlayerA = false,
-                                PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                                PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                                PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                                PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                             });
                             await _context.SaveChangesAsync();
-                            if (PLayerA.HasLost)
+                            if (PlayerA.HasLost)
                             {
-                                return RedirectToPage("/Privacy", new {name = PLayerB.Name});
+                                return RedirectToPage("/GameOver", new {name = PlayerB.Name});
                             }
                         }
                     }
@@ -273,17 +273,17 @@ namespace WebApp.Pages.GamePlay
                     Game.GameStates!.Add(new Domain.GameState
                     {
                         NextMoveByPlayerA = true,
-                        PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                        PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                        PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                        PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                     });
                     await _context.SaveChangesAsync();
-                    return PLayerA.HasLost
-                        ? RedirectToPage("/Privacy", new {name = PLayerB.Name})
+                    return PlayerA.HasLost
+                        ? RedirectToPage("/GameOver", new {name = PlayerB.Name})
                         : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                 }
                 
-                var isAvailable = PLayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Bomb &&
-                                  PLayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Hit;
+                var isAvailable = PlayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Bomb &&
+                                  PlayerA.GameBoard.Board[x.Value, y.Value] != ECellState.Hit;
 
                 if (!isAvailable)
                 {
@@ -291,9 +291,9 @@ namespace WebApp.Pages.GamePlay
                     return Page();
                 }
 
-                var isHit = PLayerB.PlaceBomb(x.Value, y.Value, PLayerA);
+                var isHit = Player.PlaceBomb(x.Value, y.Value, PlayerA);
 
-                foreach (var ship in PLayerA.Ships)
+                foreach (var ship in PlayerA.Ships)
                 {
                     Game.PlayerA.GameShips!.Add(new GameShip
                     {
@@ -311,36 +311,36 @@ namespace WebApp.Pages.GamePlay
                         Game.GameStates!.Add(new Domain.GameState
                         {
                             NextMoveByPlayerA = false,
-                            PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                            PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                            PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                            PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                         });
                         await _context.SaveChangesAsync();
-                        return PLayerA.HasLost
-                            ? RedirectToPage("/Privacy", new {name = PLayerB.Name})
+                        return PlayerA.HasLost
+                            ? RedirectToPage("/GameOver", new {name = PlayerB.Name})
                             : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                     }
 
                     Game.GameStates!.Add(new Domain.GameState
                     {
                         NextMoveByPlayerA = true,
-                        PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                        PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                        PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                        PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                     });
                     await _context.SaveChangesAsync();
-                    return PLayerA.HasLost
-                        ? RedirectToPage("/Privacy", new {name = PLayerB.Name})
+                    return PlayerA.HasLost
+                        ? RedirectToPage("/GameOver", new {name = PlayerB.Name})
                         : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                 }
 
                 Game.GameStates!.Add(new Domain.GameState
                 {
                     NextMoveByPlayerA = true,
-                    PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
-                    PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                    PlayerABoardState = PlayerA.GetSerializedGameBoardState(),
+                    PlayerBBoardState = PlayerB.GetSerializedGameBoardState()
                 });
                 await _context.SaveChangesAsync();
-                return PLayerA.HasLost
-                    ? RedirectToPage("/Privacy", new {name = PLayerB.Name})
+                return PlayerA.HasLost
+                    ? RedirectToPage("/GameOver", new {name = PlayerB.Name})
                     : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
             }
         }

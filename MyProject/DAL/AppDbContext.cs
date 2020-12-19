@@ -15,8 +15,9 @@ namespace DAL
         {
         }
             
-        /* Use this to disable all cascade delete.
-         
+        
+    // Use this to disable all cascade delete.
+        /*
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

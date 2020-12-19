@@ -3,7 +3,7 @@ using Domain.Enums;
 
 namespace GameBrain
 {
-    public class GameBoardUI
+    public static class GameBoardUI
     {
         public static void DrawPlayerBoard(Player player)
         {
@@ -114,12 +114,10 @@ namespace GameBrain
                         Console.ForegroundColor = ConsoleColor.Cyan;
                     }
 
-                    if (board[j, i] == ECellState.Hit)
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                        Console.Write("X  ");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                    }
+                    if (board[j, i] != ECellState.Hit) continue;
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.Write("X  ");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
                 }
 
                 Console.Write($"{(i + 1).ToString()}");

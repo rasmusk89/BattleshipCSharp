@@ -13,7 +13,7 @@ namespace MenuSystem
         private static string _inputWarning = "";
         
         
-        private Dictionary<string, MenuItem> MenuItems { get; set; } = new Dictionary<string, MenuItem>();
+        private Dictionary<string, MenuItem> MenuItems { get; set; } = new ();
 
         public Menu(MenuLevel level)
         {

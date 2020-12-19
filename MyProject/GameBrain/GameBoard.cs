@@ -4,10 +4,10 @@ namespace GameBrain
 {
     public class GameBoard
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; }
+        public int Height { get; }
 
-        public ECellState[,] Board { get; set; }
+        public ECellState[,] Board { get; }
 
         public GameBoard(int width, int height)
         {

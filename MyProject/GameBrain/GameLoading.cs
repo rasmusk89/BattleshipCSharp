@@ -7,7 +7,7 @@ namespace GameBrain
 {
     public class GameLoading
     {
-        public Game LoadGameById(int id)
+        public static Game LoadGameById(int id)
         {
 
             using var dbCtx = GetConnection();
@@ -87,7 +87,7 @@ namespace GameBrain
             return game;
         }
 
-        public IEnumerable<(int id, string desc)> GetListOfAllGames()
+        public static IEnumerable<(int id, string desc)> GetListOfAllGames()
         {
             using var dbCtx = GetConnection();
 
@@ -103,7 +103,7 @@ namespace GameBrain
             return allGames;
         }
 
-        public Game LoadLastGame()
+        public static Game LoadLastGame()
         {
             using var dbCtx = GetConnection();
 

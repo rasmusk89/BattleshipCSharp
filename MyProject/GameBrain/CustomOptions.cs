@@ -71,62 +71,7 @@ namespace GameBrain
             {
                 ships.Add(new Ship(i));
             }
-
-            Console.WriteLine("Current ships: ");
-            foreach (var ship in ships)
-            {
-                Console.WriteLine(ship.Width + ": " + ship.Name);
-            }
-
-            Console.ReadLine();
-            // do
-            // {
-            //     Console.Write("Do you want Patrol (1x1) ships? (Y/N): ");
-            //     if (Console.ReadKey().Key == ConsoleKey.Y)
-            //     {
-            //         ships.Add(new Ship(1));
-            //     }
-            //     Console.WriteLine();
-            //
-            //     Console.Write("Do you want Cruiser (2x1) ships?: ");
-            //     if (Console.ReadKey().Key == ConsoleKey.Y)
-            //     {
-            //         ships.Add(new Ship(2));
-            //     }
-            //     Console.WriteLine();
-            //
-            //     Console.Write("Do you want Submarine (3x1) ships?: ");
-            //     if (Console.ReadKey().Key == ConsoleKey.Y)
-            //     {
-            //         ships.Add(new Ship(3));
-            //     }
-            //     Console.WriteLine();
-            //
-            //     Console.Write("Do you want Battleship (4x1) ships?: ");
-            //     if (Console.ReadKey().Key == ConsoleKey.Y)
-            //     {
-            //         ships.Add(new Ship(4));
-            //     }
-            //     Console.WriteLine();
-            //
-            //     Console.Write("Do you want Carrier (5x1) ships?: ");
-            //     if (Console.ReadKey().Key == ConsoleKey.Y)
-            //     {
-            //         ships.Add(new Ship(5));
-            //     }
-            //     Console.WriteLine();
-            //
-            //     Console.Write("Do you want Custom (?x1) ships?: ");
-            //     
-            //     if (Console.ReadKey().Key == ConsoleKey.Y)
-            //     {
-            //         Console.WriteLine();
-            //         var longestShip = ships.Select(ship => ship.Width).Prepend(0).Max();
-            //         Console.Write($"Select custom ship size {longestShip + 1} - {width - 2}");
-            //         ships.Add(new Ship(int.Parse(Console.ReadLine())));
-            //     }
-            // } while (ships.Count == 0);
-
+            
             return new GameOptions(width, height, canShipsTouch, nextMoveAfterHit, ships, playerAType, playerBType);
         }
 
