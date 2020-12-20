@@ -39,7 +39,6 @@ namespace WebApp.Pages.PlaceShips
         
         public async Task<IActionResult> OnGetAsync(int id, int? x, int? y, ERandomShips? random)
         {
-            Console.WriteLine("Placing Ships");
             if (!_context.GameOptions.Any())
             {
                 return RedirectToPage("/Index");
@@ -140,7 +139,6 @@ namespace WebApp.Pages.PlaceShips
                     PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
                 });
                 await _context.SaveChangesAsync();
-                Console.WriteLine("Ships.Places");
                 return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
             }
 
@@ -195,7 +193,6 @@ namespace WebApp.Pages.PlaceShips
                 PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
             });
             await _context.SaveChangesAsync();
-            Console.WriteLine("Ships.Places");
             return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
             
         }

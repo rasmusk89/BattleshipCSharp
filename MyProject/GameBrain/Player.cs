@@ -182,7 +182,6 @@ namespace GameBrain
 
                     if (!ShipAreaFree(column, row, GameBoard, ship, EOrientation.Horizontal, shipsCanTouch))
                     {
-                        Console.WriteLine("Ship area not free!");
                         return false;
                     }
 

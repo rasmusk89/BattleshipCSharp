@@ -1,8 +1,30 @@
 ﻿@page
 @model WebApp.Pages.Confirmation.Index
 
-<h1>YOU MADE A MOVE!</h1>
+@functions
+{
+    static string GetMessage(string message)
+    {
+        if (message.ToLower().Contains("miss"))
+        {
+            return "red";
+        }
+        return "green";
+    }
+    
+}
+<br>
+<div class="text-center">
+    <h1 style="color: @GetMessage(@Model.Message)">@Model.PlayerName @Model.Message</h1>
+</div>
+<br>
 <hr>
-<h2 style="color: red">@Model.PlayerName @Model.Message</h2>
 
-<button onclick="window.location.href = '/GamePlay/Index?id=@Model.Id'">@Model.OpponentName press to make your move</button>
+<div class="d-grid text-center">
+    <button class="btn btn-lg btn-primary"
+            type="button"
+            onclick="window.location.href =
+             '/GamePlay/Index?id=@Model.Id'">
+        <strong>@Model.OpponentName</strong> click to make your move!
+    </button>
+</div>

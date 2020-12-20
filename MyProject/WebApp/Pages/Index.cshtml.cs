@@ -64,7 +64,6 @@ namespace WebApp.Pages
             var numberOfShips = GameOption!.BoardWidth < GameOption.BoardHeight 
                 ? GameOption.BoardWidth / 2 
                 : GameOption.BoardHeight / 2;
-            Console.WriteLine(numberOfShips);
 
             for (var i = 1; i <= numberOfShips; i++)
             {

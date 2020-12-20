@@ -5,9 +5,9 @@ namespace WebApp.Pages
 {
     public class GameOver : PageModel
     {
-        private readonly ILogger<PrivacyModel> _logger;
+        private readonly ILogger<GameOver> _logger;
 
-        public GameOver(ILogger<PrivacyModel> logger)
+        public GameOver(ILogger<GameOver> logger)
         {
             _logger = logger;
         }
