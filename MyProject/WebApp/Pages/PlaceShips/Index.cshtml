@@ -45,6 +45,11 @@
 
         return value;
     }
+
+    private static EOrientation GetOrientation(EOrientation orientation)
+    {
+        return orientation == EOrientation.Horizontal ? EOrientation.Vertical : EOrientation.Horizontal;
+    }
 }
 
 <div class="text-center">
@@ -59,23 +64,15 @@
     }
     else
     {
-        <h3 style="color: green">Player @Model.PLayerB.Name place your ships</h3>
+        <h3 style="color: blue">Player @Model.PLayerB.Name place your ships</h3>
     }
+    <br>
+    <h3 style="color: red">@Model.Message</h3>
     <hr>
-    <div class="row">
-        <div class="col">
-            Current Ship: shipName: shipWidth
-        </div>
-        <div class="col">
-            <form method="post">
-                <label asp-for="Orientation" class="control-label"></label>
-                <select asp-for="Orientation" asp-items="Html.GetEnumSelectList<EOrientation>()" class="form-control"></select>
 
-                <div class="form-group">
-                    <input type="submit" value="Change" class="btn btn-primary"/>
-                </div>
-            </form>
-        </div>
+    <div class="text-center">
+        <h3>Ship orientation: <strong>@Model.Orientation</strong></h3>
+        <button onclick="window.location.href = '?id=@Model.Game!.GameId&orientation=@GetOrientation(@Model.Orientation)'" class="btn btn-primary btn-lg">Click here to change ship orientation</button>
     </div>
     <br>
     <table class="table table-bordered">
@@ -123,7 +120,7 @@
                         else
                         {
                             <td bgcolor="@GetCellState(Model.PLayerB!.GetCell(x - 1, y - 1))"
-                                onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'"
+                                onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId&orientation=@Model.Orientation'"
                                 style="cursor: pointer">
                                 <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId"></a>
                             </td>

@@ -1,6 +1,4 @@
-﻿using System;
-using GameBrain;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace WebApp.Pages.Confirmation
@@ -15,7 +13,7 @@ namespace WebApp.Pages.Confirmation
         [BindProperty]
         public int Id { get; set; }
 
-        public void OnGetAsync(int id, string? message,string player, string opponent)
+        public void OnGetAsync(int id, string? message, string player, string opponent)
         {
             if (message != null)
             {

@@ -35,10 +35,20 @@ namespace WebApp.Pages.PlaceShips
 
         public bool NextMoveByPlayerA { get; set; }
 
-        public EOrientation Orientation { get; set; } = EOrientation.Horizontal;
-        
-        public async Task<IActionResult> OnGetAsync(int id, int? x, int? y, ERandomShips? random)
+        public EOrientation Orientation { get; set; }
+
+        public string Message { get; set; } = "";
+
+        public async Task<IActionResult> OnGetAsync(int id, int? x, int? y, ERandomShips? random, string? message,
+            EOrientation orientation)
         {
+            Orientation = orientation;
+
+            if (message != null)
+            {
+                Message = message;
+            }
+
             if (!_context.GameOptions.Any())
             {
                 return RedirectToPage("/Index");
@@ -124,9 +134,9 @@ namespace WebApp.Pages.PlaceShips
                     Name = gameShip.Name
                 });
             }
-            
+
             // Placing random ships
-            
+
             if (random == ERandomShips.Yes)
             {
                 PLayerA.PlaceRandomShips(shipsCanTouch);
@@ -150,7 +160,11 @@ namespace WebApp.Pages.PlaceShips
             {
                 foreach (var ship in PLayerA.Ships.Where(ship => !ShipPlaced(PLayerA, ship)))
                 {
-                    PLayerA.PlaceShip(x.Value, y.Value, ship, Orientation, shipsCanTouch);
+                    if (!PLayerA.PlaceShip(x.Value, y.Value, ship, Orientation, shipsCanTouch))
+                    {
+                        const string? cantPlace = "Can't place ship there";
+                        return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, message = cantPlace});
+                    }
 
                     Game.GameStates!.Add(new GameState
                     {
@@ -159,7 +173,7 @@ namespace WebApp.Pages.PlaceShips
                         PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
                     });
                     await _context.SaveChangesAsync();
-                    return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId});
+                    return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, orientation = Orientation});
                 }
 
                 Game.GameStates!.Add(new GameState
@@ -169,12 +183,16 @@ namespace WebApp.Pages.PlaceShips
                     PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
                 });
                 await _context.SaveChangesAsync();
-                return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId});
+                return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, orientation = Orientation});
             }
 
             foreach (var ship in PLayerB.Ships.Where(ship => !ShipPlaced(PLayerB, ship)))
             {
-                PLayerB.PlaceShip(x.Value, y.Value, ship, EOrientation.Horizontal, shipsCanTouch);
+                if (!PLayerB.PlaceShip(x.Value, y.Value, ship, Orientation, shipsCanTouch))
+                {
+                    const string? cantPlace = "Can't place ship there";
+                    return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, message = cantPlace});
+                }
 
                 Game.GameStates!.Add(new GameState
                 {
@@ -183,7 +201,7 @@ namespace WebApp.Pages.PlaceShips
                     PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
                 });
                 await _context.SaveChangesAsync();
-                return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId});
+                return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, orientation = Orientation});
             }
 
             Game.GameStates!.Add(new GameState
@@ -193,10 +211,8 @@ namespace WebApp.Pages.PlaceShips
                 PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
             });
             await _context.SaveChangesAsync();
-            return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
-            
+            return RedirectToPage("/GamePlay/Index", new {id = Game.GameId, orientation = Orientation});
         }
-
 
         private static bool ShipPlaced(Player player, Ship ship)
         {
@@ -214,7 +230,6 @@ namespace WebApp.Pages.PlaceShips
                     }
                 }
             }
-
             return false;
         }
     }

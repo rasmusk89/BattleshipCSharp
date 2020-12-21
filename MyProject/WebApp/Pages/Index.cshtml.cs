@@ -136,7 +136,7 @@ namespace WebApp.Pages
             await _context.Games.AddAsync(game);
             await _context.SaveChangesAsync();
             
-            return RedirectToPage("/PlaceShips/Index", new {id = game.GameId, random = RandomShips});
+            return RedirectToPage("/PlaceShips/Index", new {id = game.GameId, random = RandomShips, orientation = EOrientation.Horizontal});
         }
 
         private string GetEmptyBoard()

@@ -5,11 +5,7 @@
 {
     static string GetMessage(string message)
     {
-        if (message.ToLower().Contains("miss"))
-        {
-            return "red";
-        }
-        return "green";
+        return message.ToLower().Contains("miss") ? "red" : "green";
     }
     
 }
