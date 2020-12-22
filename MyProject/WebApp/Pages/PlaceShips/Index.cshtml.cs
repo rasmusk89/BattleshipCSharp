@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DAL;
-using Domain;
 using Domain.Enums;
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +9,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Game = Domain.Game;
-using GameBoard = GameBrain.GameBoard;
 using GameState = Domain.GameState;
 using Player = GameBrain.Player;
 
@@ -113,9 +110,8 @@ namespace WebApp.Pages.PlaceShips
 
             foreach (var gameShip in playerAShips)
             {
-                PLayerA.Ships.Add(new Ship
+                PLayerA.Ships.Add(new Ship(gameShip.Width)
                 {
-                    Width = gameShip.Width,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
                     Name = gameShip.Name
@@ -126,9 +122,8 @@ namespace WebApp.Pages.PlaceShips
 
             foreach (var gameShip in playerBShips)
             {
-                PLayerB.Ships.Add(new Ship
+                PLayerB.Ships.Add(new Ship(gameShip.Width)
                 {
-                    Width = gameShip.Width,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
                     Name = gameShip.Name
@@ -142,6 +137,18 @@ namespace WebApp.Pages.PlaceShips
                 PLayerA.PlaceRandomShips(shipsCanTouch);
                 PLayerB.PlaceRandomShips(shipsCanTouch);
 
+                if (PLayerA.GetPlayerType() == EPlayerType.Ai && PLayerB.GetPlayerType() == EPlayerType.Human)
+                {
+                    Game.GameStates!.Add(new GameState
+                    {
+                        NextMoveByPlayerA = false,
+                        PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
+                        PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                    });
+                    await _context.SaveChangesAsync();
+                    return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
+                }
+                
                 Game.GameStates!.Add(new GameState
                 {
                     NextMoveByPlayerA = true,
@@ -158,6 +165,19 @@ namespace WebApp.Pages.PlaceShips
 
             if (NextMoveByPlayerA)
             {
+                if (PLayerA.GetPlayerType() == EPlayerType.Ai)
+                {
+                    PLayerA.PlaceRandomShips(shipsCanTouch);
+                    Game.GameStates!.Add(new GameState
+                    {
+                        NextMoveByPlayerA = false,
+                        PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
+                        PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                    });
+                    await _context.SaveChangesAsync();
+                    return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, orientation = Orientation});
+                }
+
                 foreach (var ship in PLayerA.Ships.Where(ship => !ShipPlaced(PLayerA, ship)))
                 {
                     if (!PLayerA.PlaceShip(x.Value, y.Value, ship, Orientation, shipsCanTouch))
@@ -186,6 +206,19 @@ namespace WebApp.Pages.PlaceShips
                 return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, orientation = Orientation});
             }
 
+            if (PLayerB.GetPlayerType() == EPlayerType.Ai)
+            {
+                PLayerB.PlaceRandomShips(shipsCanTouch);
+                Game.GameStates!.Add(new GameState
+                {
+                    NextMoveByPlayerA = true,
+                    PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
+                    PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                });
+                await _context.SaveChangesAsync();
+                return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
+            }
+
             foreach (var ship in PLayerB.Ships.Where(ship => !ShipPlaced(PLayerB, ship)))
             {
                 if (!PLayerB.PlaceShip(x.Value, y.Value, ship, Orientation, shipsCanTouch))
@@ -204,6 +237,20 @@ namespace WebApp.Pages.PlaceShips
                 return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, orientation = Orientation});
             }
 
+            
+            // Do not show AI board.
+            if (PLayerA.GetPlayerType() == EPlayerType.Ai && PLayerB.GetPlayerType() == EPlayerType.Human)
+            {
+                Game.GameStates!.Add(new GameState
+                {
+                    NextMoveByPlayerA = false,
+                    PlayerABoardState = PLayerA.GetSerializedGameBoardState(),
+                    PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
+                });
+                await _context.SaveChangesAsync();
+                return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
+            }
+            
             Game.GameStates!.Add(new GameState
             {
                 NextMoveByPlayerA = true,
@@ -211,7 +258,7 @@ namespace WebApp.Pages.PlaceShips
                 PlayerBBoardState = PLayerB.GetSerializedGameBoardState()
             });
             await _context.SaveChangesAsync();
-            return RedirectToPage("/GamePlay/Index", new {id = Game.GameId, orientation = Orientation});
+            return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
         }
 
         private static bool ShipPlaced(Player player, Ship ship)
@@ -230,6 +277,7 @@ namespace WebApp.Pages.PlaceShips
                     }
                 }
             }
+
             return false;
         }
     }

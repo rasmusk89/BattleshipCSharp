@@ -14,10 +14,6 @@ namespace GameBrain
 
         public bool IsSunk => Hits >= Width;
 
-        public Ship()
-        {
-        }
-
         public Ship(int width)
         {
             Width = width;

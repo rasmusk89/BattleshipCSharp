@@ -10,13 +10,13 @@ namespace GameBrain
 {
     public static class GameSaving
     {
+        // Save when starting game.
         public static void InitialSave(GameState gameState)
         {
             Console.Clear();
-            Console.Write("Saving.");
+            Console.Write("Saving...");
             using var dbCtx = GetConnection();
             dbCtx.Database.Migrate();
-            Console.Write(".");
 
             var playerOne = gameState.PlayerAState;
             var playerTwo = gameState.PlayerBState;
@@ -33,7 +33,6 @@ namespace GameBrain
                 PlayerType = playerTwo.GetPlayerType(),
                 GameShips = new List<GameShip>(),
             };
-            Console.Write(".");
 
             var playerAShips = playerOne.GetShips()
                 .Select(ship => new GameShip()
@@ -46,6 +45,7 @@ namespace GameBrain
                     Player = playerA
                 })
                 .ToList();
+            
             var playerBShips = playerTwo.GetShips()
                 .Select(ship => new GameShip()
                 {
@@ -60,7 +60,6 @@ namespace GameBrain
 
             playerA.GameShips = playerAShips;
             playerB.GameShips = playerBShips;
-            Console.Write(".");
 
             var gameOptions = new GameOption
             {
@@ -71,8 +70,7 @@ namespace GameBrain
                 NextMoveAfterHit = gameState.GameOptions.GetNextMoveAfterHit(),
                 NumberOfShips = playerAShips.Count
             };
-            Console.Write(".");
-            
+
             var newGame = new Domain.Game
             {
                 Description = $"{playerA.Name}&{playerB.Name}@{DateTime.Now}".Replace(" ", "_"),
@@ -81,7 +79,6 @@ namespace GameBrain
                 PlayerB = playerB,
                 GameStates = new List<Domain.GameState>()
             };
-            Console.Write(".");
 
             var state = new Domain.GameState
             {
@@ -93,9 +90,9 @@ namespace GameBrain
             newGame.GameStates.Add(state);
             dbCtx.Games.Add(newGame);
             dbCtx.SaveChanges();
-            Console.Write(".");
         }
 
+        // Save when running game
         public static void SaveGameState(GameState gameState)
         {
             using var dbCtx = GetConnection();

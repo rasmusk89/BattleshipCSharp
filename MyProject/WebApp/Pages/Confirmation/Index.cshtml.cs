@@ -9,9 +9,8 @@ namespace WebApp.Pages.Confirmation
 
         public string PlayerName { get; set; } = "";
         public string OpponentName { get; set; } = "";
-        
-        [BindProperty]
-        public int Id { get; set; }
+
+        [BindProperty] public int Id { get; set; }
 
         public void OnGetAsync(int id, string? message, string player, string opponent)
         {
@@ -24,6 +23,5 @@ namespace WebApp.Pages.Confirmation
             OpponentName = opponent;
             Id = id;
         }
-        
     }
 }

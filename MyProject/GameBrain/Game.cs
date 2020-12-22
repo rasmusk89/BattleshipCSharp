@@ -37,8 +37,8 @@ namespace GameBrain
             };
             // Need to order ships by descending because placing random ships should start with longest ship.
             PlayerB.SetShips(Ships.OrderByDescending(x => x.Width));
-            PlayerA.SetBoard(_boardWidth, _boardHeight);
-            PlayerB.SetBoard(_boardWidth, _boardHeight);
+            PlayerA.SetNewBoard(_boardWidth, _boardHeight);
+            PlayerB.SetNewBoard(_boardWidth, _boardHeight);
             PlayerA.SetPlayerType(options.PlayerAType);
             PlayerB.SetPlayerType(options.PlayerBType);
             _shipsCanTouch = options.GetShipsCanTouch();
@@ -103,10 +103,11 @@ namespace GameBrain
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("GAME OVER!");
-            if (OnePlayerHasLost())
+            if (OneOfPlayersHasLost())
             {
                 Console.WriteLine($"Player {CheckForWinner().Name} WON!");
             }
+
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             Console.Write("Press any key to exit...");
@@ -130,6 +131,7 @@ namespace GameBrain
                         Console.Clear();
                         return true;
                     }
+
                     if (HumanMakeAMove(PlayerA, PlayerB))
                     {
                         NextMoveByPlayerA = false;
@@ -155,7 +157,6 @@ namespace GameBrain
             }
             else
             {
-                
                 if (PlayerB.GetPlayerType() == EPlayerType.Human)
                 {
                     Console.Write($"{PlayerB.Name}, press ENTER to place bombs or Q to quit: ");
@@ -164,6 +165,7 @@ namespace GameBrain
                         Console.Clear();
                         return true;
                     }
+
                     if (HumanMakeAMove(PlayerB, PlayerA))
                     {
                         NextMoveByPlayerA = true;
@@ -293,7 +295,7 @@ namespace GameBrain
                     Console.WriteLine();
                     GameBoardUI.DrawPlayerBoard(player);
                     Console.WriteLine();
-                    GameSaving.SaveGameState(GetGameState()); 
+                    GameSaving.SaveGameState(GetGameState());
                 }
                 else
                 {
@@ -303,6 +305,7 @@ namespace GameBrain
                     Console.WriteLine();
                     GameSaving.SaveGameState(GetGameState());
                 }
+
                 while (isHit)
                 {
                     isHit = ai.PlaceRandomBomb(player);
@@ -312,7 +315,7 @@ namespace GameBrain
                         Console.WriteLine();
                         GameBoardUI.DrawPlayerBoard(player);
                         Console.WriteLine();
-                        GameSaving.SaveGameState(GetGameState()); 
+                        GameSaving.SaveGameState(GetGameState());
                     }
                     else
                     {
@@ -322,8 +325,10 @@ namespace GameBrain
                         Console.WriteLine();
                         GameSaving.SaveGameState(GetGameState());
                     }
+
                     GameSaving.SaveGameState(GetGameState());
                 }
+
                 GameSaving.SaveGameState(GetGameState());
             }
             else
@@ -345,6 +350,7 @@ namespace GameBrain
                     Console.WriteLine();
                     GameSaving.SaveGameState(GetGameState());
                 }
+
                 GameSaving.SaveGameState(GetGameState());
             }
 
@@ -384,9 +390,10 @@ namespace GameBrain
                     {
                         orientation = AskOrientation();
                     }
+
                     canPlaceShip = player.PlaceShip(column, row, ship, orientation, _shipsCanTouch);
                 }
-                
+
                 Console.Clear();
                 GameBoardUI.DrawPlayerBoard(player);
             }
@@ -399,12 +406,12 @@ namespace GameBrain
         private static EOrientation AskOrientation()
         {
             Console.Write("Insert orientation Horizontal(H) or Vertical(V): ");
-            string input = Console.ReadLine() ?? "";
+            string input = Console.ReadLine()!;
 
             while (!Validator.OrientationIsValid(input))
             {
                 Console.Write("Please enter correct orientation Horizontal(H) or Vertical(V): ");
-                input = Console.ReadLine() ?? "";
+                input = Console.ReadLine()!;
             }
 
             var orientation = input.Trim().ToLower() switch
@@ -415,7 +422,7 @@ namespace GameBrain
             };
             return orientation;
         }
-        
+
         private (int x, int y) AskCoordinates(Player player, Player opponent)
         {
             Console.Write(
@@ -429,17 +436,17 @@ namespace GameBrain
             while (!Validator.ColumnInputIsValid(columnInput, _boardWidth))
             {
                 Console.Write($"Please insert correct Column (A-{IntToAlphabeticValue(_boardWidth - 1)}): ");
-                columnInput = Console.ReadLine() ?? "";
+                columnInput = Console.ReadLine()!;
             }
 
             var column = Validator.ConvertStringToInteger(columnInput);
 
             Console.Write($"Insert Row (1-{_boardHeight}): ");
-            string rowInput = Console.ReadLine() ?? "";
+            string rowInput = Console.ReadLine()!;
             while (!_validator.RowInputIsValid(rowInput, _boardHeight))
             {
                 Console.Write($"Please enter correct row (1-{_boardHeight}): ");
-                rowInput = Console.ReadLine() ?? "";
+                rowInput = Console.ReadLine()!;
             }
 
             var row = int.Parse(rowInput);
@@ -507,8 +514,8 @@ namespace GameBrain
 
             return state;
         }
-        
-        private bool OnePlayerHasLost()
+
+        private bool OneOfPlayersHasLost()
         {
             return PlayerA.HasLost || PlayerB.HasLost;
         }

@@ -7,8 +7,9 @@
     {
         return message.ToLower().Contains("miss") ? "red" : "green";
     }
-    
+
 }
+
 <br>
 <div class="text-center">
     <h1 style="color: @GetMessage(@Model.Message)">@Model.PlayerName @Model.Message</h1>

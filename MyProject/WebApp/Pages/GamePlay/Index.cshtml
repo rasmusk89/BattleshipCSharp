@@ -59,7 +59,6 @@
     }
 
 }
-
 <div class="text-center">
     @if (Model.NextMoveByPlayerA)
     {
@@ -177,7 +176,7 @@
                             @if (Model.NextMoveByPlayerA)
                             {
                                 <td bgcolor="@GetOpponentCellState(Model.PlayerB.GetCell(x - 1, y - 1))"
-                                    onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'" 
+                                    onclick="window.location.href = '?x=@(x - 1)&y=@(y - 1)&id=@Model.Game.GameId'"
                                     style="cursor: pointer">
                                     <a asp-route-x="@(x - 1)" asp-route-y="@(y - 1)" asp-route-id="@Model.Game.GameId"></a>
                                 </td>

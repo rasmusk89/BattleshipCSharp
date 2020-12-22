@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Domain.Enums;
 
 namespace GameBrain
@@ -55,23 +54,15 @@ namespace GameBrain
             var playerBType = Console.ReadKey().Key == ConsoleKey.A ? EPlayerType.Ai : EPlayerType.Human;
             Console.WriteLine();
 
-            var widthShips = width / 2;
-            var heightShips = height / 2;
-
-            var maxShips = widthShips <= heightShips ? widthShips : heightShips;
-
-            if (width < 5 || height < 5)
-            {
-                maxShips = width < height ? width : height;
-            }
-
+            var maxShips = width < height ? width / 2 : height / 2;
+            
             List<Ship> ships = new();
 
             for (var i = 1; i <= maxShips; i++)
             {
                 ships.Add(new Ship(i));
             }
-            
+
             return new GameOptions(width, height, canShipsTouch, nextMoveAfterHit, ships, playerAType, playerBType);
         }
 

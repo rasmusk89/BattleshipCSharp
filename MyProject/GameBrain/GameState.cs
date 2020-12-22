@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Domain;
 using Domain.Enums;
 
 namespace GameBrain
@@ -13,7 +12,7 @@ namespace GameBrain
         public Player PlayerAState { get; set; } = null!;
 
         public Player PlayerBState { get; set; } = null!;
-        
+
         public bool NextMoveByPlayerAState { get; set; }
 
         public List<Ship> ShipsState { get; set; } = null!;
@@ -21,10 +20,9 @@ namespace GameBrain
         public EShipsCanTouch ShipsCanTouchState { get; set; }
 
         public GameOptions GameOptions { get; set; } = null!;
-        
-        public ECellState[][] PlayerABoardState { get; set; } = null!;
-        
-        public ECellState[][] PlayerBBoardState { get; set; } = null!;
 
+        public ECellState[][] PlayerABoardState { get; set; } = null!;
+
+        public ECellState[][] PlayerBBoardState { get; set; } = null!;
     }
 }

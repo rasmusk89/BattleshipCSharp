@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameBrain
 {
-    public class GameLoading
+    public static class GameLoading
     {
         public static Game LoadGameById(int id)
         {
-
             using var dbCtx = GetConnection();
 
             var gameById = dbCtx.Games.Where(i => i.GameId == id)
@@ -27,24 +26,24 @@ namespace GameBrain
             var playerAShips = dbCtx.GameShips
                 .Where(i => i.PlayerId == gameById.PlayerAId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
-                .Select(gameShip => new Ship()
+                .Select(gameShip => new Ship(gameShip.Width)
                 {
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    Width = gameShip.Width
+                    // Width = gameShip.Width
                 })
                 .ToList();
 
             var playerBShips = dbCtx.GameShips
                 .Where(i => i.PlayerId == gameById.PlayerBId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
-                .Select(gameShip => new Ship()
+                .Select(gameShip => new Ship(gameShip.Width)
                 {
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    Width = gameShip.Width
+                    // Width = gameShip.Width
                 })
                 .ToList();
 
@@ -122,24 +121,24 @@ namespace GameBrain
             var playerAShips = dbCtx.GameShips
                 .Where(id => id.PlayerId == lastGame.PlayerAId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
-                .Select(gameShip => new Ship()
+                .Select(gameShip => new Ship(gameShip.Width)
                 {
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    Width = gameShip.Width
+                    // Width = gameShip.Width
                 })
                 .ToList();
 
             var playerBShips = dbCtx.GameShips
                 .Where(id => id.PlayerId == lastGame.PlayerBId).OrderByDescending(x => x.GameShipId).Take(numberOfShips)
                 .ToList()
-                .Select(gameShip => new Ship()
+                .Select(gameShip => new Ship(gameShip.Width)
                 {
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    Width = gameShip.Width,
+                    // Width = gameShip.Width,
                 })
                 .ToList();
 
@@ -192,7 +191,7 @@ namespace GameBrain
                  Database=raskil_db;
                  MultipleActiveResultSets=true;
                  ").Options;
-           return new AppDbContext(dbOptions);
+            return new AppDbContext(dbOptions);
         }
     }
 }

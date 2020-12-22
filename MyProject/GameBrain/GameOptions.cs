@@ -12,6 +12,7 @@ namespace GameBrain
         public EPlayerType PlayerAType { get; set; }
         public EPlayerType PlayerBType { get; set; }
 
+        // Default game ships
         private List<Ship> Ships { get; set; } = new()
         {
             new Ship(1),
@@ -21,6 +22,7 @@ namespace GameBrain
             new Ship(5)
         };
 
+        // Default game options
         public GameOptions()
         {
             PlayerAType = EPlayerType.Human;
@@ -31,6 +33,7 @@ namespace GameBrain
             NextMoveAfterHit = ENextMoveAfterHit.OtherPlayer;
         }
 
+        // Player game options
         public GameOptions(int boardWidth, int boardHeight, EShipsCanTouch shipsCanTouch,
             ENextMoveAfterHit nextMoveAfterHit, List<Ship> ships, EPlayerType playerAType, EPlayerType playerBType)
         {

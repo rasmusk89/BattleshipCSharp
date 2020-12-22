@@ -21,18 +21,18 @@ namespace ConsoleApp
                 "Player VS Player",
                 "1",
                 Battleship));
-            
+
             playerType.AddMenuItem(new MenuItem(
                 "Player vs AI",
                 "2",
                 BattleshipPlayerAi));
-            
+
             playerType.AddMenuItem(new MenuItem(
                 "AI vs AI",
                 "3",
                 BattleshipAiAi));
-            
-            
+
+
             var gameType = new Menu(MenuLevel.Level1);
             gameType.AddMenuItem(new MenuItem(
                 "Start Basic Game",
@@ -51,7 +51,7 @@ namespace ConsoleApp
                 "L",
                 LoadGame
             ));
-            
+
             gameType.AddMenuItem(new MenuItem(
                 "Load All Games",
                 "O",
@@ -71,6 +71,7 @@ namespace ConsoleApp
                     {
                         Console.Write("No saved games!");
                     }
+
                     return allGamesMenu.RunMenu();
                 }
             ));
@@ -87,7 +88,7 @@ namespace ConsoleApp
             game.StartGame();
             return "";
         }
-        
+
         private static string BattleshipPlayerAi()
         {
             var options = new GameOptions();
@@ -129,7 +130,5 @@ namespace ConsoleApp
             GameLoading.LoadGameById(id).PlayRound();
             return "";
         }
-        
-        
     }
 }

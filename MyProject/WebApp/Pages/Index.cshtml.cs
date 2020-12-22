@@ -15,7 +15,6 @@ using Microsoft.Extensions.Logging;
 using Game = Domain.Game;
 using GameState = Domain.GameState;
 using Player = Domain.Player;
-using Ship = GameBrain.Ship;
 
 namespace WebApp.Pages
 {
@@ -61,8 +60,8 @@ namespace WebApp.Pages
         {
             var ships = new List<Ship>();
 
-            var numberOfShips = GameOption!.BoardWidth < GameOption.BoardHeight 
-                ? GameOption.BoardWidth / 2 
+            var numberOfShips = GameOption!.BoardWidth < GameOption.BoardHeight
+                ? GameOption.BoardWidth / 2
                 : GameOption.BoardHeight / 2;
 
             for (var i = 1; i <= numberOfShips; i++)
@@ -127,16 +126,17 @@ namespace WebApp.Pages
                 PlayerABoardState = GetEmptyBoard(),
                 PlayerBBoardState = GetEmptyBoard()
             });
-            
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
-            
+
             await _context.Games.AddAsync(game);
             await _context.SaveChangesAsync();
-            
-            return RedirectToPage("/PlaceShips/Index", new {id = game.GameId, random = RandomShips, orientation = EOrientation.Horizontal});
+
+            return RedirectToPage("/PlaceShips/Index",
+                new {id = game.GameId, random = RandomShips, orientation = EOrientation.Horizontal});
         }
 
         private string GetEmptyBoard()

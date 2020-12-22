@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Principal;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DAL;
@@ -13,9 +11,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Game = Domain.Game;
-using GameBoard = GameBrain.GameBoard;
+using GameState = Domain.GameState;
 using Player = GameBrain.Player;
-using Ship = GameBrain.Ship;
 
 namespace WebApp.Pages.GamePlay
 {
@@ -46,7 +43,7 @@ namespace WebApp.Pages.GamePlay
             const string? moveAgainMessage = " Move again!";
             const string? missMessage = "MISS";
             const string? errorMessage = "Bomb already placed there";
-            
+
             if (message != null)
             {
                 Message = message;
@@ -95,9 +92,8 @@ namespace WebApp.Pages.GamePlay
 
             foreach (var ship in Game.PlayerA.GameShips!)
             {
-                PlayerA.Ships.Add(new Ship
+                PlayerA.Ships.Add(new Ship(ship.Width)
                 {
-                    Width = ship.Width,
                     CellState = ship.ECellState,
                     Hits = ship.Hits,
                     Name = ship.Name
@@ -117,9 +113,8 @@ namespace WebApp.Pages.GamePlay
 
             foreach (var ship in Game.PlayerB.GameShips!)
             {
-                PlayerB.Ships.Add(new Ship
+                PlayerB.Ships.Add(new Ship(ship.Width)
                 {
-                    Width = ship.Width,
                     CellState = ship.ECellState,
                     Hits = ship.Hits,
                     Name = ship.Name
@@ -154,7 +149,7 @@ namespace WebApp.Pages.GamePlay
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------PLACING BOMBS!----------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
-
+            
             if (NextMoveByPlayerA)
             {
                 if (PlayerA.GetPlayerType() == EPlayerType.Human)
@@ -166,7 +161,6 @@ namespace WebApp.Pages.GamePlay
 
                     var isHit = PlayerA.PlaceBomb(x.Value, y.Value, PlayerB);
 
-
                     AddOpponentShipsToDb(PlayerB, Game.PlayerB.GameShips);
 
                     if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
@@ -174,13 +168,15 @@ namespace WebApp.Pages.GamePlay
                         if (isHit)
                         {
                             AddGameStateToDb(Game, true);
-                            
+
                             await _context.SaveChangesAsync();
                             return PlayerB.HasLost
                                 ? RedirectToPage("/GameOver", new {name = PlayerA.Name})
-                                : RedirectToPage("/GamePlay/Index", new {id = Game.GameId, message = hitMessage + moveAgainMessage});
+                                : RedirectToPage("/GamePlay/Index",
+                                    new {id = Game.GameId, message = hitMessage + moveAgainMessage});
                         }
                     }
+
                     AddGameStateToDb(Game, false);
                     await _context.SaveChangesAsync();
 
@@ -188,7 +184,7 @@ namespace WebApp.Pages.GamePlay
                     {
                         var (column, row) = PlayerB.GetRandomBombCoordinates(PlayerA);
                         var isHitAi = PlayerB.PlaceBomb(column, row, PlayerA);
-                        
+
                         AddOpponentShipsToDb(PlayerA, Game.PlayerA.GameShips);
 
                         if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
@@ -197,12 +193,10 @@ namespace WebApp.Pages.GamePlay
                             {
                                 (column, row) = PlayerB.GetRandomBombCoordinates(PlayerA);
                                 isHitAi = PlayerB.PlaceBomb(column, row, PlayerA);
-                                
-                                AddOpponentShipsToDb(PlayerA, Game.PlayerA.GameShips);
 
-                                await _context.SaveChangesAsync();
+                                AddOpponentShipsToDb(PlayerA, Game.PlayerA.GameShips);
                                 AddGameStateToDb(Game, false);
-                                
+
                                 await _context.SaveChangesAsync();
                                 if (PlayerA.HasLost)
                                 {
@@ -210,17 +204,18 @@ namespace WebApp.Pages.GamePlay
                                 }
                             }
                         }
+
                         AddGameStateToDb(Game, true);
-                       
+
                         await _context.SaveChangesAsync();
                         return PlayerA.HasLost
                             ? RedirectToPage("/GameOVer", new {name = PlayerB.Name})
                             : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                     }
-                    
+
                     return PlayerB.HasLost
                         ? RedirectToPage("/GameOver", new {name = PlayerA.Name})
-                        : RedirectToPage("/Confirmation/Index", 
+                        : RedirectToPage("/Confirmation/Index",
                             new
                             {
                                 id = Game.GameId,
@@ -234,7 +229,7 @@ namespace WebApp.Pages.GamePlay
                 {
                     var (column, row) = PlayerA.GetRandomBombCoordinates(PlayerB);
                     var isHitAi = PlayerA.PlaceBomb(column, row, PlayerB);
-                    
+
                     AddOpponentShipsToDb(PlayerB, Game.PlayerB.GameShips);
 
                     if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
@@ -243,12 +238,10 @@ namespace WebApp.Pages.GamePlay
                         {
                             (column, row) = PlayerA.GetRandomBombCoordinates(PlayerB);
                             isHitAi = PlayerA.PlaceBomb(column, row, PlayerB);
-                            
-                            AddOpponentShipsToDb(PlayerB, Game.PlayerB.GameShips);
 
-                            await _context.SaveChangesAsync();
+                            AddOpponentShipsToDb(PlayerB, Game.PlayerB.GameShips);
                             AddGameStateToDb(Game, true);
-                            
+
                             await _context.SaveChangesAsync();
                             if (PlayerB.HasLost)
                             {
@@ -256,15 +249,15 @@ namespace WebApp.Pages.GamePlay
                             }
                         }
                     }
-                
+
                     AddGameStateToDb(Game, false);
                     await _context.SaveChangesAsync();
-                    
+
                     return PlayerB.HasLost
                         ? RedirectToPage("/GameOVer", new {name = PlayerA.Name})
-                        : RedirectToPage("/GamePlay/Index", new {id = Game.GameId, message = isHitAi ? hitMessage : missMessage});
+                        : RedirectToPage("/GamePlay/Index",
+                            new {id = Game.GameId, message = isHitAi ? hitMessage : missMessage});
                 }
-
             }
             else
             {
@@ -284,21 +277,23 @@ namespace WebApp.Pages.GamePlay
                         if (isHit)
                         {
                             AddGameStateToDb(Game, false);
-                            
+
                             await _context.SaveChangesAsync();
                             return PlayerA.HasLost
                                 ? RedirectToPage("/GameOver", new {name = PlayerB.Name})
-                                : RedirectToPage("/GamePlay/Index", new {id = Game.GameId, message = hitMessage + moveAgainMessage});
+                                : RedirectToPage("/GamePlay/Index",
+                                    new {id = Game.GameId, message = hitMessage + moveAgainMessage});
                         }
                     }
+
                     AddGameStateToDb(Game, true);
                     await _context.SaveChangesAsync();
-                    
+
                     if (PlayerA.GetPlayerType() == EPlayerType.Ai)
                     {
                         var (column, row) = PlayerA.GetRandomBombCoordinates(PlayerB);
                         var isHitAi = PlayerA.PlaceBomb(column, row, PlayerB);
-                        
+
                         AddOpponentShipsToDb(PlayerB, Game.PlayerB.GameShips);
 
                         if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
@@ -307,12 +302,10 @@ namespace WebApp.Pages.GamePlay
                             {
                                 (column, row) = PlayerA.GetRandomBombCoordinates(PlayerB);
                                 isHitAi = PlayerA.PlaceBomb(column, row, PlayerB);
-                                
-                                AddOpponentShipsToDb(PlayerB, Game.PlayerB.GameShips);
 
-                                await _context.SaveChangesAsync();
+                                AddOpponentShipsToDb(PlayerB, Game.PlayerB.GameShips);
                                 AddGameStateToDb(Game, true);
-                                
+
                                 await _context.SaveChangesAsync();
                                 if (PlayerB.HasLost)
                                 {
@@ -320,16 +313,18 @@ namespace WebApp.Pages.GamePlay
                                 }
                             }
                         }
+
                         AddGameStateToDb(Game, false);
-                        
+
                         await _context.SaveChangesAsync();
                         return PlayerB.HasLost
                             ? RedirectToPage("/GameOVer", new {name = PlayerA.Name})
                             : RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                     }
+
                     return PlayerA.HasLost
                         ? RedirectToPage("/GameOver", new {name = PlayerB.Name})
-                        : RedirectToPage("/Confirmation/Index", 
+                        : RedirectToPage("/Confirmation/Index",
                             new
                             {
                                 id = Game.GameId,
@@ -343,7 +338,7 @@ namespace WebApp.Pages.GamePlay
                 {
                     var (column, row) = PlayerB.GetRandomBombCoordinates(PlayerA);
                     var isHitAi = PlayerB.PlaceBomb(column, row, PlayerA);
-                    
+
                     AddOpponentShipsToDb(PlayerA, Game.PlayerA.GameShips);
 
                     if (Game.GameOption.NextMoveAfterHit == ENextMoveAfterHit.SamePlayer)
@@ -352,12 +347,10 @@ namespace WebApp.Pages.GamePlay
                         {
                             (column, row) = PlayerB.GetRandomBombCoordinates(PlayerA);
                             isHitAi = PlayerB.PlaceBomb(column, row, PlayerA);
-                            
-                            AddOpponentShipsToDb(PlayerA, Game.PlayerA.GameShips);
 
-                            await _context.SaveChangesAsync();
+                            AddOpponentShipsToDb(PlayerA, Game.PlayerA.GameShips);
                             AddGameStateToDb(Game, false);
-                            
+
                             await _context.SaveChangesAsync();
                             if (PlayerA.HasLost)
                             {
@@ -365,12 +358,14 @@ namespace WebApp.Pages.GamePlay
                             }
                         }
                     }
+
                     AddGameStateToDb(Game, true);
-                    
+
                     await _context.SaveChangesAsync();
                     return PlayerA.HasLost
                         ? RedirectToPage("/GameOVer", new {name = PlayerB.Name})
-                        : RedirectToPage("/GamePlay/Index", new {id = Game.GameId, message = isHitAi ? hitMessage : missMessage});
+                        : RedirectToPage("/GamePlay/Index",
+                            new {id = Game.GameId, message = isHitAi ? hitMessage : missMessage});
                 }
             }
             return Page();
@@ -382,10 +377,10 @@ namespace WebApp.Pages.GamePlay
                               opponent.GameBoard.Board[x, y] != ECellState.Hit;
             return isAvailable;
         }
-        
+
         private void AddGameStateToDb(Game game, bool nextMoveByPlayerA)
         {
-            game.GameStates!.Add(new Domain.GameState
+            game.GameStates!.Add(new GameState
             {
                 NextMoveByPlayerA = nextMoveByPlayerA,
                 PlayerABoardState = PlayerA.GetSerializedGameBoardState(),

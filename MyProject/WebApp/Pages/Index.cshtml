@@ -79,15 +79,15 @@
                         </div>
                     </div>
                     <div class="col">
-                         <div class="form-group">
-                             <label asp-for="RandomShips" class="control-label"></label>
-                             <select asp-for="RandomShips" asp-items="Html.GetEnumSelectList<ERandomShips>()" class="form-control"></select>
-                             <span asp-validation-for="RandomShips" class="text-danger"></span>
-                         </div>
-                     </div>
+                        <div class="form-group">
+                            <label asp-for="RandomShips" class="control-label"></label>
+                            <select asp-for="RandomShips" asp-items="Html.GetEnumSelectList<ERandomShips>()" class="form-control"></select>
+                            <span asp-validation-for="RandomShips" class="text-danger"></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <input type="submit" value="New Game" class="btn btn-primary"/>
+                    <input type="submit" value="New Game" class="btn btn-lg btn-primary"/>
                 </div>
             </form>
         </div>
@@ -101,18 +101,18 @@
                             <span asp-validation-for="Id" class="text-danger"></span>
                             <hr>
                         </div>
-                        @foreach (var x in Model.Games!)
+                        @foreach (var game in Model.Games!)
                         {
                             <div class="row">
                                 <div class="col text-right">
                                     <div class="form-radio">
-                                        <input asp-for="Id" name="GameId" id="@x.GameId" type="radio" class="form-check-input" value="@x.GameId">
+                                        <input asp-for="Id" name="GameId" id="@game.GameId" type="radio" class="form-check-input" value="@game.GameId">
                                     </div>
                                 </div>
                                 <div class="col-10 text-left border-left">
                                     <div class="form-radio">
-                                        <label asp-for="Id" for="@x.GameId" class="form-check-label">
-                                            <p>@x.Description</p>
+                                        <label asp-for="Id" for="@game.GameId" class="form-check-label">
+                                            <p>@game.Description</p>
                                         </label>
                                     </div>
                                 </div>
@@ -122,11 +122,11 @@
                         <div class="col">
                             @if (Model.Games!.Count == 0)
                             {
-                                <button type="button" class="btn btn-primary" disabled>Load Game</button>
+                                <button type="button" class="btn btn-lg btn-primary" disabled>Load Game</button>
                             }
                             else
                             {
-                                <input type="submit" value="Load Game" class="btn btn-primary"/>
+                                <input type="submit" value="Load Game" class="btn btn-lg btn-primary"/>
                             }
 
                         </div>

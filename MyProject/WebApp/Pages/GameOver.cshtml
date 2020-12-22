@@ -4,7 +4,13 @@
 @{
     ViewData["Title"] = "Game over";
 }
-<h1>GAME OVER</h1>
-<h1>@Model.Name WON!</h1>
 
-<a href="/Index/">Return to index</a>
+<div class="text-center">
+    <h1>GAME OVER</h1>
+    <hr>
+    <h1 style="color: green">@Model.Name WON!</h1>
+    <br>
+    <button class="btn btn-primary btn-lg">
+        <a href="/Index/" style="color:#fff; text-decoration: none">Return to index</a>
+    </button>
+</div>

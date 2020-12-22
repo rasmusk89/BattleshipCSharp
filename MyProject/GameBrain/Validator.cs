@@ -1,11 +1,9 @@
-﻿using System;
-using Domain.Enums;
+﻿using Domain.Enums;
 
 namespace GameBrain
 {
     public class Validator
     {
-
         public static bool OrientationIsValid(string input)
         {
             return input.ToLower() == "h" || input.ToLower() == "v";
@@ -42,26 +40,14 @@ namespace GameBrain
 
             return false;
         }
-        
-        public static bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
-            EOrientation orientation)
-        {
-            var x = column;
-            var y = row;
-            if (orientation == EOrientation.Horizontal)
-            {
-                return x + ship.Width <= boardWidth;
-            }
 
-            return y + ship.Width <= boardHeight;
-        }
-        
-        public static bool BombCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Player opponent)
+        public static bool BombCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight,
+            Player opponent)
         {
             var sizeValid = column >= 0 && column <= boardWidth && row >= 0 && row <= boardHeight;
-            var noBomb = opponent.GetPlayerBoard()[column, row] == ECellState.Empty 
-                || opponent.GetPlayerBoard()[column, row] != ECellState.Bomb
-                && opponent.GetPlayerBoard()[column, row] != ECellState.Hit;
+            var noBomb = opponent.GetPlayerBoard()[column, row] == ECellState.Empty
+                         || opponent.GetPlayerBoard()[column, row] != ECellState.Bomb
+                         && opponent.GetPlayerBoard()[column, row] != ECellState.Hit;
 
             return sizeValid && noBomb;
         }

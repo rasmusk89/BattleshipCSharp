@@ -18,12 +18,13 @@ namespace GameBrain
 
         public EShipsCanTouch ShipsCanTouch { get; set; }
 
+
         public bool HasLost
         {
             get { return Ships.All(x => x.IsSunk); }
         }
 
-        public void SetBoard(int width, int height)
+        public void SetNewBoard(int width, int height)
         {
             GameBoard = new GameBoard(width, height);
         }
@@ -38,7 +39,6 @@ namespace GameBrain
             return GameBoard.Board[x, y];
         }
 
-
         public IEnumerable<Ship> GetShips()
         {
             return Ships;
@@ -48,12 +48,12 @@ namespace GameBrain
         {
             foreach (var ship in ships)
             {
-                Ships.Add(new Ship
+                Ships.Add(new Ship(ship.Width)
                 {
                     CellState = ship.CellState,
                     Hits = ship.Hits,
                     Name = ship.Name,
-                    Width = ship.Width
+                    // Width = ship.Width
                 });
             }
         }
@@ -78,27 +78,30 @@ namespace GameBrain
             PlayerType = playerType;
         }
 
+        // Check if bomb is hit on opponent board.
         private static bool IsHit(int column, int row, Player opponent)
         {
             var playerCell = opponent.GetPlayerBoard()[column, row];
             return playerCell != ECellState.Empty && playerCell != ECellState.Bomb && playerCell != ECellState.Hit;
         }
 
+        // Add hit on opponent ship.
         private static void RegisterHit(int column, int row, Player opponent)
         {
             var shipState = opponent.GetPlayerBoard()[column, row];
-            var ship = new Ship();
+            // var ship = new Ship();
 
             foreach (var opponentShip in opponent.Ships.Where(opponentShip =>
                 opponentShip.CellState == shipState && !opponentShip.IsSunk))
             {
-                ship = opponentShip;
+                opponentShip.Hits++;
             }
 
-            ship.Hits++;
+            //
+            // ship.Hits++;
         }
 
-        // Return true if is hit.
+        // Return true if bomb is hit, false if miss.
         public bool PlaceBomb(int column, int row, Player opponent)
         {
             if (IsHit(column, row, opponent))
@@ -112,6 +115,7 @@ namespace GameBrain
             return false;
         }
 
+        // Get random bomb coordinates on opponent board, check if bomb not already placed there.
         public (int x, int y) GetRandomBombCoordinates(Player opponent)
         {
             Random rand = new(Guid.NewGuid().GetHashCode());
@@ -128,7 +132,7 @@ namespace GameBrain
             return (column, row);
         }
 
-        // Return true if is hit.
+        // Return true if bomb is hit, false is miss.
         public bool PlaceRandomBomb(Player opponent)
         {
             Random rand = new(Guid.NewGuid().GetHashCode());
@@ -153,17 +157,8 @@ namespace GameBrain
             return false;
         }
 
-        private bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
-            EOrientation orientation)
-        {
-            if (orientation == EOrientation.Horizontal)
-            {
-                return column + ship.Width <= boardHeight + 1;
-            }
-
-            return row + ship.Width <= boardWidth + 1;
-        }
-
+        // Placing ships, and checking input,
+        // return true if ship is placed, false if coordinates are invalid or other ship on the way.
         public bool PlaceShip(int column, int row, Ship ship, EOrientation orientation, EShipsCanTouch shipsCanTouch)
         {
             var shipSize = ship.Width;
@@ -218,7 +213,21 @@ namespace GameBrain
             return true;
         }
 
-        public bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
+        // Check if ship is not out of game board bounds.
+        private static bool ShipCoordinatesAreValid(int column, int row, int boardWidth, int boardHeight, Ship ship,
+            EOrientation orientation)
+        {
+            if (orientation == EOrientation.Horizontal)
+            {
+                return column + ship.Width <= boardHeight + 1;
+            }
+
+            return row + ship.Width <= boardWidth + 1;
+        }
+
+        // Check if there is not another ship on the way,
+        // return true if ship area free, false if not.
+        private static bool ShipAreaFree(int column, int row, GameBoard board, Ship ship, EOrientation orientation,
             EShipsCanTouch shipsCanTouch)
         {
             var boardWidth = board.Board.GetUpperBound(0);
@@ -362,20 +371,6 @@ namespace GameBrain
                         _ => orientation
                     };
                     shipPlaced = PlaceShip(x, y, ship, orientation, shipsCanTouch);
-                }
-            }
-        }
-
-        private void RemoveAllShipsFromPlayerGameBoard()
-        {
-            var width = GameBoard.Board.GetUpperBound(0);
-            var height = GameBoard.Board.GetUpperBound(1);
-
-            for (var i = 0; i < height; i++)
-            {
-                for (var j = 0; j < width; j++)
-                {
-                    GameBoard.Board[i, j] = ECellState.Empty;
                 }
             }
         }
