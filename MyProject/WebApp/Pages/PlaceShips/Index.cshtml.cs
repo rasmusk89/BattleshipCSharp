@@ -148,7 +148,7 @@ namespace WebApp.Pages.PlaceShips
                     await _context.SaveChangesAsync();
                     return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
                 }
-                
+
                 Game.GameStates!.Add(new GameState
                 {
                     NextMoveByPlayerA = true,
@@ -237,7 +237,7 @@ namespace WebApp.Pages.PlaceShips
                 return RedirectToPage("/PlaceShips/Index", new {id = Game.GameId, orientation = Orientation});
             }
 
-            
+
             // Do not show AI board.
             if (PLayerA.GetPlayerType() == EPlayerType.Ai && PLayerB.GetPlayerType() == EPlayerType.Human)
             {
@@ -250,7 +250,7 @@ namespace WebApp.Pages.PlaceShips
                 await _context.SaveChangesAsync();
                 return RedirectToPage("/GamePlay/Index", new {id = Game.GameId});
             }
-            
+
             Game.GameStates!.Add(new GameState
             {
                 NextMoveByPlayerA = true,

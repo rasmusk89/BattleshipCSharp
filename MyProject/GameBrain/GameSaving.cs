@@ -45,7 +45,7 @@ namespace GameBrain
                     Player = playerA
                 })
                 .ToList();
-            
+
             var playerBShips = playerTwo.GetShips()
                 .Select(ship => new GameShip()
                 {

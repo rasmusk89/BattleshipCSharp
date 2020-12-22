@@ -55,7 +55,7 @@ namespace GameBrain
             Console.WriteLine();
 
             var maxShips = width < height ? width / 2 : height / 2;
-            
+
             List<Ship> ships = new();
 
             for (var i = 1; i <= maxShips; i++)

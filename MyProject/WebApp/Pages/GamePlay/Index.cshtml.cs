@@ -150,6 +150,7 @@ namespace WebApp.Pages.GamePlay
 // ---------------PLACING BOMBS!----------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
             
+            // Player A move.
             if (NextMoveByPlayerA)
             {
                 if (PlayerA.GetPlayerType() == EPlayerType.Human)
@@ -259,6 +260,8 @@ namespace WebApp.Pages.GamePlay
                             new {id = Game.GameId, message = isHitAi ? hitMessage : missMessage});
                 }
             }
+            
+            // Player B move!
             else
             {
                 if (PlayerB.GetPlayerType() == EPlayerType.Human)

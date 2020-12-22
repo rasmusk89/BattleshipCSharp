@@ -4,7 +4,7 @@ namespace GameBrain
 {
     public class Ship
     {
-        public string Name { get; set; } = null!;
+        public string Name { get; set; }
 
         public int Width { get; set; }
 

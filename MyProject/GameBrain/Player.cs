@@ -53,7 +53,6 @@ namespace GameBrain
                     CellState = ship.CellState,
                     Hits = ship.Hits,
                     Name = ship.Name,
-                    // Width = ship.Width
                 });
             }
         }
@@ -89,16 +88,12 @@ namespace GameBrain
         private static void RegisterHit(int column, int row, Player opponent)
         {
             var shipState = opponent.GetPlayerBoard()[column, row];
-            // var ship = new Ship();
 
             foreach (var opponentShip in opponent.Ships.Where(opponentShip =>
                 opponentShip.CellState == shipState && !opponentShip.IsSunk))
             {
                 opponentShip.Hits++;
             }
-
-            //
-            // ship.Hits++;
         }
 
         // Return true if bomb is hit, false if miss.

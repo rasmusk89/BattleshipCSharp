@@ -31,7 +31,6 @@ namespace GameBrain
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    // Width = gameShip.Width
                 })
                 .ToList();
 
@@ -43,7 +42,6 @@ namespace GameBrain
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    // Width = gameShip.Width
                 })
                 .ToList();
 
@@ -126,7 +124,6 @@ namespace GameBrain
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    // Width = gameShip.Width
                 })
                 .ToList();
 
@@ -138,7 +135,6 @@ namespace GameBrain
                     Name = gameShip.Name,
                     CellState = gameShip.ECellState,
                     Hits = gameShip.Hits,
-                    // Width = gameShip.Width,
                 })
                 .ToList();
 
